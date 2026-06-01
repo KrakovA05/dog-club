@@ -51,6 +51,22 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // /staff — требует is_staff или is_admin
+  if (request.nextUrl.pathname.startsWith("/staff")) {
+    if (!user) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_admin, is_staff")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile?.is_admin && !profile?.is_staff) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
   // /login, /register — редирект авторизованных в /cabinet
   if (user && (
     request.nextUrl.pathname === "/login" ||

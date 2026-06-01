@@ -16,11 +16,12 @@ export default async function CabinetLayout({ children }: { children: React.Reac
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_admin")
+    .select("is_admin, is_staff")
     .eq("id", user.id)
     .single();
 
   const isAdmin = profile?.is_admin === true;
+  const isStaff = profile?.is_staff === true;
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-8">
@@ -39,10 +40,10 @@ export default async function CabinetLayout({ children }: { children: React.Reac
               {label}
             </Link>
           ))}
-          {isAdmin && (
+          {(isAdmin || isStaff) && (
             <div className="border-t pt-2 mt-4">
               <Link
-                href="/admin"
+                href={isAdmin ? "/admin" : "/staff"}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
               >
                 <LayoutDashboard className="h-4 w-4" />
