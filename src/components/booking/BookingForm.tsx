@@ -13,8 +13,8 @@ import type { Pet } from "@/types";
 
 const schema = z.object({
   pet_id: z.string().min(1, "Выберите питомца"),
-  service_type: z.enum(["daycare", "hotel"] as const),
-  daycare_format: z.enum(["hour", "half_day", "full_day"] as const).optional(),
+  service_type: z.string().min(1),
+  daycare_format: z.string().optional(),
   start_date: z.string().min(1, "Выберите дату"),
   end_date: z.string().optional(),
   notes: z.string().max(500).optional(),
