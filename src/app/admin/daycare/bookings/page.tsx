@@ -1,10 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { BookingsAdmin } from "@/components/admin/BookingsAdmin";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default async function DaycareBookingsPage() {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: bookings } = await supabase
     .from("bookings")
     .select("*, pets(name, type, breed, weight_kg, special_needs, passport_full_name), profiles(full_name, phone)")

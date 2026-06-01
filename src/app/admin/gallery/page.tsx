@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { GalleryAdmin } from "@/components/admin/GalleryAdmin";
 import type { GalleryItem } from "@/types";
 
 export default async function AdminGalleryPage() {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: items } = await supabase.from("gallery").select("*").order("sort_order");
 
   return (

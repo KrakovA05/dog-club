@@ -1,10 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { CalendarCheck, Star, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 
 export default async function AdminDashboard() {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const [
     { count: pendingDaycare },

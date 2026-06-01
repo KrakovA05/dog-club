@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import Link from "next/link";
 import { PawPrint, ChevronRight } from "lucide-react";
 
 export default async function AdminClientsPage() {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { data: profiles } = await supabase
     .from("profiles")

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, FileText } from "lucide-react";
@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 export default async function AdminClientPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const [{ data: profile }, { data: pets }, { data: bookings }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", id).single(),

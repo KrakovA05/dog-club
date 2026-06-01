@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { deleteBlogPost } from "@/lib/admin-actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Plus } from "lucide-react";
 import type { BlogPost } from "@/types";
 
 export default async function AdminBlogPage() {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: posts } = await supabase
     .from("blog_posts")
     .select("id, title, slug, is_published, published_at, created_at")

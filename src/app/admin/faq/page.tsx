@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { FaqAdmin } from "@/components/admin/FaqAdmin";
 import type { FaqRow } from "@/types";
 
 export default async function AdminFaqPage() {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: faqs } = await supabase.from("faq").select("*").order("sort_order");
 
   return (

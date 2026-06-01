@@ -1,11 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { setReviewPublished, deleteReview } from "@/lib/admin-actions";
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
 import type { ReviewRow } from "@/types";
 
 export default async function AdminReviewsPage() {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: reviews } = await supabase
     .from("reviews")
     .select("*")

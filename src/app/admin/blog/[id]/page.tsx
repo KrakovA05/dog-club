@@ -1,11 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { notFound } from "next/navigation";
 import { BlogEditor } from "@/components/admin/BlogEditor";
 import type { BlogPost } from "@/types";
 
 export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: post } = await supabase.from("blog_posts").select("*").eq("id", id).single();
   if (!post) notFound();
 

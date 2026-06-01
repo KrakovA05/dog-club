@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { PricesAdmin } from "@/components/admin/PricesAdmin";
 import type { PriceRow } from "@/types";
 
 export default async function HotelPricesPage() {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: prices } = await supabase
     .from("prices")
     .select("*")

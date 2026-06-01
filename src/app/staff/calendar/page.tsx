@@ -1,11 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { StaffCalendarView } from "./StaffCalendarView";
 import { RefreshButton } from "@/components/admin/RefreshButton";
 
 export const dynamic = "force-dynamic";
 
 export default async function StaffCalendarPage() {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { data: bookings } = await supabase
     .from("bookings")
