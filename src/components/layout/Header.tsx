@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MobileMenu } from "./MobileMenu";
-import { Phone } from "lucide-react";
+import { Phone, User } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
 const navLinks = [
   { href: "/daycare", label: "Детский сад" },
@@ -13,7 +14,10 @@ const navLinks = [
   { href: "/contacts", label: "Контакты" },
 ];
 
-export function Header() {
+export async function Header() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto max-w-6xl px-4">
@@ -55,7 +59,23 @@ export function Header() {
             >
               Забронировать
             </Link>
-            <MobileMenu />
+            {user ? (
+              <Link
+                href="/cabinet"
+                className="hidden md:flex items-center gap-1.5 h-7 rounded-[min(var(--radius-md),12px)] border border-border px-2.5 text-[0.8rem] font-medium text-foreground hover:bg-accent transition-colors"
+              >
+                <User className="h-3.5 w-3.5" />
+                Кабинет
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="hidden md:flex items-center h-7 rounded-[min(var(--radius-md),12px)] border border-border px-2.5 text-[0.8rem] font-medium text-foreground hover:bg-accent transition-colors"
+              >
+                Войти
+              </Link>
+            )}
+            <MobileMenu isLoggedIn={!!user} />
           </div>
         </div>
       </div>

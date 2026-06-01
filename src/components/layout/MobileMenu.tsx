@@ -15,7 +15,7 @@ const navLinks = [
   { href: "/contacts", label: "Контакты" },
 ];
 
-export function MobileMenu() {
+export function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -39,16 +39,31 @@ export function MobileMenu() {
               {link.label}
             </Link>
           ))}
-          <div className="border-t mt-4 pt-4">
+          <div className="border-t mt-4 pt-4 flex flex-col gap-2">
             <Button
-              render={
-                <Link href="/booking" onClick={() => setOpen(false)} />
-              }
+              render={<Link href="/booking" onClick={() => setOpen(false)} />}
               className="w-full"
               size="lg"
             >
               Забронировать
             </Button>
+            {isLoggedIn ? (
+              <Button
+                variant="outline"
+                render={<Link href="/cabinet" onClick={() => setOpen(false)} />}
+                className="w-full"
+              >
+                Личный кабинет
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                render={<Link href="/login" onClick={() => setOpen(false)} />}
+                className="w-full"
+              >
+                Войти
+              </Button>
+            )}
           </div>
         </nav>
       </SheetContent>
