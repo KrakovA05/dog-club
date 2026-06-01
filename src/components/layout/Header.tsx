@@ -24,7 +24,7 @@ export async function Header() {
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <Image
-              src="/logo.png"
+              src="/logo-icon.png"
               alt="Дог Клуб"
               width={36}
               height={36}

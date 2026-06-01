@@ -70,9 +70,6 @@ export default function DaycarePage() {
                 key={f.duration}
                 className={`relative ${f.isPopular ? "border-primary shadow-md" : "border-0 shadow-sm"}`}
               >
-                {f.isPopular && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Популярный</Badge>
-                )}
                 <CardContent className="pt-8 pb-6">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="h-5 w-5 text-primary" />
