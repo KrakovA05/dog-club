@@ -22,7 +22,7 @@ export function CtaBanner() {
           <Button
             size="lg"
             variant="outline"
-            className="text-base px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+            className="text-base px-8 border-primary-foreground/60 text-primary-foreground bg-transparent hover:bg-primary-foreground/15"
             render={
               <a href="tel:+74842000000" className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />
