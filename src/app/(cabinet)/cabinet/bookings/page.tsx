@@ -5,7 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Plus } from "lucide-react";
 import Link from "next/link";
+import { cancelBooking } from "@/lib/cabinet-actions";
 import type { Booking, BookingStatus } from "@/types";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = { title: "Мои бронирования" };
 
@@ -94,11 +97,26 @@ export default async function BookingsPage() {
                       </div>
                     )}
                   </div>
-                  {booking.price_total && (
-                    <div className="text-primary font-bold shrink-0">
-                      {booking.price_total.toLocaleString("ru-RU")} ₽
-                    </div>
-                  )}
+                  <div className="flex flex-col items-end gap-2 shrink-0">
+                    {booking.price_total && (
+                      <div className="text-primary font-bold">
+                        {booking.price_total.toLocaleString("ru-RU")} ₽
+                      </div>
+                    )}
+                    {booking.status === "pending" && (
+                      <form action={cancelBooking.bind(null, booking.id)}>
+                        <button
+                          type="submit"
+                          className="text-xs text-muted-foreground hover:text-destructive transition-colors underline underline-offset-2"
+                          onClick={(e) => {
+                            if (!confirm("Отменить заявку?")) e.preventDefault();
+                          }}
+                        >
+                          Отменить заявку
+                        </button>
+                      </form>
+                    )}
+                  </div>
                 </div>
               </div>
             );
