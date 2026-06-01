@@ -7,6 +7,7 @@ import {
   Star,
   Image,
   BookOpen,
+  Users,
   ExternalLink,
 } from "lucide-react";
 
@@ -27,6 +28,12 @@ const nav = [
     items: [
       { href: "/admin/hotel/bookings", label: "Заявки", icon: CalendarCheck },
       { href: "/admin/hotel/prices",   label: "Цены",   icon: DollarSign },
+    ],
+  },
+  {
+    group: "Клиенты",
+    items: [
+      { href: "/admin/clients", label: "Все клиенты", icon: Users },
     ],
   },
   {

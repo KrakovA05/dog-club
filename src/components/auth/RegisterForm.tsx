@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
 const schema = z.object({
-  full_name: z.string().min(2, "Введите имя"),
+  first_name: z.string().min(2, "Введите имя"),
+  last_name: z.string().min(2, "Введите фамилию"),
   email: z.string().email("Введите корректный email"),
   password: z.string().min(6, "Минимум 6 символов"),
   confirm: z.string(),
@@ -30,12 +31,13 @@ export function RegisterForm() {
 
   async function onSubmit(data: FormData) {
     setServerError(null);
+    const full_name = `${data.first_name.trim()} ${data.last_name.trim()}`;
     const supabase = createClient();
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
-        data: { full_name: data.full_name },
+        data: { full_name },
         emailRedirectTo: `${window.location.origin}/auth/confirm`,
       },
     });
@@ -68,23 +70,31 @@ export function RegisterForm() {
       <p className="text-muted-foreground text-sm mb-6">Создайте личный кабинет</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="full_name">Ваше имя</Label>
-          <Input id="full_name" placeholder="Иван Иванов" {...register("full_name")} />
-          {errors.full_name && <p className="text-destructive text-xs">{errors.full_name.message}</p>}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="first_name">Имя *</Label>
+            <Input id="first_name" placeholder="Иван" {...register("first_name")} />
+            {errors.first_name && <p className="text-destructive text-xs">{errors.first_name.message}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="last_name">Фамилия *</Label>
+            <Input id="last_name" placeholder="Иванов" {...register("last_name")} />
+            {errors.last_name && <p className="text-destructive text-xs">{errors.last_name.message}</p>}
+          </div>
         </div>
+
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Email *</Label>
           <Input id="email" type="email" placeholder="you@example.com" {...register("email")} />
           {errors.email && <p className="text-destructive text-xs">{errors.email.message}</p>}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="password">Пароль</Label>
+          <Label htmlFor="password">Пароль *</Label>
           <Input id="password" type="password" placeholder="••••••••" {...register("password")} />
           {errors.password && <p className="text-destructive text-xs">{errors.password.message}</p>}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="confirm">Повторите пароль</Label>
+          <Label htmlFor="confirm">Повторите пароль *</Label>
           <Input id="confirm" type="password" placeholder="••••••••" {...register("confirm")} />
           {errors.confirm && <p className="text-destructive text-xs">{errors.confirm.message}</p>}
         </div>

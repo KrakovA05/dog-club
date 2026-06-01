@@ -52,6 +52,8 @@ export interface Pet {
   birth_year: number | null;
   weight_kg: number | null;
   special_needs: string | null;
+  passport_full_name: string | null;
+  passport_photo_url: string | null;
   created_at: string;
 }
 
