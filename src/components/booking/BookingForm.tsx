@@ -115,7 +115,7 @@ export function BookingForm({ pets }: { pets: Pet[] }) {
   return (
     <Card className="border-0 shadow-sm">
       <CardContent className="pt-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
           {/* Питомец */}
           <div className="space-y-2">
             <Label>Питомец *</Label>
