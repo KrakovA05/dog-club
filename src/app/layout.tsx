@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   description:
     "Профессиональный уход за собаками и кошками в Калуге. Детский сад (час, полдня, полный день) и гостиница с открытыми боксами. Ул. Дарвина 14Ф.",
   keywords: ["зоогостиница Калуга", "передержка собак Калуга", "детский сад для животных", "догклуб"],
+  icons: {
+    icon: [{ url: "/icon.png", type: "image/png", sizes: "1000x1000" }],
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
   openGraph: {
     type: "website",
     locale: "ru_RU",
