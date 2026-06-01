@@ -12,6 +12,7 @@ import Link from "next/link";
 const schema = z.object({
   first_name: z.string().min(2, "Введите имя"),
   last_name: z.string().min(2, "Введите фамилию"),
+  phone: z.string().min(10, "Введите корректный номер телефона"),
   email: z.string().email("Введите корректный email"),
   password: z.string().min(6, "Минимум 6 символов"),
   confirm: z.string().min(1, "Повторите пароль"),
@@ -39,7 +40,7 @@ export function RegisterForm() {
       email: data.email,
       password: data.password,
       options: {
-        data: { full_name },
+        data: { full_name, phone: data.phone.trim() },
         emailRedirectTo: `${window.location.origin}/auth/confirm`,
       },
     });
@@ -83,6 +84,12 @@ export function RegisterForm() {
             <Input id="last_name" placeholder="Иванов" {...register("last_name")} />
             {errors.last_name && <p className="text-destructive text-xs">{errors.last_name.message}</p>}
           </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="phone">Телефон *</Label>
+          <Input id="phone" type="tel" placeholder="+7 (999) 000-00-00" {...register("phone")} />
+          {errors.phone && <p className="text-destructive text-xs">{errors.phone.message}</p>}
         </div>
 
         <div className="space-y-1.5">
