@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { updateBookingStatus } from "@/lib/admin-actions";
+import { FileCheck, FileX } from "lucide-react";
 
 const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 const MONTHS = [
@@ -27,7 +28,7 @@ interface BookingRow {
   start_date: string;
   end_date: string | null;
   status: string;
-  pets: { name: string; type: string; breed: string | null } | null;
+  pets: { name: string; type: string; breed: string | null; passport_photo_url: string | null } | null;
   profiles: { full_name: string | null; phone: string | null } | null;
 }
 
@@ -248,6 +249,24 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
                           <span className="text-muted-foreground">Питомец: </span>
                           <span className="font-medium">{b.pets?.name ?? "—"}</span>
                           {b.pets?.breed && <span className="text-muted-foreground"> · {b.pets.breed}</span>}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {b.pets?.passport_photo_url ? (
+                            <a
+                              href={b.pets.passport_photo_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-xs text-green-600 hover:underline"
+                            >
+                              <FileCheck className="h-3.5 w-3.5" />
+                              Паспорт прикреплён
+                            </a>
+                          ) : (
+                            <span className="flex items-center gap-1 text-xs text-orange-500">
+                              <FileX className="h-3.5 w-3.5" />
+                              Паспорт не загружен
+                            </span>
+                          )}
                         </div>
                         <div>
                           <span className="text-muted-foreground">Хозяин: </span>

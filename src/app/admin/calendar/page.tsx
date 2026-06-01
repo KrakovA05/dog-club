@@ -12,7 +12,7 @@ export default async function AdminCalendarPage() {
     .select(`
       id, service_type, daycare_format,
       start_date, end_date, status,
-      pets(name, type, breed),
+      pets(name, type, breed, passport_photo_url),
       profiles(full_name, phone)
     `)
     .not("status", "eq", "cancelled")
