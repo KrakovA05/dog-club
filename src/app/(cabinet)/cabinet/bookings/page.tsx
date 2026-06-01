@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Plus } from "lucide-react";
 import Link from "next/link";
-import { cancelBooking } from "@/lib/cabinet-actions";
+import { CancelBookingButton } from "@/components/cabinet/CancelBookingButton";
 import type { Booking, BookingStatus } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -104,17 +104,7 @@ export default async function BookingsPage() {
                       </div>
                     )}
                     {booking.status === "pending" && (
-                      <form action={cancelBooking.bind(null, booking.id)}>
-                        <button
-                          type="submit"
-                          className="text-xs text-muted-foreground hover:text-destructive transition-colors underline underline-offset-2"
-                          onClick={(e) => {
-                            if (!confirm("Отменить заявку?")) e.preventDefault();
-                          }}
-                        >
-                          Отменить заявку
-                        </button>
-                      </form>
+                      <CancelBookingButton id={booking.id} />
                     )}
                   </div>
                 </div>
