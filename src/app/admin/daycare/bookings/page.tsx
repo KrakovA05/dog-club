@@ -7,7 +7,7 @@ export default async function DaycareBookingsPage() {
   const supabase = await createClient();
   const { data: bookings } = await supabase
     .from("bookings")
-    .select("*, pets(name, type), profiles(full_name, phone)")
+    .select("*, pets(name, type, breed, weight_kg, special_needs, passport_full_name), profiles(full_name, phone)")
     .eq("service_type", "daycare")
     .order("created_at", { ascending: false });
 
@@ -26,7 +26,7 @@ export default async function DaycareBookingsPage() {
           Гостиница →
         </Button>
       </div>
-      <BookingsAdmin bookings={(bookings as any[]) ?? []} title="Детский сад" />
+      <BookingsAdmin bookings={(bookings as any[]) ?? []}  />
     </div>
   );
 }
