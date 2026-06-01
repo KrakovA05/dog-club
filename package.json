@@ -10,20 +10,20 @@
     "postbuild": "next-sitemap"
   },
   "dependencies": {
-    "@base-ui/react": "file:../../../tmp/base-ui-react.tgz",
+    "@base-ui/react": "^1.0.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.2",
-    "class-variance-authority": "file:../../../tmp/class-variance-authority.tgz",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "file:../../../tmp/lucide-react.tgz",
+    "lucide-react": "^0.487.0",
     "next": "16.2.6",
     "next-sitemap": "^4.2.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "shadcn": "^4.10.0",
     "tailwind-merge": "^3.6.0",
-    "tailwindcss-animate": "file:../../../tmp/tailwindcss-animate.tgz",
-    "tw-animate-css": "file:../../../tmp/tw-animate-css.tgz"
+    "tailwindcss-animate": "^1.0.7",
+    "tw-animate-css": "^1.2.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
