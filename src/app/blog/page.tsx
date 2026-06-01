@@ -1,11 +1,24 @@
 import type { Metadata } from "next";
+import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import type { BlogPost } from "@/types";
 
 export const metadata: Metadata = {
   title: "Блог — Дог Клуб",
   description: "Советы по уходу за собаками и кошками от команды Дог Клуб Калуга.",
 };
 
-export default function BlogPage() {
+export const revalidate = 3600;
+
+export default async function BlogPage() {
+  const supabase = await createClient();
+  const { data: posts } = await supabase
+    .from("blog_posts")
+    .select("id, slug, title, excerpt, cover_url, published_at")
+    .eq("is_published", true)
+    .order("published_at", { ascending: false });
+
   return (
     <>
       <section className="bg-brand-light py-16 md:py-20">
@@ -14,9 +27,38 @@ export default function BlogPage() {
           <p className="text-muted-foreground text-lg">Советы по уходу и воспитанию питомцев</p>
         </div>
       </section>
+
       <section className="py-16 md:py-24">
-        <div className="container mx-auto max-w-6xl px-4 text-center text-muted-foreground py-20">
-          <p className="text-lg">Статьи появятся совсем скоро</p>
+        <div className="container mx-auto max-w-6xl px-4">
+          {!posts?.length ? (
+            <p className="text-center text-muted-foreground py-20">Статьи скоро появятся</p>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {(posts as Partial<BlogPost>[]).map((post) => (
+                <Link key={post.id} href={`/blog/${post.slug}`}>
+                  <Card className="border-0 shadow-sm hover:shadow-md transition-shadow h-full">
+                    {post.cover_url && (
+                      <div className="aspect-video rounded-t-lg overflow-hidden bg-muted">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={post.cover_url} alt={post.title} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <CardContent className="pt-5 pb-5">
+                      <h2 className="font-semibold text-lg mb-2 line-clamp-2">{post.title}</h2>
+                      {post.excerpt && (
+                        <p className="text-muted-foreground text-sm line-clamp-3">{post.excerpt}</p>
+                      )}
+                      {post.published_at && (
+                        <p className="text-xs text-muted-foreground mt-3">
+                          {new Date(post.published_at).toLocaleDateString("ru-RU")}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </>
