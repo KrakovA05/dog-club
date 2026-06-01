@@ -107,3 +107,23 @@ export async function deleteBlogPost(id: string) {
   revalidatePath("/admin/blog");
   revalidatePath("/blog");
 }
+
+export async function createBookingForClient(data: {
+  user_id: string;
+  pet_id: string;
+  service_type: "daycare" | "hotel";
+  daycare_format: string | null;
+  start_date: string;
+  end_date: string | null;
+  notes: string | null;
+}) {
+  const supabase = createClient();
+  const { error } = await supabase.from("bookings").insert({
+    ...data,
+    status: "confirmed",
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/daycare/bookings");
+  revalidatePath("/admin/hotel/bookings");
+  revalidatePath("/admin/calendar");
+}

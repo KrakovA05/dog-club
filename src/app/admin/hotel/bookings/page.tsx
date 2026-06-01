@@ -2,6 +2,7 @@ import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { BookingsAdmin } from "@/components/admin/BookingsAdmin";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Plus } from "lucide-react";
 
 export default async function HotelBookingsPage() {
   const supabase = createClient();
@@ -22,9 +23,14 @@ export default async function HotelBookingsPage() {
             <p className="text-sm text-orange-600 mt-1">{pending} ожидают подтверждения</p>
           )}
         </div>
-        <Button size="sm" variant="outline" render={<Link href="/admin/daycare/bookings" />}>
-          ← Детский сад
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" render={<Link href="/admin/bookings/new" />}>
+            <Plus className="h-4 w-4 mr-1" /> Записать клиента
+          </Button>
+          <Button size="sm" variant="outline" render={<Link href="/admin/daycare/bookings" />}>
+            ← Детский сад
+          </Button>
+        </div>
       </div>
       <BookingsAdmin bookings={(bookings as any[]) ?? []}  />
     </div>

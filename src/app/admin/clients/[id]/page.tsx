@@ -1,8 +1,9 @@
 import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, FileText } from "lucide-react";
+import { ChevronLeft, FileText, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default async function AdminClientPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -30,11 +31,14 @@ export default async function AdminClientPage({ params }: { params: Promise<{ id
 
   return (
     <div className="space-y-8 max-w-3xl">
-      <div className="flex items-center gap-3">
-        <Link href="/admin/clients" className="text-muted-foreground hover:text-foreground transition-colors">
-          <ChevronLeft className="h-5 w-5" />
-        </Link>
-        <h1 className="text-2xl font-bold">{profile.full_name ?? "Клиент"}</h1>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Link href="/admin/clients" className="text-muted-foreground hover:text-foreground transition-colors">
+            <ChevronLeft className="h-5 w-5" />
+          </Link>
+          <h1 className="text-2xl font-bold">{profile.full_name ?? "Клиент"}</h1>
+        </div>
+        <Button size="sm" render={<Link href={`/admin/bookings/new?client=${id}`}><Plus className="h-4 w-4 mr-1" />Записать</Link>} />
       </div>
 
       {/* Профиль */}
