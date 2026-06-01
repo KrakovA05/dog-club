@@ -8,13 +8,17 @@ import {
   Image,
   BookOpen,
   Users,
+  Calendar,
   ExternalLink,
 } from "lucide-react";
 
 const nav = [
   {
     group: null,
-    items: [{ href: "/admin", label: "Дашборд", icon: LayoutDashboard }],
+    items: [
+      { href: "/admin",          label: "Дашборд",   icon: LayoutDashboard },
+      { href: "/admin/calendar", label: "Календарь", icon: Calendar },
+    ],
   },
   {
     group: "Детский сад",
