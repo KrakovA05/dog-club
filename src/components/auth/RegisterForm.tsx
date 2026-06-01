@@ -14,10 +14,7 @@ const schema = z.object({
   last_name: z.string().min(2, "Введите фамилию"),
   email: z.string().email("Введите корректный email"),
   password: z.string().min(6, "Минимум 6 символов"),
-  confirm: z.string(),
-}).refine((d) => d.password === d.confirm, {
-  message: "Пароли не совпадают",
-  path: ["confirm"],
+  confirm: z.string().min(1, "Повторите пароль"),
 });
 type FormData = z.infer<typeof schema>;
 
@@ -25,11 +22,16 @@ export function RegisterForm() {
   const [done, setDone] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
   async function onSubmit(data: FormData) {
+    if (data.password !== data.confirm) {
+      setError("confirm", { message: "Пароли не совпадают" });
+      return;
+    }
+
     setServerError(null);
     const full_name = `${data.first_name.trim()} ${data.last_name.trim()}`;
     const supabase = createClient();
