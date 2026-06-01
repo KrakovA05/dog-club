@@ -54,3 +54,21 @@ export interface Pet {
   special_needs: string | null;
   created_at: string;
 }
+
+export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
+export type DaycareFormat = "hour" | "half_day" | "full_day";
+
+export interface Booking {
+  id: string;
+  user_id: string;
+  pet_id: string;
+  service_type: "daycare" | "hotel";
+  daycare_format: DaycareFormat | null;
+  start_date: string;
+  end_date: string | null;
+  notes: string | null;
+  status: BookingStatus;
+  price_total: number | null;
+  created_at: string;
+  pets?: Pick<Pet, "name" | "type" | "breed">;
+}

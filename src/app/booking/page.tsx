@@ -1,35 +1,63 @@
 import type { Metadata } from "next";
-import { Phone } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { BookingForm } from "@/components/booking/BookingForm";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link";
+import type { Pet } from "@/types";
 
 export const metadata: Metadata = {
   title: "Забронировать место — Дог Клуб",
-  description: "Забронируйте место для вашего питомца в Дог Клуб. Позвоните нам или оставьте заявку онлайн.",
+  description:
+    "Онлайн-бронирование места в детском саду или гостинице для вашего питомца.",
 };
 
-export default function BookingPage() {
-  return (
-    <section className="py-20 md:py-32">
-      <div className="container mx-auto max-w-sm px-4 text-center">
-        <h1 className="text-4xl font-bold mb-4">Забронировать место</h1>
-        <p className="text-muted-foreground text-lg mb-10">
-          Онлайн-бронирование появится совсем скоро. Пока — позвоните нам.
-        </p>
+export default async function BookingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-        <Card className="border-0 shadow-sm">
-          <CardContent className="pt-8 pb-8 flex flex-col items-center gap-4">
-            <Phone className="h-10 w-10 text-primary" />
-            <div>
-              <div className="font-semibold mb-1">Позвонить</div>
-              <a href="tel:+74842000000" className="text-primary text-lg font-medium">
-                +7 (4842) 00-00-00
-              </a>
-            </div>
-            <Button size="lg" className="w-full" render={<a href="tel:+74842000000">Позвонить</a>} />
-          </CardContent>
-        </Card>
-      </div>
-    </section>
+  if (!user) {
+    return (
+      <section className="py-20 md:py-32">
+        <div className="container mx-auto max-w-md px-4 text-center">
+          <h1 className="text-3xl font-bold mb-4">Забронировать место</h1>
+          <p className="text-muted-foreground mb-8">
+            Для бронирования нужен личный кабинет
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button render={<Link href="/register">Зарегистрироваться</Link>} />
+            <Button variant="outline" render={<Link href="/login?redirect=/booking">Войти</Link>} />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const { data: pets } = await supabase
+    .from("pets")
+    .select("id, name, type, breed, weight_kg, special_needs, owner_id, birth_year, created_at")
+    .eq("owner_id", user.id)
+    .order("created_at");
+
+  return (
+    <>
+      <section className="bg-brand-light py-16 md:py-20">
+        <div className="container mx-auto max-w-6xl px-4 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            Забронировать место
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            Заполните форму — ответим в течение нескольких часов
+          </p>
+        </div>
+      </section>
+
+      <section className="py-12 md:py-16">
+        <div className="container mx-auto max-w-xl px-4">
+          <BookingForm pets={(pets as Pet[]) ?? []} />
+        </div>
+      </section>
+    </>
   );
 }
