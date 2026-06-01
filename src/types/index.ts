@@ -34,3 +34,23 @@ export interface GalleryItem {
   alt: string;
   sort_order: number;
 }
+
+export interface Profile {
+  id: string;
+  full_name: string | null;
+  phone: string | null;
+  is_admin: boolean;
+  created_at: string;
+}
+
+export interface Pet {
+  id: string;
+  owner_id: string;
+  name: string;
+  type: "dog" | "cat";
+  breed: string | null;
+  birth_year: number | null;
+  weight_kg: number | null;
+  special_needs: string | null;
+  created_at: string;
+}
