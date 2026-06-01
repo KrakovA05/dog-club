@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { StaffCalendarView } from "./StaffCalendarView";
+import { RefreshButton } from "@/components/admin/RefreshButton";
+
+export const dynamic = "force-dynamic";
 
 export default async function StaffCalendarPage() {
   const supabase = await createClient();
@@ -17,7 +20,10 @@ export default async function StaffCalendarPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Календарь записей</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Календарь записей</h1>
+        <RefreshButton />
+      </div>
       <StaffCalendarView bookings={(bookings as any[]) ?? []} />
     </div>
   );
