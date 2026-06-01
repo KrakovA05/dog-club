@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://dogclub-kaluga.ru
+
+# Sitemaps
+Sitemap: https://dogclub-kaluga.ru/sitemap.xml
