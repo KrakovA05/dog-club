@@ -11,19 +11,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
 import type { Pet } from "@/types";
 
-const schema = z
-  .object({
-    pet_id: z.string().min(1, "Выберите питомца"),
-    service_type: z.enum(["daycare", "hotel"]),
-    daycare_format: z.enum(["hour", "half_day", "full_day"]).optional(),
-    start_date: z.string().min(1, "Выберите дату"),
-    end_date: z.string().optional(),
-    notes: z.string().max(500).optional(),
-  })
-  .refine(
-    (d) => !(d.service_type === "daycare" && !d.daycare_format),
-    { message: "Выберите формат посещения", path: ["daycare_format"] }
-  );
+const schema = z.object({
+  pet_id: z.string().min(1, "Выберите питомца"),
+  service_type: z.enum(["daycare", "hotel"] as const),
+  daycare_format: z.enum(["hour", "half_day", "full_day"] as const).optional(),
+  start_date: z.string().min(1, "Выберите дату"),
+  end_date: z.string().optional(),
+  notes: z.string().max(500).optional(),
+});
 
 type FormData = z.infer<typeof schema>;
 
@@ -37,6 +32,7 @@ export function BookingForm({ pets }: { pets: Pet[] }) {
     register,
     handleSubmit,
     watch,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -46,33 +42,42 @@ export function BookingForm({ pets }: { pets: Pet[] }) {
   const serviceType = watch("service_type");
 
   async function onSubmit(data: FormData) {
+    if (data.service_type === "daycare" && !data.daycare_format) {
+      setError("daycare_format", { message: "Выберите формат посещения" });
+      return;
+    }
+
     setServerError(null);
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    try {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    if (!user) {
-      setServerError("Войдите в аккаунт");
-      return;
+      if (!user) {
+        setServerError("Войдите в аккаунт");
+        return;
+      }
+
+      const { error } = await supabase.from("bookings").insert({
+        user_id: user.id,
+        pet_id: data.pet_id,
+        service_type: data.service_type,
+        daycare_format: data.service_type === "daycare" ? data.daycare_format : null,
+        start_date: data.start_date,
+        end_date: data.service_type === "hotel" ? (data.end_date || null) : null,
+        notes: data.notes || null,
+        status: "pending",
+      });
+
+      if (error) {
+        setServerError(error.message);
+        return;
+      }
+      setDone(true);
+    } catch (e: unknown) {
+      setServerError(e instanceof Error ? e.message : "Произошла ошибка. Попробуйте ещё раз.");
     }
-
-    const { error } = await supabase.from("bookings").insert({
-      user_id: user.id,
-      pet_id: data.pet_id,
-      service_type: data.service_type,
-      daycare_format: data.service_type === "daycare" ? data.daycare_format : null,
-      start_date: data.start_date,
-      end_date: data.service_type === "hotel" ? (data.end_date || null) : null,
-      notes: data.notes || null,
-      status: "pending",
-    });
-
-    if (error) {
-      setServerError(error.message);
-      return;
-    }
-    setDone(true);
   }
 
   if (done) {
