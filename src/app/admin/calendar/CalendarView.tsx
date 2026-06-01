@@ -1,7 +1,9 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { updateBookingStatus } from "@/lib/admin-actions";
 
 const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 const MONTHS = [
@@ -47,9 +49,19 @@ function formatDate(d: string) {
 
 export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
   const today = new Date();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [selected, setSelected] = useState<string | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+
+  async function handleStatus(id: string, status: "confirmed" | "cancelled" | "completed") {
+    setLoadingId(id);
+    await updateBookingStatus(id, status);
+    setLoadingId(null);
+    startTransition(() => router.refresh());
+  }
 
   function prev() {
     if (month === 0) { setMonth(11); setYear(y => y - 1); }
@@ -254,6 +266,39 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
                           </div>
                         )}
                       </div>
+
+                      {/* Кнопки действий */}
+                      {(b.status === "pending" || b.status === "confirmed") && (
+                        <div className="flex gap-2 pl-4 pt-1">
+                          {b.status === "pending" && (
+                            <button
+                              onClick={() => handleStatus(b.id, "confirmed")}
+                              disabled={loadingId === b.id || isPending}
+                              className="px-3 py-1 text-xs rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+                            >
+                              {loadingId === b.id ? "..." : "Подтвердить"}
+                            </button>
+                          )}
+                          {b.status === "confirmed" && (
+                            <button
+                              onClick={() => handleStatus(b.id, "completed")}
+                              disabled={loadingId === b.id || isPending}
+                              className="px-3 py-1 text-xs rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+                            >
+                              {loadingId === b.id ? "..." : "Завершить"}
+                            </button>
+                          )}
+                          {b.status === "pending" && (
+                            <button
+                              onClick={() => handleStatus(b.id, "cancelled")}
+                              disabled={loadingId === b.id || isPending}
+                              className="px-3 py-1 text-xs rounded-lg border hover:bg-destructive/10 hover:text-destructive disabled:opacity-50 transition-colors"
+                            >
+                              Отменить
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
