@@ -34,11 +34,18 @@ export default async function BookingPage() {
     );
   }
 
-  const { data: pets } = await supabase
-    .from("pets")
-    .select("id, name, type, breed, weight_kg, special_needs, owner_id, birth_year, created_at")
-    .eq("owner_id", user.id)
-    .order("created_at");
+  const [{ data: pets }, { data: prices }] = await Promise.all([
+    supabase
+      .from("pets")
+      .select("id, name, type, breed, weight_kg, special_needs, owner_id, birth_year, created_at")
+      .eq("owner_id", user.id)
+      .order("created_at"),
+    supabase
+      .from("prices")
+      .select("service_type, label, price, unit")
+      .eq("service_type", "daycare")
+      .order("sort_order"),
+  ]);
 
   return (
     <>
@@ -55,7 +62,7 @@ export default async function BookingPage() {
 
       <section className="py-12 md:py-16">
         <div className="container mx-auto max-w-xl px-4">
-          <BookingForm pets={(pets as Pet[]) ?? []} />
+          <BookingForm pets={(pets as Pet[]) ?? []} daycareprices={prices ?? []} />
         </div>
       </section>
     </>

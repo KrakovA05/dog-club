@@ -14,7 +14,7 @@ export function toLocalDateStr(date: Date): string {
   return date.toLocaleDateString("sv");
 }
 
-const MONTHS = [
+export const MONTHS = [
   "Январь","Февраль","Март","Апрель","Май","Июнь",
   "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь",
 ];

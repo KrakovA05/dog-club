@@ -12,7 +12,20 @@ const today = new Date().toISOString().split("T")[0];
 
 type FormErrors = Partial<Record<string, string>>;
 
-export function BookingForm({ pets }: { pets: Pet[] }) {
+type DaycarePrice = { service_type: string; label: string; price: number; unit: string };
+
+const FALLBACK_PRICES: DaycarePrice[] = [
+  { service_type: "daycare", label: "Час",         price: 400,  unit: "час" },
+  { service_type: "daycare", label: "Полдня",      price: 1200, unit: "полдня" },
+  { service_type: "daycare", label: "Полный день", price: 1800, unit: "день" },
+];
+
+export function BookingForm({ pets, daycareprices }: { pets: Pet[]; daycareprices?: DaycarePrice[] }) {
+  const formats = (daycareprices && daycareprices.length > 0 ? daycareprices : FALLBACK_PRICES).map((p, i) => ({
+    value: ["hour", "half_day", "full_day"][i] ?? `format_${i}`,
+    label: p.label,
+    price: `${p.price.toLocaleString("ru-RU")} ₽`,
+  }));
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -29,6 +42,7 @@ export function BookingForm({ pets }: { pets: Pet[] }) {
     const e: FormErrors = {};
     if (!petId) e.pet_id = "Выберите питомца";
     if (!startDate) e.start_date = "Выберите дату";
+    if (serviceType === "hotel" && endDate && endDate < startDate) e.end_date = "Дата выезда не может быть раньше заезда";
     if (serviceType === "daycare" && !daycareFormat) e.daycare_format = "Выберите формат посещения";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -164,11 +178,7 @@ export function BookingForm({ pets }: { pets: Pet[] }) {
             <div className="space-y-2">
               <Label>Формат *</Label>
               <div className="grid grid-cols-3 gap-3">
-                {[
-                  { value: "hour",      label: "Час",         price: "400 ₽"   },
-                  { value: "half_day",  label: "Полдня",      price: "1 200 ₽" },
-                  { value: "full_day",  label: "Полный день", price: "1 800 ₽" },
-                ].map((f) => (
+                {formats.map((f) => (
                   <label key={f.value} className="cursor-pointer">
                     <input
                       type="radio"
@@ -210,6 +220,7 @@ export function BookingForm({ pets }: { pets: Pet[] }) {
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                 />
+                {errors.end_date && <p className="text-destructive text-xs">{errors.end_date}</p>}
               </div>
             )}
           </div>

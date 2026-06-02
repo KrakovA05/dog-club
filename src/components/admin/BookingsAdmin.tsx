@@ -89,7 +89,10 @@ function getDuration(b: BookingRow): string {
     const start = new Date(b.start_date);
     const end = new Date(b.end_date);
     const days = Math.round((end.getTime() - start.getTime()) / 86400000);
-    return `${days} ${days === 1 ? "сутки" : days >= 2 && days <= 4 ? "суток" : "суток"}`;
+    const mod10 = days % 10, mod100 = days % 100;
+    const label = (mod100 >= 11 && mod100 <= 19) || mod10 >= 5 || mod10 === 0 ? "суток"
+      : mod10 === 1 ? "сутки" : "суток";
+    return `${days} ${label}`;
   }
   if (b.service_type === "daycare" && b.daycare_format) {
     return FORMAT_LABELS[b.daycare_format] ?? "";

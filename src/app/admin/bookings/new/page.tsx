@@ -18,10 +18,17 @@ export default async function AdminNewBookingPage({
     .eq("is_staff", false)
     .order("full_name");
 
-  const { data: pets } = await supabase
-    .from("pets")
-    .select("id, owner_id, name, type, breed, weight_kg, special_needs, passport_photo_url")
-    .order("name");
+  const [{ data: pets }, { data: prices }] = await Promise.all([
+    supabase
+      .from("pets")
+      .select("id, owner_id, name, type, breed, weight_kg, special_needs, passport_photo_url")
+      .order("name"),
+    supabase
+      .from("prices")
+      .select("label, price")
+      .eq("service_type", "daycare")
+      .order("sort_order"),
+  ]);
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -38,6 +45,7 @@ export default async function AdminNewBookingPage({
       <AdminBookingForm
         profiles={(profiles as any[]) ?? []}
         allPets={(pets as any[]) ?? []}
+        daycareprices={(prices as any[]) ?? []}
         preselectedClientId={preselectedClient}
       />
     </div>

@@ -16,21 +16,32 @@ interface Pet {
 
 const today = new Date().toISOString().split("T")[0];
 
-const FORMAT_OPTIONS = [
+const FALLBACK_FORMAT_OPTIONS = [
   { value: "hour",     label: "Час",         sub: "400 ₽" },
   { value: "half_day", label: "Полдня",      sub: "1 200 ₽" },
   { value: "full_day", label: "Полный день", sub: "1 800 ₽" },
 ];
 
+type DaycarePrice = { label: string; price: number };
+
 export function AdminBookingForm({
   profiles,
   allPets,
+  daycareprices,
   preselectedClientId,
 }: {
   profiles: Profile[];
   allPets: Pet[];
+  daycareprices?: DaycarePrice[];
   preselectedClientId?: string;
 }) {
+  const FORMAT_OPTIONS = (daycareprices && daycareprices.length > 0
+    ? daycareprices.map((p, i) => ({
+        value: ["hour", "half_day", "full_day"][i] ?? `format_${i}`,
+        label: p.label,
+        sub: `${p.price.toLocaleString("ru-RU")} ₽`,
+      }))
+    : FALLBACK_FORMAT_OPTIONS);
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

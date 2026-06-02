@@ -42,8 +42,9 @@ export async function upsertPrice(data: {
 }) {
   await requireAdmin();
   const supabase = createClient();
-  const { error } = data.id
-    ? await supabase.from("prices").update(data).eq("id", data.id)
+  const { id, ...rest } = data;
+  const { error } = id
+    ? await supabase.from("prices").update(rest).eq("id", id)
     : await supabase.from("prices").insert(data);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/daycare/prices");
@@ -66,8 +67,9 @@ export async function upsertFaq(data: {
 }) {
   await requireAdmin();
   const supabase = createClient();
-  const { error } = data.id
-    ? await supabase.from("faq").update(data).eq("id", data.id)
+  const { id: faqId, ...faqRest } = data;
+  const { error } = faqId
+    ? await supabase.from("faq").update(faqRest).eq("id", faqId)
     : await supabase.from("faq").insert(data);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/faq");

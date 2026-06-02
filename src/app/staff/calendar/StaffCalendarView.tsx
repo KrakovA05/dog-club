@@ -2,13 +2,9 @@
 import { useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { parseLocalDate, toLocalDateStr, formatCalendarDate } from "@/lib/utils";
+import { parseLocalDate, toLocalDateStr, formatCalendarDate, MONTHS } from "@/lib/utils";
 
 const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-const MONTHS = [
-  "Январь","Февраль","Март","Апрель","Май","Июнь",
-  "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь",
-];
 
 const FORMAT_LABELS: Record<string, string> = {
   hour: "Час", half_day: "Полдня", full_day: "Полный день",
