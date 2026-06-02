@@ -2,6 +2,7 @@
 import { useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { parseLocalDate, toLocalDateStr, formatCalendarDate } from "@/lib/utils";
 
 const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 const MONTHS = [
@@ -36,15 +37,6 @@ interface BookingRow {
   profiles: { full_name: string | null } | null;
 }
 
-function parseLocalDate(str: string): Date {
-  const [y, m, d] = str.split("-").map(Number);
-  return new Date(y, m - 1, d);
-}
-
-function toLocalDateStr(date: Date): string {
-  return date.toLocaleDateString("sv");
-}
-
 function getDatesInRange(start: string, end: string | null): string[] {
   const dates: string[] = [];
   const cur = parseLocalDate(start);
@@ -54,11 +46,6 @@ function getDatesInRange(start: string, end: string | null): string[] {
     cur.setDate(cur.getDate() + 1);
   }
   return dates;
-}
-
-function formatDate(d: string) {
-  const [, m, day] = d.split("-");
-  return `${parseInt(day)} ${MONTHS[parseInt(m) - 1]}`;
 }
 
 export function StaffCalendarView({ bookings }: { bookings: BookingRow[] }) {
@@ -174,7 +161,7 @@ export function StaffCalendarView({ bookings }: { bookings: BookingRow[] }) {
         {selected ? (
           <div className="bg-background rounded-2xl border overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3 border-b">
-              <span className="font-semibold">{formatDate(selected)}</span>
+              <span className="font-semibold">{formatCalendarDate(selected)}</span>
               <button onClick={() => setSelected(null)} className="text-muted-foreground hover:text-foreground">
                 <X className="h-4 w-4" />
               </button>

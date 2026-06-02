@@ -40,12 +40,13 @@ export async function middleware(request: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("is_admin")
       .eq("id", user.id)
       .single();
 
+    if (profileError) console.error("Middleware: не удалось прочитать is_admin для", user.id, profileError.message);
     if (!profile?.is_admin) {
       return NextResponse.redirect(new URL("/", request.url));
     }
@@ -56,12 +57,13 @@ export async function middleware(request: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-    const { data: profile } = await supabase
+    const { data: profile, error: staffError } = await supabase
       .from("profiles")
       .select("is_admin, is_staff")
       .eq("id", user.id)
       .single();
 
+    if (staffError) console.error("Middleware: не удалось прочитать is_staff для", user.id, staffError.message);
     if (!profile?.is_admin && !profile?.is_staff) {
       return NextResponse.redirect(new URL("/", request.url));
     }

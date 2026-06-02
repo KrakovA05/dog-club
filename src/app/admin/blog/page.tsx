@@ -17,9 +17,7 @@ export default async function AdminBlogPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Блог</h1>
-        <Button size="sm" render={<Link href="/admin/blog/new" />}>
-          <Plus className="h-4 w-4 mr-1" /> Новая статья
-        </Button>
+        <Button size="sm" render={<Link href="/admin/blog/new"><Plus className="h-4 w-4 mr-1" /> Новая статья</Link>} />
       </div>
 
       {!posts?.length ? (

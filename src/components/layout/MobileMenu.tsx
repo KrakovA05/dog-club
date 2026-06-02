@@ -41,28 +41,22 @@ export function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
           ))}
           <div className="border-t mt-4 pt-4 flex flex-col gap-2">
             <Button
-              render={<Link href="/booking" onClick={() => setOpen(false)} />}
+              render={<Link href="/booking" onClick={() => setOpen(false)}>Забронировать</Link>}
               className="w-full"
               size="lg"
-            >
-              Забронировать
-            </Button>
+            />
             {isLoggedIn ? (
               <Button
                 variant="outline"
-                render={<Link href="/cabinet" onClick={() => setOpen(false)} />}
+                render={<Link href="/cabinet" onClick={() => setOpen(false)}>Личный кабинет</Link>}
                 className="w-full"
-              >
-                Личный кабинет
-              </Button>
+              />
             ) : (
               <Button
                 variant="outline"
-                render={<Link href="/login" onClick={() => setOpen(false)} />}
+                render={<Link href="/login" onClick={() => setOpen(false)}>Войти</Link>}
                 className="w-full"
-              >
-                Войти
-              </Button>
+              />
             )}
           </div>
         </nav>
