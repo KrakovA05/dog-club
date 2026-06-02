@@ -41,6 +41,10 @@ export default async function AdminReviewsPage() {
                     ))}
                   </div>
                   <p className="text-sm text-muted-foreground">{r.text}</p>
+                  {r.pet_photo_url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={r.pet_photo_url} alt="фото питомца" className="mt-2 h-16 w-16 rounded-lg object-cover" />
+                  )}
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <form action={setReviewPublished.bind(null, r.id, !r.is_published)}>

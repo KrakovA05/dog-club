@@ -57,7 +57,7 @@ export default function DaycarePage() {
               Оставьте питомца на час, полдня или полный день. Пока вы на работе или по делам —
               мы обеспечим общение, игры и заботу.
             </p>
-            <Button size="lg" render={<Link href="/booking">Записаться</Link>} />
+            <Button size="lg" render={<Link href="/booking">Занять место сейчас</Link>} />
           </div>
         </div>
       </section>

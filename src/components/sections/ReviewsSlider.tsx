@@ -33,6 +33,18 @@ export async function ReviewsSlider() {
                   <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
                     «{review.text}»
                   </p>
+
+                  {review.pet_photo_url && (
+                    <div className="mb-4 rounded-xl overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={review.pet_photo_url}
+                        alt={`Питомец ${review.author_name}`}
+                        className="w-full h-40 object-cover"
+                      />
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm">{review.author_name}</span>
                     {review.pet_type && (

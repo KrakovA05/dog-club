@@ -7,30 +7,24 @@ export function CtaBanner() {
     <section className="py-16 md:py-20 bg-primary text-primary-foreground">
       <div className="container mx-auto max-w-6xl px-4 text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          Готовы доверить нам своего питомца?
+          Не оставляйте питомца одного
         </h2>
         <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
-          Оставьте заявку онлайн или позвоните — ответим в течение нескольких часов
+          Займите место прямо сейчас — свободных мест становится меньше с каждым днём
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button
-            size="lg"
-            variant="secondary"
-            className="text-base px-8"
-            render={<Link href="/booking">Забронировать онлайн</Link>}
-          />
-          <Button
-            size="lg"
-            variant="outline"
-            className="text-base px-8 border-primary-foreground/60 text-primary-foreground bg-transparent hover:bg-primary-foreground/15"
-            render={
-              <a href="tel:+74842000000" className="flex items-center gap-2">
-                <Phone className="h-4 w-4" />
-                Позвонить
-              </a>
-            }
-          />
-        </div>
+        <Button
+          size="lg"
+          variant="secondary"
+          className="text-base px-10"
+          render={<Link href="/booking">Занять место для питомца</Link>}
+        />
+        <p className="mt-5 text-primary-foreground/60 text-sm">
+          Или позвоните:{" "}
+          <a href="tel:+74842000000" className="text-primary-foreground/90 hover:text-primary-foreground transition-colors font-medium inline-flex items-center gap-1">
+            <Phone className="h-3.5 w-3.5" />
+            +7 (4842) 00-00-00
+          </a>
+        </p>
       </div>
     </section>
   );

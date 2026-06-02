@@ -38,7 +38,7 @@ export default function HotelPage() {
               под постоянным присмотром. Минимальный срок — одни сутки.
             </p>
             <div className="text-3xl font-bold text-primary mb-8">от 1 500 ₽/сутки</div>
-            <Button size="lg" render={<Link href="/booking">Забронировать место</Link>} />
+            <Button size="lg" render={<Link href="/booking">Зарезервировать место</Link>} />
           </div>
         </div>
       </section>

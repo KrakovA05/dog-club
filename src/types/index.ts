@@ -24,6 +24,7 @@ export interface ReviewRow {
   text: string;
   rating: number;
   pet_type: string | null;
+  pet_photo_url: string | null;
   created_at: string;
   is_published: boolean;
 }
