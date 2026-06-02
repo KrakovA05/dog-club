@@ -15,10 +15,12 @@ export function PricesAdmin({
 }) {
   const [editing, setEditing] = useState<Partial<PriceRow> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   async function save() {
     if (!editing || saving) return;
     setSaving(true);
+    setSaveError(null);
     try {
       await upsertPrice({
         id: editing.id,
@@ -31,6 +33,8 @@ export function PricesAdmin({
         sort_order: editing.sort_order ?? prices.length,
       });
       setEditing(null);
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : "Ошибка сохранения");
     } finally {
       setSaving(false);
     }
@@ -146,6 +150,7 @@ export function PricesAdmin({
             <Input placeholder={`Единица (${defaultUnit})`} value={editing.unit ?? ""}
               onChange={(e) => setEditing((p) => ({ ...p, unit: e.target.value }))} />
           </div>
+          {saveError && <p className="text-destructive text-sm">{saveError}</p>}
           <div className="flex gap-2">
             <Button size="sm" onClick={save} disabled={saving}>{saving ? "Сохраняем..." : "Добавить"}</Button>
             <Button size="sm" variant="outline" onClick={() => setEditing(null)}>Отмена</Button>

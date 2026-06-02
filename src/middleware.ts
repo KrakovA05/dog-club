@@ -46,8 +46,8 @@ export async function middleware(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    if (profileError) console.error("Middleware: не удалось прочитать is_admin для", user.id, profileError.message);
-    if (!profile?.is_admin) {
+    if (profileError || !profile?.is_admin) {
+      if (profileError) console.error("Middleware: ошибка чтения is_admin для", user.id, profileError.message);
       return NextResponse.redirect(new URL("/", request.url));
     }
   }
@@ -63,8 +63,8 @@ export async function middleware(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    if (staffError) console.error("Middleware: не удалось прочитать is_staff для", user.id, staffError.message);
-    if (!profile?.is_admin && !profile?.is_staff) {
+    if (staffError || (!profile?.is_admin && !profile?.is_staff)) {
+      if (staffError) console.error("Middleware: ошибка чтения is_staff для", user.id, staffError.message);
       return NextResponse.redirect(new URL("/", request.url));
     }
   }

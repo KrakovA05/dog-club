@@ -119,7 +119,9 @@ export async function addGalleryItem(url: string, alt: string, sortOrder: number
 export async function deleteGalleryItem(id: string, url: string) {
   await requireAdmin();
   const supabase = createClient();
-  const path = url.split("/gallery/")[1];
+  const marker = "/object/public/gallery/";
+  const idx = url.indexOf(marker);
+  const path = idx !== -1 ? url.slice(idx + marker.length) : null;
   if (path) {
     const { error: storageError } = await supabase.storage.from("gallery").remove([path]);
     if (storageError) console.error("Storage remove error:", storageError.message);
