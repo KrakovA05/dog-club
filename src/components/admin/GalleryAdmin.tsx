@@ -17,6 +17,7 @@ export function GalleryAdmin({ items: initial }: { items: GalleryItem[] }) {
     setUploading(true);
     setUploadError(null);
     const supabase = createClient();
+    try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setUploadError("Сессия истекла — перезайдите в аккаунт"); setUploading(false); return; }
     const failed: string[] = [];
@@ -36,8 +37,12 @@ export function GalleryAdmin({ items: initial }: { items: GalleryItem[] }) {
         failed.push(file.name);
       }
     }
-    setUploading(false);
     if (failed.length) setUploadError(`Не удалось загрузить: ${failed.join(", ")}`);
+    } catch (e) {
+      setUploadError(e instanceof Error ? e.message : "Ошибка загрузки");
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function handleDelete(item: GalleryItem) {
