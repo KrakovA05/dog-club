@@ -14,20 +14,26 @@ export function PricesAdmin({
   serviceType: "daycare" | "hotel";
 }) {
   const [editing, setEditing] = useState<Partial<PriceRow> | null>(null);
+  const [saving, setSaving] = useState(false);
 
   async function save() {
-    if (!editing) return;
-    await upsertPrice({
-      id: editing.id,
-      service_type: serviceType,
-      label: editing.label ?? "",
-      description: editing.description ?? "",
-      price: editing.price ?? 0,
-      unit: editing.unit ?? (serviceType === "hotel" ? "сутки" : "день"),
-      is_featured: editing.is_featured ?? false,
-      sort_order: editing.sort_order ?? prices.length,
-    });
-    setEditing(null);
+    if (!editing || saving) return;
+    setSaving(true);
+    try {
+      await upsertPrice({
+        id: editing.id,
+        service_type: serviceType,
+        label: editing.label ?? "",
+        description: editing.description ?? "",
+        price: editing.price ?? 0,
+        unit: editing.unit ?? (serviceType === "hotel" ? "сутки" : "день"),
+        is_featured: editing.is_featured ?? false,
+        sort_order: editing.sort_order ?? prices.length,
+      });
+      setEditing(null);
+    } finally {
+      setSaving(false);
+    }
   }
 
   const defaultUnit = serviceType === "hotel" ? "сутки" : "день";
@@ -87,7 +93,7 @@ export function PricesAdmin({
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex gap-1 justify-end">
-                      <Button size="icon" variant="ghost" className="h-7 w-7 text-primary" onClick={save}>
+                      <Button size="icon" variant="ghost" className="h-7 w-7 text-primary" onClick={save} disabled={saving}>
                         <Check className="h-4 w-4" />
                       </Button>
                       <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditing(null)}>
@@ -141,7 +147,7 @@ export function PricesAdmin({
               onChange={(e) => setEditing((p) => ({ ...p, unit: e.target.value }))} />
           </div>
           <div className="flex gap-2">
-            <Button size="sm" onClick={save}>Добавить</Button>
+            <Button size="sm" onClick={save} disabled={saving}>{saving ? "Сохраняем..." : "Добавить"}</Button>
             <Button size="sm" variant="outline" onClick={() => setEditing(null)}>Отмена</Button>
           </div>
         </div>

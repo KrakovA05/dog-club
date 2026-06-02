@@ -8,16 +8,22 @@ import type { FaqRow } from "@/types";
 
 export function FaqAdmin({ faqs }: { faqs: FaqRow[] }) {
   const [editing, setEditing] = useState<Partial<FaqRow> | null>(null);
+  const [saving, setSaving] = useState(false);
 
   async function save() {
-    if (!editing) return;
-    await upsertFaq({
-      id: editing.id,
-      question: editing.question ?? "",
-      answer: editing.answer ?? "",
-      sort_order: editing.sort_order ?? faqs.length + 1,
-    });
-    setEditing(null);
+    if (!editing || saving) return;
+    setSaving(true);
+    try {
+      await upsertFaq({
+        id: editing.id,
+        question: editing.question ?? "",
+        answer: editing.answer ?? "",
+        sort_order: editing.sort_order ?? faqs.length + 1,
+      });
+      setEditing(null);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -38,8 +44,8 @@ export function FaqAdmin({ faqs }: { faqs: FaqRow[] }) {
               placeholder="Ответ"
             />
             <div className="flex gap-2">
-              <Button size="sm" onClick={save}>
-                <Check className="h-4 w-4 mr-1" /> Сохранить
+              <Button size="sm" onClick={save} disabled={saving}>
+                <Check className="h-4 w-4 mr-1" />{saving ? "Сохраняем..." : "Сохранить"}
               </Button>
               <Button size="sm" variant="outline" onClick={() => setEditing(null)}>
                 <X className="h-4 w-4" />
@@ -82,7 +88,7 @@ export function FaqAdmin({ faqs }: { faqs: FaqRow[] }) {
             placeholder="Ответ"
           />
           <div className="flex gap-2">
-            <Button size="sm" onClick={save}>Добавить</Button>
+            <Button size="sm" onClick={save} disabled={saving}>{saving ? "Сохраняем..." : "Добавить"}</Button>
             <Button size="sm" variant="outline" onClick={() => setEditing(null)}>Отмена</Button>
           </div>
         </div>
