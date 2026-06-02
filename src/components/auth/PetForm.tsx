@@ -52,8 +52,11 @@ export function PetForm({ pet, onSaved, onCancel }: Props) {
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setPassportPreview((prev) => {
+      if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
     setPassportFile(file);
-    setPassportPreview(URL.createObjectURL(file));
   }
 
   async function uploadPassport(userId: string): Promise<string | null> {
@@ -178,7 +181,7 @@ export function PetForm({ pet, onSaved, onCancel }: Props) {
               />
               <button
                 type="button"
-                onClick={() => { setPassportFile(null); setPassportPreview(null); if (fileRef.current) fileRef.current.value = ""; }}
+                onClick={() => { setPassportFile(null); setPassportPreview((prev) => { if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev); return null; }); if (fileRef.current) fileRef.current.value = ""; }}
                 className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-destructive text-white flex items-center justify-center hover:bg-destructive/80 transition-colors"
               >
                 <X className="h-3.5 w-3.5" />

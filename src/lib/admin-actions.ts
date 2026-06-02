@@ -124,14 +124,18 @@ export async function upsertBlogPost(data: {
   const supabase = createClient();
 
   let published_at: string | null = null;
-  if (data.id && data.is_published) {
+  if (data.id) {
     const { data: existing } = await supabase
       .from("blog_posts")
-      .select("published_at, is_published")
+      .select("published_at")
       .eq("id", data.id)
       .single();
-    published_at = existing?.published_at ?? new Date().toISOString();
-  } else if (!data.id && data.is_published) {
+    if (data.is_published) {
+      published_at = existing?.published_at ?? new Date().toISOString();
+    } else {
+      published_at = existing?.published_at ?? null;
+    }
+  } else if (data.is_published) {
     published_at = new Date().toISOString();
   }
 

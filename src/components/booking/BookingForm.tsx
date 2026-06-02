@@ -20,9 +20,15 @@ const FALLBACK_PRICES: DaycarePrice[] = [
   { service_type: "daycare", label: "Полный день", price: 1800, unit: "день" },
 ];
 
+const LABEL_TO_VALUE: Record<string, string> = {
+  "Час": "hour", "час": "hour",
+  "Полдня": "half_day", "полдня": "half_day",
+  "Полный день": "full_day", "полный день": "full_day",
+};
+
 export function BookingForm({ pets, daycareprices }: { pets: Pet[]; daycareprices?: DaycarePrice[] }) {
   const formats = (daycareprices && daycareprices.length > 0 ? daycareprices : FALLBACK_PRICES).map((p, i) => ({
-    value: ["hour", "half_day", "full_day"][i] ?? `format_${i}`,
+    value: LABEL_TO_VALUE[p.label] ?? ["hour", "half_day", "full_day"][i] ?? `format_${i}`,
     label: p.label,
     price: `${p.price.toLocaleString("ru-RU")} ₽`,
   }));

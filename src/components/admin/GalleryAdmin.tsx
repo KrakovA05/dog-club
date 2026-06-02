@@ -17,6 +17,8 @@ export function GalleryAdmin({ items: initial }: { items: GalleryItem[] }) {
     setUploading(true);
     setUploadError(null);
     const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setUploadError("Сессия истекла — перезайдите в аккаунт"); setUploading(false); return; }
     const failed: string[] = [];
     let order = items.length;
 

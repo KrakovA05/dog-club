@@ -24,6 +24,12 @@ const FALLBACK_FORMAT_OPTIONS = [
 
 type DaycarePrice = { label: string; price: number };
 
+const LABEL_TO_VALUE: Record<string, string> = {
+  "Час": "hour", "час": "hour",
+  "Полдня": "half_day", "полдня": "half_day",
+  "Полный день": "full_day", "полный день": "full_day",
+};
+
 export function AdminBookingForm({
   profiles,
   allPets,
@@ -37,7 +43,7 @@ export function AdminBookingForm({
 }) {
   const FORMAT_OPTIONS = (daycareprices && daycareprices.length > 0
     ? daycareprices.map((p, i) => ({
-        value: ["hour", "half_day", "full_day"][i] ?? `format_${i}`,
+        value: LABEL_TO_VALUE[p.label] ?? ["hour", "half_day", "full_day"][i] ?? `format_${i}`,
         label: p.label,
         sub: `${p.price.toLocaleString("ru-RU")} ₽`,
       }))

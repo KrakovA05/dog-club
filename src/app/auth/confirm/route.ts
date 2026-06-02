@@ -5,7 +5,8 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
   const rawType = searchParams.get("type");
-  const next = searchParams.get("next") ?? "/cabinet";
+  const rawNext = searchParams.get("next") ?? "/cabinet";
+  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/cabinet";
 
   const type = rawType === "email" || rawType === "recovery" ? rawType : null;
 
