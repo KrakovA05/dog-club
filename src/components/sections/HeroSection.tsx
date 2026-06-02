@@ -3,8 +3,20 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Star } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
-export function HeroSection() {
+export async function HeroSection() {
+  const supabase = await createClient();
+  const { data: reviews } = await supabase
+    .from("reviews")
+    .select("rating")
+    .eq("is_published", true);
+
+  const count = reviews?.length ?? 0;
+  const avg = count > 0
+    ? (reviews!.reduce((s, r) => s + r.rating, 0) / count).toFixed(1)
+    : "5.0";
+
   return (
     <section className="relative overflow-hidden bg-brand-light py-20 md:py-32">
       <div className="container mx-auto max-w-6xl px-4">
@@ -17,13 +29,13 @@ export function HeroSection() {
             </Badge>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-              Ваш питомец{" "}
-              <span className="text-primary">в надёжных руках</span>
+              Уходите спокойно —{" "}
+              <span className="text-primary">питомец под присмотром</span>
             </h1>
 
             <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed">
-              Зоогостиница и детский сад для собак и кошек. Принимаем питомцев
-              на час, полдня, полный день — или на всё время вашего отсутствия.
+              Зоогостиница и детский сад для собак и кошек в Калуге.
+              Открытые боксы, видеонаблюдение, забота с 8:00 до 20:00.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -40,13 +52,24 @@ export function HeroSection() {
               />
             </div>
 
-            <div className="flex items-center gap-6 mt-10 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-10 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
-                <Star className="h-4 w-4 fill-primary text-primary" />
-                <span className="font-medium text-foreground">5.0</span>
-                <span>— отзывы клиентов</span>
+                <div className="flex">
+                  {[1,2,3,4,5].map((i) => (
+                    <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                  ))}
+                </div>
+                <span className="font-semibold text-foreground">{avg}</span>
+                {count > 0 && <span>· {count} {count === 1 ? "отзыв" : count < 5 ? "отзыва" : "отзывов"}</span>}
               </div>
-              <div>Собаки и кошки до 15 кг</div>
+              <div className="flex items-center gap-1.5">
+                <span>🐾</span>
+                <span>Собаки и кошки до 15 кг</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span>✓</span>
+                <span>Ветпаспорт обязателен</span>
+              </div>
             </div>
           </div>
 

@@ -65,7 +65,26 @@ export default async function BookingPage() {
         </div>
       </section>
 
-      <section className="py-12 md:py-16">
+      {/* FAQ перед формой */}
+      <section className="pt-10 pb-0">
+        <div className="container mx-auto max-w-xl px-4">
+          <div className="rounded-xl bg-muted/40 p-5 space-y-3 text-sm mb-2">
+            <p className="font-semibold text-base">Частые вопросы</p>
+            {[
+              ["Когда с нами свяжутся?", "В течение 1–2 часов в рабочее время (8:00–20:00)."],
+              ["Что взять с собой?", "Ветпаспорт питомца с актуальными прививками и его корм."],
+              ["Как отменить бронирование?", "Через личный кабинет или позвоните нам по телефону."],
+            ].map(([q, a]) => (
+              <div key={q}>
+                <p className="font-medium">{q}</p>
+                <p className="text-muted-foreground">{a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-10 md:py-14">
         <div className="container mx-auto max-w-xl px-4">
           <BookingForm pets={(pets as Pet[]) ?? []} daycareprices={prices ?? []} />
         </div>
