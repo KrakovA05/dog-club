@@ -46,41 +46,33 @@ export function ServicesPreview() {
           {services.map((service) => {
             const Icon = service.icon;
             return (
-              <Card
-                key={service.href}
-                className="border-0 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <CardHeader>
-                  <div
-                    className={`w-12 h-12 rounded-xl ${service.bg} flex items-center justify-center mb-4`}
-                  >
-                    <Icon className={`h-6 w-6 ${service.color}`} />
-                  </div>
-                  <CardTitle className="text-2xl">{service.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">{service.description}</p>
-                  <ul className="space-y-2">
-                    {service.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    render={
-                      <Link href={service.href} className="flex items-center gap-2">
-                        Подробнее <ArrowRight className="h-4 w-4" />
-                      </Link>
-                    }
-                  />
-                </CardFooter>
-              </Card>
+              <Link key={service.href} href={service.href} className="group block">
+                <Card className="border-0 shadow-sm group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-200 h-full">
+                  <CardHeader>
+                    <div className={`w-12 h-12 rounded-xl ${service.bg} flex items-center justify-center mb-4`}>
+                      <Icon className={`h-6 w-6 ${service.color}`} />
+                    </div>
+                    <CardTitle className="text-2xl">{service.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground mb-4">{service.description}</p>
+                    <ul className="space-y-2">
+                      {service.features.map((f) => (
+                        <li key={f} className="flex items-center gap-2 text-sm">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                  <CardFooter>
+                    <span className="flex items-center gap-2 text-sm font-medium text-primary">
+                      Подробнее
+                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
+                    </span>
+                  </CardFooter>
+                </Card>
+              </Link>
             );
           })}
         </div>

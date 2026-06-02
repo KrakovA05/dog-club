@@ -2,10 +2,33 @@ import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 export function Footer() {
   return (
     <footer className="bg-brand-dark text-brand-light">
+      {/* Мини-CTA */}
+      <div className="border-b border-white/10">
+        <div className="container mx-auto max-w-6xl px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm opacity-80 text-center sm:text-left">
+            Остались вопросы? Позвоните или оставьте заявку онлайн
+          </p>
+          <div className="flex gap-3 shrink-0">
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-white/30 text-brand-light bg-transparent hover:bg-white/10 hover:text-brand-light"
+              render={<a href="tel:+74842000000">Позвонить</a>}
+            />
+            <Button
+              size="sm"
+              className="bg-primary hover:bg-primary/80"
+              render={<Link href="/booking">Забронировать</Link>}
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto max-w-6xl px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
@@ -13,7 +36,7 @@ export function Footer() {
               <Image src="/logo.png" alt="Дог Клуб" width={32} height={32} className="rounded-lg object-contain brightness-200" />
               <h3 className="font-bold text-lg">Дог Клуб</h3>
             </div>
-            <p className="text-sm opacity-70">
+            <p className="text-sm opacity-70 leading-relaxed">
               Зоогостиница и детский сад для собак и кошек в Калуге.
               Профессиональный уход, внимание и любовь к каждому питомцу.
             </p>
@@ -33,7 +56,7 @@ export function Footer() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm opacity-70 hover:opacity-100 transition-opacity"
+                  className="text-sm opacity-70 hover:opacity-100 transition-opacity w-fit"
                 >
                   {link.label}
                 </Link>

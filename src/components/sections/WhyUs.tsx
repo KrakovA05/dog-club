@@ -38,8 +38,8 @@ export function WhyUs() {
           {reasons.map((reason) => {
             const Icon = reason.icon;
             return (
-              <div key={reason.title} className="flex flex-col items-center text-center p-6">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+              <div key={reason.title} className="group flex flex-col items-center text-center p-6 rounded-2xl hover:bg-background hover:shadow-md transition-all duration-200">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 group-hover:bg-primary/15 flex items-center justify-center mb-4 transition-colors duration-200">
                   <Icon className="h-7 w-7 text-primary" />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">{reason.title}</h3>
