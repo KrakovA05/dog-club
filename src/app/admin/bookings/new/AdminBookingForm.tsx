@@ -58,6 +58,8 @@ export function AdminBookingForm({
     if (!clientId) { setError("Выберите клиента"); return; }
     if (!petId) { setError("Выберите питомца"); return; }
     if (!startDate) { setError("Укажите дату"); return; }
+    if (serviceType === "hotel" && !endDate) { setError("Укажите дату выезда"); return; }
+    if (serviceType === "hotel" && endDate && endDate < startDate) { setError("Дата выезда не может быть раньше заезда"); return; }
     if (serviceType === "daycare" && !daycareFormat) { setError("Выберите формат посещения"); return; }
 
     setSaving(true);

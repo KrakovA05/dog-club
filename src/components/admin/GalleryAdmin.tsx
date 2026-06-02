@@ -9,29 +9,34 @@ import type { GalleryItem } from "@/types";
 export function GalleryAdmin({ items: initial }: { items: GalleryItem[] }) {
   const [items, setItems] = useState(initial);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleUpload(files: FileList | null) {
     if (!files?.length) return;
     setUploading(true);
+    setUploadError(null);
     const supabase = createClient();
+    const failed: string[] = [];
+    let order = items.length;
 
     for (const file of Array.from(files)) {
       const ext = file.name.split(".").pop();
       const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { data, error } = await supabase.storage.from("gallery").upload(path, file);
-      if (error) continue;
+      if (error) { failed.push(file.name); continue; }
 
       const { data: { publicUrl } } = supabase.storage.from("gallery").getPublicUrl(data.path);
       const { data: row } = await supabase
         .from("gallery")
-        .insert({ url: publicUrl, alt: file.name.replace(/\.[^.]+$/, ""), sort_order: items.length })
+        .insert({ url: publicUrl, alt: file.name.replace(/\.[^.]+$/, ""), sort_order: order++ })
         .select()
         .single();
 
       if (row) setItems((prev) => [...prev, row as GalleryItem]);
     }
     setUploading(false);
+    if (failed.length) setUploadError(`Не удалось загрузить: ${failed.join(", ")}`);
   }
 
   async function handleDelete(item: GalleryItem) {
@@ -56,6 +61,7 @@ export function GalleryAdmin({ items: initial }: { items: GalleryItem[] }) {
           {uploading ? "Загружаем..." : "Загрузить фото"}
         </Button>
         <p className="text-xs text-muted-foreground mt-2">Можно выбрать несколько. JPG, PNG, WebP.</p>
+        {uploadError && <p className="text-destructive text-sm mt-2">{uploadError}</p>}
       </div>
 
       {items.length === 0 ? (

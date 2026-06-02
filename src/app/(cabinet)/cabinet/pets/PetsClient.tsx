@@ -14,9 +14,20 @@ export function PetsClient({ initialPets }: { initialPets: Pet[] }) {
   const [mode, setMode] = useState<"list" | "add" | { edit: Pet }>("list");
 
   async function deletePet(id: string) {
-    if (!confirm("Удалить питомца?")) return;
     const supabase = createClient();
-    await supabase.from("pets").delete().eq("id", id);
+    const { data: active } = await supabase
+      .from("bookings")
+      .select("id")
+      .eq("pet_id", id)
+      .in("status", ["pending", "confirmed"])
+      .limit(1);
+    if (active?.length) {
+      alert("Нельзя удалить питомца с активными бронированиями. Сначала отмените заявки.");
+      return;
+    }
+    if (!confirm("Удалить питомца?")) return;
+    const { error } = await supabase.from("pets").delete().eq("id", id);
+    if (error) { alert("Не удалось удалить питомца: " + error.message); return; }
     setPets((prev) => prev.filter((p) => p.id !== id));
   }
 

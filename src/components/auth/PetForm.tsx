@@ -60,9 +60,16 @@ export function PetForm({ pet, onSaved, onCancel }: Props) {
     if (!passportFile) return pet?.passport_photo_url ?? null;
     setUploading(true);
     const supabase = createClient();
+
+    // Удаляем старый файл если есть
+    if (pet?.passport_photo_url) {
+      const oldPath = pet.passport_photo_url.split("/passports/")[1];
+      if (oldPath) await supabase.storage.from("passports").remove([oldPath]);
+    }
+
     const ext = passportFile.name.split(".").pop();
     const path = `${userId}/${Date.now()}.${ext}`;
-    const { data, error } = await supabase.storage.from("passports").upload(path, passportFile, { upsert: true });
+    const { data, error } = await supabase.storage.from("passports").upload(path, passportFile);
     setUploading(false);
     if (error) return null;
     const { data: { publicUrl } } = supabase.storage.from("passports").getPublicUrl(data.path);

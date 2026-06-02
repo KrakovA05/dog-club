@@ -25,7 +25,8 @@ async function getFaqs(): Promise<FaqRow[]> {
       .select("*")
       .order("sort_order");
     return (data as FaqRow[] | null) ?? [];
-  } catch {
+  } catch (e) {
+    console.error("FAQ fetch error:", e);
     return [];
   }
 }
@@ -50,7 +51,7 @@ export default async function FaqPage() {
         <div className="container mx-auto max-w-3xl px-4">
           {faqs.length === 0 ? (
             <p className="text-center text-muted-foreground py-12">
-              Загружаем ответы...
+              Вопросы и ответы появятся скоро
             </p>
           ) : (
             <Accordion className="space-y-3">

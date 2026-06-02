@@ -9,16 +9,18 @@ export default async function AdminClientsPage() {
     .from("profiles")
     .select("id, full_name, phone, created_at")
     .eq("is_admin", false)
+    .eq("is_staff", false)
     .order("created_at", { ascending: false });
 
+  type PetRow = { id: string; owner_id: string; name: string; type: string };
   const { data: pets } = await supabase
     .from("pets")
-    .select("id, owner_id, name, type");
+    .select("id, owner_id, name, type")
+    .limit(500);
 
-  const petsByOwner = (pets ?? []).reduce<Record<string, typeof pets>>((acc, pet) => {
-    if (!pet) return acc;
+  const petsByOwner = (pets ?? []).reduce<Record<string, PetRow[]>>((acc, pet) => {
     if (!acc[pet.owner_id]) acc[pet.owner_id] = [];
-    acc[pet.owner_id]!.push(pet);
+    acc[pet.owner_id].push(pet);
     return acc;
   }, {});
 

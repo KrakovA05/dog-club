@@ -40,6 +40,7 @@ export interface Profile {
   full_name: string | null;
   phone: string | null;
   is_admin: boolean;
+  is_staff: boolean;
   created_at: string;
 }
 

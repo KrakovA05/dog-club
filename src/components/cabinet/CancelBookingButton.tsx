@@ -7,7 +7,10 @@ export function CancelBookingButton({ id }: { id: string }) {
 
   function handleClick() {
     if (!confirm("Отменить заявку? Это действие нельзя отменить.")) return;
-    startTransition(() => cancelBooking(id));
+    startTransition(async () => {
+      try { await cancelBooking(id); }
+      catch (e) { alert("Ошибка отмены: " + (e instanceof Error ? e.message : "попробуйте снова")); }
+    });
   }
 
   return (

@@ -46,6 +46,14 @@ export function BookingForm({ pets }: { pets: Pet[] }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setServerError("Войдите в аккаунт"); return; }
 
+      const { data: petCheck } = await supabase
+        .from("pets")
+        .select("id")
+        .eq("id", petId)
+        .eq("owner_id", user.id)
+        .single();
+      if (!petCheck) { setServerError("Выбранный питомец не найден"); return; }
+
       const { error } = await supabase.from("bookings").insert({
         user_id: user.id,
         pet_id: petId,

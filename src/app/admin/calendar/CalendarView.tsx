@@ -32,12 +32,21 @@ interface BookingRow {
   profiles: { full_name: string | null; phone: string | null } | null;
 }
 
+function parseLocalDate(str: string): Date {
+  const [y, m, d] = str.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function toLocalDateStr(date: Date): string {
+  return date.toLocaleDateString("sv"); // YYYY-MM-DD в локальном времени
+}
+
 function getDatesInRange(start: string, end: string | null): string[] {
   const dates: string[] = [];
-  const cur = new Date(start);
-  const last = end ? new Date(end) : new Date(start);
+  const cur = parseLocalDate(start);
+  const last = end ? parseLocalDate(end) : parseLocalDate(start);
   while (cur <= last) {
-    dates.push(cur.toISOString().split("T")[0]);
+    dates.push(toLocalDateStr(cur));
     cur.setDate(cur.getDate() + 1);
   }
   return dates;
@@ -92,7 +101,7 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
   // Monday-based: getDay() 0=Sun → shift
   const startDow = (firstDay.getDay() + 6) % 7; // 0=Mon
   const daysInMonth = lastDay.getDate();
-  const todayStr = today.toISOString().split("T")[0];
+  const todayStr = toLocalDateStr(today);
 
   const cells: (number | null)[] = [
     ...Array(startDow).fill(null),

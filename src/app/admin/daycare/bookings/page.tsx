@@ -24,12 +24,8 @@ export default async function DaycareBookingsPage() {
           )}
         </div>
         <div className="flex gap-2">
-          <Button size="sm" render={<Link href="/admin/bookings/new" />}>
-            <Plus className="h-4 w-4 mr-1" /> Записать клиента
-          </Button>
-          <Button size="sm" variant="outline" render={<Link href="/admin/hotel/bookings" />}>
-            Гостиница →
-          </Button>
+          <Button size="sm" render={<Link href="/admin/bookings/new"><Plus className="h-4 w-4 mr-1" /> Записать клиента</Link>} />
+          <Button size="sm" variant="outline" render={<Link href="/admin/hotel/bookings">Гостиница →</Link>} />
         </div>
       </div>
       <BookingsAdmin bookings={(bookings as any[]) ?? []}  />

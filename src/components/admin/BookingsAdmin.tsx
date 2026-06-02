@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { updateBookingStatus, updateBookingPrice } from "@/lib/admin-actions";
 import type { BookingStatus } from "@/types";
@@ -43,13 +43,17 @@ interface BookingRow {
 function PriceCell({ booking }: { booking: BookingRow }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(String(booking.price_total ?? ""));
+  const savingRef = useRef(false);
 
   async function save() {
+    if (savingRef.current) return;
+    savingRef.current = true;
     const price = Number(value);
     if (!isNaN(price) && price > 0) {
       await updateBookingPrice(booking.id, price);
     }
     setEditing(false);
+    savingRef.current = false;
   }
 
   if (editing) {
@@ -60,7 +64,7 @@ function PriceCell({ booking }: { booking: BookingRow }) {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onBlur={save}
-          onKeyDown={(e) => e.key === "Enter" && save()}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); save(); } }}
           autoFocus
           className="w-24 border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
@@ -85,7 +89,7 @@ function getDuration(b: BookingRow): string {
     const start = new Date(b.start_date);
     const end = new Date(b.end_date);
     const days = Math.round((end.getTime() - start.getTime()) / 86400000);
-    return `${days} ${days === 1 ? "сутки" : days < 5 ? "суток" : "суток"}`;
+    return `${days} ${days === 1 ? "сутки" : days >= 2 && days <= 4 ? "суток" : "суток"}`;
   }
   if (b.service_type === "daycare" && b.daycare_format) {
     return FORMAT_LABELS[b.daycare_format] ?? "";

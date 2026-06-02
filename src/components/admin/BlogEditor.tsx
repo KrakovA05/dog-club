@@ -32,21 +32,30 @@ export function BlogEditor({ post }: { post?: BlogPost }) {
   const [coverUrl, setCoverUrl] = useState(post?.cover_url ?? "");
   const [published, setPublished] = useState(post?.is_published ?? false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   async function save() {
     if (!title.trim() || !content.trim()) return;
+    const finalSlug = slug || slugify(title);
+    if (!finalSlug.trim()) { setSaveError("Не удалось сгенерировать URL. Введите slug вручную."); return; }
     setSaving(true);
-    await upsertBlogPost({
-      id: post?.id,
-      slug: slug || slugify(title),
-      title,
-      excerpt,
-      content,
-      cover_url: coverUrl,
-      is_published: published,
-    });
-    setSaving(false);
-    router.push("/admin/blog");
+    setSaveError(null);
+    try {
+      await upsertBlogPost({
+        id: post?.id,
+        slug: finalSlug,
+        title,
+        excerpt,
+        content,
+        cover_url: coverUrl,
+        is_published: published,
+      });
+      router.push("/admin/blog");
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : "Ошибка сохранения");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -106,6 +115,10 @@ export function BlogEditor({ post }: { post?: BlogPost }) {
         />
         <Label htmlFor="published" className="cursor-pointer">Опубликовать сразу</Label>
       </div>
+
+      {saveError && (
+        <p className="text-destructive text-sm bg-destructive/10 px-3 py-2 rounded-lg">{saveError}</p>
+      )}
 
       <div className="flex gap-3">
         <Button onClick={save} disabled={saving || !title.trim()}>

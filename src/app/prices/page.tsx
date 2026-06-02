@@ -22,7 +22,8 @@ async function getPrices(): Promise<{ daycare: PriceRow[]; hotel: PriceRow[] }> 
       daycare: all.filter((p) => p.service_type === "daycare"),
       hotel: all.filter((p) => p.service_type === "hotel"),
     };
-  } catch {
+  } catch (e) {
+    console.error("Prices fetch error:", e);
     return { daycare: [], hotel: [] };
   }
 }
@@ -81,7 +82,7 @@ export default async function PricesPage() {
               Детский сад <Badge variant="outline">дневное пребывание</Badge>
             </h2>
             {daycare.length > 0 ? <PriceTable prices={daycare} /> : (
-              <p className="text-muted-foreground text-center py-8">Цены загружаются...</p>
+              <p className="text-muted-foreground text-center py-8">Цены появятся скоро</p>
             )}
           </div>
 
@@ -90,7 +91,7 @@ export default async function PricesPage() {
               Гостиница <Badge variant="outline">длительное проживание</Badge>
             </h2>
             {hotel.length > 0 ? <PriceTable prices={hotel} /> : (
-              <p className="text-muted-foreground text-center py-8">Цены загружаются...</p>
+              <p className="text-muted-foreground text-center py-8">Цены появятся скоро</p>
             )}
           </div>
 

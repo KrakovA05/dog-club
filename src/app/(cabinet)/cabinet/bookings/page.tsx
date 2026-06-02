@@ -53,10 +53,7 @@ export default async function BookingsPage() {
           <h1 className="text-2xl font-bold">Мои бронирования</h1>
           <p className="text-muted-foreground text-sm mt-1">История заявок</p>
         </div>
-        <Button size="sm" render={<Link href="/booking" />}>
-          <Plus className="h-4 w-4 mr-1" />
-          Новая заявка
-        </Button>
+        <Button size="sm" render={<Link href="/booking"><Plus className="h-4 w-4 mr-1" />Новая заявка</Link>} />
       </div>
 
       {!bookings || bookings.length === 0 ? (

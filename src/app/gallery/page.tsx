@@ -15,7 +15,8 @@ async function getGallery(): Promise<GalleryItem[]> {
     const supabase = await createClient();
     const { data } = await supabase.from("gallery").select("*").order("sort_order");
     return (data as GalleryItem[] | null) ?? [];
-  } catch {
+  } catch (e) {
+    console.error("Gallery fetch error:", e);
     return [];
   }
 }

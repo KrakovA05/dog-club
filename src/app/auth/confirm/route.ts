@@ -4,14 +4,16 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
-  const type = searchParams.get("type") as "email" | "recovery" | null;
+  const rawType = searchParams.get("type");
   const next = searchParams.get("next") ?? "/cabinet";
+
+  const type = rawType === "email" || rawType === "recovery" ? rawType : null;
 
   if (token_hash && type) {
     const supabase = await createClient();
     const { error } = await supabase.auth.verifyOtp({ type, token_hash });
     if (!error) {
-      const redirectTo = type === "recovery" ? "/cabinet" : "/auth/confirmed";
+      const redirectTo = type === "recovery" ? "/reset-password" : next;
       return NextResponse.redirect(new URL(redirectTo, request.url));
     }
   }
