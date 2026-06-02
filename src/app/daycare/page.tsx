@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CtaBanner } from "@/components/sections/CtaBanner";
+import { PhotoPromise } from "@/components/sections/PhotoPromise";
 import { Clock, Check, AlertCircle } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -111,6 +112,7 @@ export default function DaycarePage() {
         </div>
       </section>
 
+      <PhotoPromise />
       <CtaBanner />
     </>
   );
