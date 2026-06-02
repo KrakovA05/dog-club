@@ -21,7 +21,7 @@ export default function ForgotPasswordPage() {
   async function onSubmit({ email }: { email: string }) {
     const supabase = createClient();
     await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/confirm?next=/cabinet`,
+      redirectTo: `${window.location.origin}/auth/confirm?type=recovery`,
     });
     setDone(true);
   }
