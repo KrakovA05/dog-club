@@ -7,7 +7,7 @@ build:
   skip: false
 run:
   image: null
-  command: npm start
+  command: node server.js
   args: null
   persistenceMount: /data
   containerPort: "3000"
