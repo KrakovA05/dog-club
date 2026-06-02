@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
+import { translateSupabaseError } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,11 +46,7 @@ export function RegisterForm() {
       },
     });
     if (error) {
-      setServerError(
-        error.message.includes("already registered")
-          ? "Этот email уже зарегистрирован. Войдите или восстановите пароль."
-          : error.message
-      );
+      setServerError(translateSupabaseError(error.message));
       return;
     }
     setDone(true);

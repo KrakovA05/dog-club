@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
 import type { Pet } from "@/types";
+import { translateSupabaseError } from "@/lib/utils";
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -86,10 +87,10 @@ export function BookingForm({ pets, daycareprices }: { pets: Pet[]; daycareprice
         status: "pending",
       });
 
-      if (error) { setServerError(error.message); return; }
+      if (error) { setServerError(translateSupabaseError(error.message)); return; }
       setDone(true);
     } catch (e: unknown) {
-      setServerError(e instanceof Error ? e.message : "Произошла ошибка. Попробуйте ещё раз.");
+      setServerError(e instanceof Error ? translateSupabaseError(e.message) : "Произошла ошибка. Попробуйте ещё раз.");
     } finally {
       setSubmitting(false);
     }

@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
+import { translateSupabaseError } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -102,10 +103,10 @@ export function PetForm({ pet, onSaved, onCancel }: Props) {
 
     if (pet) {
       const { error: e } = await supabase.from("pets").update(payload).eq("id", pet.id).eq("owner_id", user.id);
-      if (e) { setError(e.message); return; }
+      if (e) { setError(translateSupabaseError(e.message)); return; }
     } else {
       const { error: e } = await supabase.from("pets").insert({ ...payload, owner_id: user.id });
-      if (e) { setError(e.message); return; }
+      if (e) { setError(translateSupabaseError(e.message)); return; }
     }
     onSaved();
   }

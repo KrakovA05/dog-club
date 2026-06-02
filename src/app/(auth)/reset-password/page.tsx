@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { translateSupabaseError } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +25,7 @@ export default function ResetPasswordPage() {
     const { error: updateError } = await supabase.auth.updateUser({ password });
     setLoading(false);
 
-    if (updateError) { setError(updateError.message); return; }
+    if (updateError) { setError(translateSupabaseError(updateError.message)); return; }
     router.push("/cabinet");
   }
 

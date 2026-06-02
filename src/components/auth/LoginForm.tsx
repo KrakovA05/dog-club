@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
+import { translateSupabaseError } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,11 +40,7 @@ export function LoginForm() {
       password: data.password,
     });
     if (error) {
-      setServerError(
-        error.message.includes("Email not confirmed")
-          ? "Подтвердите email — проверьте почту."
-          : "Неверный email или пароль."
-      );
+      setServerError(translateSupabaseError(error.message));
       return;
     }
     router.push(redirect);
