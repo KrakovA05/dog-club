@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { deleteGalleryItem } from "@/lib/admin-actions";
+import { deleteGalleryItem, addGalleryItem } from "@/lib/admin-actions";
 import { Button } from "@/components/ui/button";
 import { Trash2, Upload } from "lucide-react";
 import type { GalleryItem } from "@/types";
@@ -19,8 +19,6 @@ export function GalleryAdmin({ items: initial }: { items: GalleryItem[] }) {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setUploadError("Сессия истекла — перезайдите в аккаунт"); setUploading(false); return; }
-    const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
-    if (!profile?.is_admin) { setUploadError("Нет прав для загрузки"); setUploading(false); return; }
     const failed: string[] = [];
     let order = items.length;
 
@@ -31,13 +29,12 @@ export function GalleryAdmin({ items: initial }: { items: GalleryItem[] }) {
       if (error) { failed.push(file.name); continue; }
 
       const { data: { publicUrl } } = supabase.storage.from("gallery").getPublicUrl(data.path);
-      const { data: row } = await supabase
-        .from("gallery")
-        .insert({ url: publicUrl, alt: file.name.replace(/\.[^.]+$/, ""), sort_order: order++ })
-        .select()
-        .single();
-
-      if (row) setItems((prev) => [...prev, row as GalleryItem]);
+      try {
+        const row = await addGalleryItem(publicUrl, file.name.replace(/\.[^.]+$/, ""), order++);
+        if (row) setItems((prev) => [...prev, row as GalleryItem]);
+      } catch {
+        failed.push(file.name);
+      }
     }
     setUploading(false);
     if (failed.length) setUploadError(`Не удалось загрузить: ${failed.join(", ")}`);

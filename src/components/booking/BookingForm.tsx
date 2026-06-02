@@ -48,6 +48,7 @@ export function BookingForm({ pets, daycareprices }: { pets: Pet[]; daycareprice
     const e: FormErrors = {};
     if (!petId) e.pet_id = "Выберите питомца";
     if (!startDate) e.start_date = "Выберите дату";
+    if (serviceType === "hotel" && !endDate) e.end_date = "Укажите дату выезда";
     if (serviceType === "hotel" && endDate && endDate < startDate) e.end_date = "Дата выезда не может быть раньше заезда";
     if (serviceType === "daycare" && !daycareFormat) e.daycare_format = "Выберите формат посещения";
     setErrors(e);

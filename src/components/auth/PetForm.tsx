@@ -101,7 +101,7 @@ export function PetForm({ pet, onSaved, onCancel }: Props) {
     };
 
     if (pet) {
-      const { error: e } = await supabase.from("pets").update(payload).eq("id", pet.id);
+      const { error: e } = await supabase.from("pets").update(payload).eq("id", pet.id).eq("owner_id", user.id);
       if (e) { setError(e.message); return; }
     } else {
       const { error: e } = await supabase.from("pets").insert({ ...payload, owner_id: user.id });

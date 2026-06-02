@@ -26,7 +26,9 @@ export function PetsClient({ initialPets }: { initialPets: Pet[] }) {
       return;
     }
     if (!confirm("Удалить питомца?")) return;
-    const { error } = await supabase.from("pets").delete().eq("id", id);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { alert("Сессия истекла — перезайдите"); return; }
+    const { error } = await supabase.from("pets").delete().eq("id", id).eq("owner_id", user.id);
     if (error) { alert("Не удалось удалить питомца: " + error.message); return; }
     setPets((prev) => prev.filter((p) => p.id !== id));
   }

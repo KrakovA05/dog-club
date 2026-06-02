@@ -20,7 +20,11 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawRedirect = searchParams.get("redirect") ?? "/cabinet";
-  const redirect = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "/cabinet";
+  let redirect = "/cabinet";
+  try {
+    const url = new URL(rawRedirect, "http://localhost");
+    if (url.origin === "http://localhost") redirect = rawRedirect;
+  } catch { redirect = "/cabinet"; }
   const [serverError, setServerError] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({

@@ -102,6 +102,20 @@ export async function deleteReview(id: string) {
   revalidatePath("/admin/reviews");
 }
 
+export async function addGalleryItem(url: string, alt: string, sortOrder: number) {
+  await requireAdmin();
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("gallery")
+    .insert({ url, alt, sort_order: sortOrder })
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/gallery");
+  revalidatePath("/gallery");
+  return data;
+}
+
 export async function deleteGalleryItem(id: string, url: string) {
   await requireAdmin();
   const supabase = createClient();
