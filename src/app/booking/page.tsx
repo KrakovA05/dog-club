@@ -4,6 +4,7 @@ import { BookingForm } from "@/components/booking/BookingForm";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import type { Pet } from "@/types";
+import { Zap } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Забронировать место — Дог Клуб",
@@ -54,9 +55,13 @@ export default async function BookingPage() {
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Забронировать место
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-lg mb-4">
             Заполните форму — ответим в течение нескольких часов
           </p>
+          <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 rounded-full px-4 py-2 text-sm font-medium">
+            <Zap className="h-4 w-4 fill-amber-400 text-amber-400" />
+            Места на эту неделю ограничены — бронируйте заранее
+          </div>
         </div>
       </section>
 
