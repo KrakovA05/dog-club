@@ -5,8 +5,9 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin/", "/cabinet/"],
+      disallow: ["/admin/", "/cabinet/", "/staff/", "/api/"],
     },
     sitemap: "https://dogclub-kaluga.ru/sitemap.xml",
+    host: "https://dogclub-kaluga.ru",
   };
 }

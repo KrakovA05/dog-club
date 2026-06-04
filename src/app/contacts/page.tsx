@@ -6,7 +6,8 @@ import { ContactForm } from "@/components/contacts/ContactForm";
 
 export const metadata: Metadata = {
   title: "Контакты — Дог Клуб Калуга",
-  description: "Адрес: Калуга, ул. Дарвина 14Ф. Телефон, email, режим работы.",
+  description: "Адрес: Калуга, ул. Дарвина 14Ф. Телефон: +7 (4842) 00-00-00. Ежедневно 8:00–20:00. Зоогостиница и детский сад для животных.",
+  alternates: { canonical: "https://dogclub-kaluga.ru/contacts" },
 };
 
 const contacts = [

@@ -10,9 +10,10 @@ import { CtaBanner } from "@/components/sections/CtaBanner";
 import type { FaqRow } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Частые вопросы",
+  title: "Частые вопросы о зоогостинице и детском саде",
   description:
-    "Ответы на частые вопросы о детском саде и гостинице для животных Дог Клуб в Калуге.",
+    "Ответы на частые вопросы о зоогостинице и детском саде для животных Дог Клуб в Калуге. Требования к питомцам, цены, что взять с собой.",
+  alternates: { canonical: "https://dogclub-kaluga.ru/faq" },
 };
 
 export const revalidate = 3600;
@@ -20,10 +21,7 @@ export const revalidate = 3600;
 async function getFaqs(): Promise<FaqRow[]> {
   try {
     const supabase = await createClient();
-    const { data } = await supabase
-      .from("faq")
-      .select("*")
-      .order("sort_order");
+    const { data } = await supabase.from("faq").select("*").order("sort_order");
     return (data as FaqRow[] | null) ?? [];
   } catch (e) {
     console.error("FAQ fetch error:", e);
@@ -34,13 +32,28 @@ async function getFaqs(): Promise<FaqRow[]> {
 export default async function FaqPage() {
   const faqs = await getFaqs();
 
+  const faqSchema = faqs.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: { "@type": "Answer", text: faq.answer },
+    })),
+  } : null;
+
   return (
     <>
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
+
       <section className="bg-brand-light py-16 md:py-20">
         <div className="container mx-auto max-w-6xl px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Частые вопросы
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Частые вопросы</h1>
           <p className="text-muted-foreground text-lg">
             Не нашли ответ? Напишите нам — ответим быстро.
           </p>

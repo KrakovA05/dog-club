@@ -8,8 +8,15 @@ import { PhotoPromise } from "@/components/sections/PhotoPromise";
 import { Clock, Check, AlertCircle } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Детский сад для собак и кошек",
-  description: "Дневной уход за питомцами в Калуге. Час, полдня или полный день — кормление, игры, прогулки. Принимаем собак и кошек до 15 кг.",
+  title: "Детский сад для собак и кошек в Калуге",
+  description: "Дневной уход за собаками и кошками в Калуге. Час от 400 ₽, полдня от 1 200 ₽, полный день от 1 800 ₽. Кормление, игры, прогулки. Ул. Дарвина 14Ф.",
+  keywords: ["детский сад для собак Калуга", "дневной уход за собакой Калуга", "передержка собак на день Калуга", "детский сад для кошек Калуга"],
+  alternates: { canonical: "https://dogclub-kaluga.ru/daycare" },
+  openGraph: {
+    title: "Детский сад для собак и кошек в Калуге",
+    description: "Час от 400 ₽, полдня от 1 200 ₽, полный день от 1 800 ₽. Кормление, игры, прогулки.",
+    url: "https://dogclub-kaluga.ru/daycare",
+  },
 };
 
 const formats = [
