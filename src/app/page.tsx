@@ -3,7 +3,6 @@ import { HowItWorks } from "@/components/sections/HowItWorks";
 import { ServicesPreview } from "@/components/sections/ServicesPreview";
 import { WhyUs } from "@/components/sections/WhyUs";
 import { StatsSection } from "@/components/sections/StatsSection";
-import { PhotoPromise } from "@/components/sections/PhotoPromise";
 import { ReviewsSlider } from "@/components/sections/ReviewsSlider";
 import { BlogTeaser } from "@/components/sections/BlogTeaser";
 import { CtaBanner } from "@/components/sections/CtaBanner";
@@ -16,7 +15,6 @@ export default function HomePage() {
       <ServicesPreview />
       <WhyUs />
       <StatsSection />
-      <PhotoPromise />
       <ReviewsSlider />
       <BlogTeaser />
       <CtaBanner />

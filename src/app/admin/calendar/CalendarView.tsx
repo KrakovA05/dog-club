@@ -1,7 +1,7 @@
 "use client";
 import { useState, useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, X, FileCheck, FileX } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, FileCheck, FileX, Link2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { updateBookingStatus } from "@/lib/admin-actions";
 import { parseLocalDate, toLocalDateStr, formatCalendarDate, MONTHS } from "@/lib/utils";
@@ -47,6 +47,8 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
   const [month, setMonth] = useState(today.getMonth());
   const [selected, setSelected] = useState<string | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [paymentBookingId, setPaymentBookingId] = useState<string | null>(null);
+  const [paymentAmount, setPaymentAmount] = useState("");
 
   async function handleStatus(id: string, status: "confirmed" | "cancelled" | "completed") {
     setLoadingId(id);
@@ -279,7 +281,7 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
 
                       {/* Кнопки действий */}
                       {(b.status === "pending" || b.status === "confirmed") && (
-                        <div className="flex gap-2 pl-4 pt-1">
+                        <div className="flex flex-wrap gap-2 pl-4 pt-1">
                           {b.status === "pending" && (
                             <button
                               onClick={() => handleStatus(b.id, "confirmed")}
@@ -307,6 +309,48 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
                               Отменить
                             </button>
                           )}
+                          <button
+                            onClick={() => { setPaymentBookingId(b.id); setPaymentAmount(""); }}
+                            className="px-3 py-1 text-xs rounded-lg border hover:bg-muted transition-colors flex items-center gap-1"
+                          >
+                            <Link2 className="h-3 w-3" /> Оплата
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Блок формирования ссылки на оплату */}
+                      {paymentBookingId === b.id && (
+                        <div className="ml-4 mt-2 p-3 rounded-xl bg-muted/50 border space-y-2">
+                          <p className="text-xs font-medium">Сумма к оплате (₽)</p>
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              value={paymentAmount}
+                              onChange={(e) => setPaymentAmount(e.target.value)}
+                              placeholder="1800"
+                              className="flex h-8 w-24 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            />
+                            <button
+                              onClick={() => {
+                                const service = b.service_type === "hotel" ? "Гостиница" : "Детский сад";
+                                const pet = b.pets?.name ?? "питомец";
+                                const date = b.start_date;
+                                const amount = paymentAmount || "—";
+                                const msg = `Дог Клуб — оплата услуги\n${service}: ${pet}\nДата: ${date}\nСумма: ${amount} ₽\n\nРеквизиты уточните у администратора`;
+                                navigator.clipboard.writeText(msg);
+                                setPaymentBookingId(null);
+                              }}
+                              className="px-3 py-1 text-xs rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                            >
+                              Скопировать
+                            </button>
+                            <button
+                              onClick={() => setPaymentBookingId(null)}
+                              className="px-2 py-1 text-xs rounded-lg border hover:bg-muted transition-colors"
+                            >
+                              ✕
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>

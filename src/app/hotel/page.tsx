@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 const included = [
-  "Размещение в открытом боксе",
+  "Размещение в комфортной зоне отдыха",
   "Кормление вашим кормом (привезите с собой)",
   "Прогулки каждый день",
   "Фото и видео по запросу",
@@ -41,8 +41,8 @@ export default function HotelPage() {
             <Badge variant="secondary" className="mb-4">Гостиница</Badge>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Гостиница для питомцев</h1>
             <p className="text-lg text-muted-foreground mb-4">
-              Уезжаете в командировку или отпуск? Ваш питомец проживёт в открытом боксе
-              под постоянным присмотром. Минимальный срок — одни сутки.
+              Уезжаете в командировку или отпуск? Ваш питомец проведёт каникулы
+              в комфортной зоне отдыха под постоянным присмотром. Минимальный срок — одни сутки.
             </p>
             <div className="text-3xl font-bold text-primary mb-8">от 1 500 ₽/сутки</div>
             <Button size="lg" render={<Link href="/booking">Зарезервировать место</Link>} />

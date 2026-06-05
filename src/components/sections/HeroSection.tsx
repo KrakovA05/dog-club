@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Star } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 export async function HeroSection() {
@@ -13,16 +13,25 @@ export async function HeroSection() {
     .eq("is_published", true);
 
   const count = reviews?.length ?? 0;
-  const avg = count > 0
-    ? (reviews!.reduce((s, r) => s + r.rating, 0) / count).toFixed(1)
-    : "5.0";
 
   return (
-    <section className="relative overflow-hidden bg-brand-light py-20 md:py-32">
+    <section className="relative overflow-hidden bg-brand-light py-16 md:py-32">
       <div className="container mx-auto max-w-6xl px-4">
         <div className="flex items-center gap-12">
           {/* Текст */}
           <div className="flex-1">
+            {/* Логотип на мобиле */}
+            <div className="flex md:hidden justify-center mb-8">
+              <Image
+                src="/logo.png"
+                alt="Дог Клуб"
+                width={120}
+                height={120}
+                className="object-contain drop-shadow-lg"
+                priority
+              />
+            </div>
+
             <Badge variant="secondary" className="mb-6 text-sm">
               <MapPin className="h-3 w-3 mr-1" />
               Калуга, ул. Дарвина 14Ф
@@ -35,7 +44,7 @@ export async function HeroSection() {
 
             <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed">
               Зоогостиница и детский сад для собак и кошек в Калуге.
-              Открытые боксы, видеонаблюдение, забота с 8:00 до 20:00.
+              Уютные зоны отдыха, видеонаблюдение, забота профессиональных зоонянь.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -54,15 +63,6 @@ export async function HeroSection() {
 
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-10 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
-                <div className="flex">
-                  {[1,2,3,4,5].map((i) => (
-                    <Star key={i} className="h-4 w-4 fill-primary text-primary" />
-                  ))}
-                </div>
-                <span className="font-semibold text-foreground">{avg}</span>
-                {count > 0 && <span>· {count} {count === 1 ? "отзыв" : count < 5 ? "отзыва" : "отзывов"}</span>}
-              </div>
-              <div className="flex items-center gap-1.5">
                 <span>🐾</span>
                 <span>Собаки и кошки до 15 кг</span>
               </div>
@@ -70,10 +70,16 @@ export async function HeroSection() {
                 <span>✓</span>
                 <span>Ветпаспорт обязателен</span>
               </div>
+              {count > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <span>★</span>
+                  <span>{count} {count === 1 ? "отзыв" : count < 5 ? "отзыва" : "отзывов"} клиентов</span>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Логотип */}
+          {/* Логотип на десктопе */}
           <div className="hidden md:flex shrink-0 items-center justify-center">
             <Image
               src="/logo.png"

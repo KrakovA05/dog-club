@@ -27,7 +27,7 @@ export function HowItWorks() {
       <div className="container mx-auto max-w-6xl px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-3">Как это работает</h2>
-          <p className="text-muted-foreground text-lg">Всё просто — три шага до спокойного дня</p>
+          <p className="text-muted-foreground text-lg">Всё просто — три шага до комфорта питомца и вашего спокойствия</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 relative">

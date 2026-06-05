@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { submitClientBooking } from "@/lib/booking-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -68,26 +69,15 @@ export function BookingForm({ pets, daycareprices }: { pets: Pet[]; daycareprice
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setServerError("Войдите в аккаунт"); return; }
 
-      const { data: petCheck } = await supabase
-        .from("pets")
-        .select("id")
-        .eq("id", petId)
-        .eq("owner_id", user.id)
-        .single();
-      if (!petCheck) { setServerError("Выбранный питомец не найден"); return; }
-
-      const { error } = await supabase.from("bookings").insert({
-        user_id: user.id,
+      await submitClientBooking({
         pet_id: petId,
         service_type: serviceType,
         daycare_format: serviceType === "daycare" ? daycareFormat : null,
         start_date: startDate,
         end_date: serviceType === "hotel" ? (endDate || null) : null,
         notes: notes || null,
-        status: "pending",
       });
 
-      if (error) { setServerError(translateSupabaseError(error.message)); return; }
       setDone(true);
     } catch (e: unknown) {
       setServerError(e instanceof Error ? translateSupabaseError(e.message) : "Произошла ошибка. Попробуйте ещё раз.");
