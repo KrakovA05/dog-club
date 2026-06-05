@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +19,14 @@ export default function ForgotPasswordPage() {
   });
 
   async function onSubmit({ email }: { email: string }) {
-    const supabase = createClient();
+    // Используем implicit flow (без PKCE), чтобы recovery-ссылка работала
+    // из любого браузера — PKCE-верификатор хранится в localStorage текущего
+    // браузера и недоступен в in-app браузерах почтовых клиентов.
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { flowType: "implicit" } }
+    );
     const origin = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
     await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${origin}/auth-callback`,
