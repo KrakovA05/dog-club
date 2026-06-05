@@ -331,11 +331,62 @@ async function handleCommand(chatId: number, data: string, canManage: boolean, i
 
 // ─── Webhook ─────────────────────────────────────────────────────────────────
 
+async function sendMorningDigest() {
+  const db = supabase();
+  const todayStr = new Date().toLocaleDateString("sv");
+
+  const { data: bookings } = await db
+    .from("bookings")
+    .select("service_type, status, pets(name, type)")
+    .eq("start_date", todayStr)
+    .neq("status", "cancelled")
+    .order("created_at");
+
+  const { data: pending } = await db
+    .from("bookings")
+    .select("id")
+    .eq("status", "pending");
+
+  const total = bookings?.length ?? 0;
+  const pendingCount = pending?.length ?? 0;
+
+  let text = `☀️ <b>Доброе утро! Сводка на ${todayStr}</b>\n\n`;
+
+  if (total === 0) {
+    text += "Записей на сегодня нет.\n";
+  } else {
+    const lines = (bookings ?? []).map((b: Record<string, unknown>) => {
+      const svc = b.service_type === "hotel" ? "🏨" : "🐾";
+      const petArr = b.pets as { name: string; type: string }[] | null;
+      const pet = Array.isArray(petArr) ? petArr[0] : petArr;
+      const statusEmoji = b.status === "confirmed" ? "✅" : "⏳";
+      return `${svc} ${pet?.name ?? "—"} ${statusEmoji}`;
+    });
+    text += lines.join("\n") + `\n\nВсего: <b>${total}</b>`;
+  }
+
+  if (pendingCount > 0) {
+    text += `\n\n⏳ Ожидают подтверждения: <b>${pendingCount}</b>`;
+  }
+
+  await tg("sendMessage", {
+    chat_id: OWNER_CHAT_ID,
+    text,
+    parse_mode: "HTML",
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("ok");
 
   try {
     const body = await req.json();
+
+    // Запрос от pg_cron — утренний дайджест
+    if (body.digest === true) {
+      await sendMorningDigest();
+      return new Response("ok");
+    }
 
     if (body.callback_query) {
       const cq = body.callback_query;
