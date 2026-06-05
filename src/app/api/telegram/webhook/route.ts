@@ -1,54 +1,103 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
-const ALLOWED_USERNAMES = (process.env.TELEGRAM_ALLOWED_USERNAMES ?? "").split(",").map(u => u.trim().toLowerCase()).filter(Boolean);
+// Владелец — всегда имеет доступ, видит кнопку управления
+const OWNER_CHAT_ID = Number(process.env.TELEGRAM_CHAT_ID);
 
 async function tg(method: string, body: object) {
-  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
+  const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+  return res.json();
 }
 
-function mainKeyboard() {
-  return {
-    inline_keyboard: [
-      [
-        { text: "📋 Заявки сегодня", callback_data: "today" },
-        { text: "⏳ Ожидают", callback_data: "pending" },
-      ],
-      [
-        { text: "📅 Ближайшие 7 дней", callback_data: "week" },
-        { text: "📊 Статистика", callback_data: "stats" },
-      ],
-    ],
-  };
-}
+// ─── Проверка доступа ─────────────────────────────────────────────────────────
 
-function isAllowed(username?: string): boolean {
+async function isAllowed(chatId: number, username?: string): Promise<boolean> {
+  if (chatId === OWNER_CHAT_ID) return true;
   if (!username) return false;
-  if (ALLOWED_USERNAMES.length === 0) {
-    // Если список пуст — разрешаем только TELEGRAM_CHAT_ID (владелец)
-    return true;
-  }
-  return ALLOWED_USERNAMES.includes(username.toLowerCase());
+  const supabase = createAdminClient();
+  const { data } = await supabase
+    .from("telegram_bot_users")
+    .select("username")
+    .eq("username", username.toLowerCase())
+    .single();
+  return !!data;
 }
 
-async function handleCommand(chatId: number, data: string) {
+async function getAllUsers(): Promise<string[]> {
   const supabase = createAdminClient();
-  const todayStr = new Date().toLocaleDateString("sv"); // YYYY-MM-DD в локальной TZ
+  const { data } = await supabase
+    .from("telegram_bot_users")
+    .select("username")
+    .order("added_at");
+  return (data ?? []).map((r) => r.username);
+}
 
+async function addUser(username: string): Promise<boolean> {
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("telegram_bot_users")
+    .insert({ username: username.toLowerCase().replace(/^@/, "") });
+  return !error;
+}
+
+async function removeUser(username: string): Promise<void> {
+  const supabase = createAdminClient();
+  await supabase
+    .from("telegram_bot_users")
+    .delete()
+    .eq("username", username.toLowerCase());
+}
+
+// ─── Клавиатуры ──────────────────────────────────────────────────────────────
+
+function mainKeyboard(isOwner: boolean) {
+  const rows = [
+    [
+      { text: "📋 Заявки сегодня", callback_data: "today" },
+      { text: "⏳ Ожидают", callback_data: "pending" },
+    ],
+    [
+      { text: "📅 Ближайшие 7 дней", callback_data: "week" },
+      { text: "📊 Статистика", callback_data: "stats" },
+    ],
+  ];
+  if (isOwner) {
+    rows.push([{ text: "👥 Управление доступом", callback_data: "manage_users" }]);
+  }
+  return { inline_keyboard: rows };
+}
+
+async function usersKeyboard(users: string[]) {
+  const rows = users.map((u) => [
+    { text: `@${u}`, callback_data: `noop` },
+    { text: "❌ Удалить", callback_data: `remove_user:${u}` },
+  ]);
+  rows.push([{ text: "« Назад", callback_data: "start" }]);
+  return { inline_keyboard: rows };
+}
+
+// ─── Обработчики команд ──────────────────────────────────────────────────────
+
+async function handleCommand(chatId: number, data: string, isOwner: boolean) {
+  const supabase = createAdminClient();
+  const todayStr = new Date().toLocaleDateString("sv");
+
+  // Главное меню
   if (data === "start") {
     await tg("sendMessage", {
       chat_id: chatId,
       text: "🐾 <b>Дог Клуб</b> — управление заявками\n\nВыберите действие:",
       parse_mode: "HTML",
-      reply_markup: mainKeyboard(),
+      reply_markup: mainKeyboard(isOwner),
     });
     return;
   }
 
+  // Заявки сегодня
   if (data === "today") {
     const { data: bookings } = await supabase
       .from("bookings")
@@ -62,7 +111,7 @@ async function handleCommand(chatId: number, data: string) {
         chat_id: chatId,
         text: `📋 <b>Заявки на сегодня</b> (${todayStr})\n\nЗаявок нет`,
         parse_mode: "HTML",
-        reply_markup: mainKeyboard(),
+        reply_markup: mainKeyboard(isOwner),
       });
       return;
     }
@@ -79,11 +128,12 @@ async function handleCommand(chatId: number, data: string) {
       chat_id: chatId,
       text: `📋 <b>Заявки на сегодня</b> (${todayStr})\n\n${lines.join("\n")}\n\nВсего: ${bookings.length}`,
       parse_mode: "HTML",
-      reply_markup: mainKeyboard(),
+      reply_markup: mainKeyboard(isOwner),
     });
     return;
   }
 
+  // Ожидают подтверждения
   if (data === "pending") {
     const { data: bookings } = await supabase
       .from("bookings")
@@ -96,7 +146,7 @@ async function handleCommand(chatId: number, data: string) {
         chat_id: chatId,
         text: "⏳ <b>Ожидают подтверждения</b>\n\nВсе заявки обработаны ✅",
         parse_mode: "HTML",
-        reply_markup: mainKeyboard(),
+        reply_markup: mainKeyboard(isOwner),
       });
       return;
     }
@@ -104,20 +154,20 @@ async function handleCommand(chatId: number, data: string) {
     const lines = bookings.map((b, i) => {
       const svc = b.service_type === "hotel" ? "🏨" : "🐾";
       const pet = (Array.isArray(b.pets) ? b.pets[0] : b.pets) as { name: string; type: string } | null;
-      const petStr = pet ? `${pet.name}` : "—";
       const dateStr = b.end_date ? `${b.start_date} → ${b.end_date}` : b.start_date;
-      return `${i + 1}. ${svc} ${petStr} — ${dateStr}`;
+      return `${i + 1}. ${svc} ${pet?.name ?? "—"} — ${dateStr}`;
     });
 
     await tg("sendMessage", {
       chat_id: chatId,
       text: `⏳ <b>Ожидают подтверждения</b>\n\n${lines.join("\n")}\n\nИтого: ${bookings.length}\n\n<a href="https://dogclub-kaluga.ru/admin/calendar">Открыть календарь</a>`,
       parse_mode: "HTML",
-      reply_markup: mainKeyboard(),
+      reply_markup: mainKeyboard(isOwner),
     });
     return;
   }
 
+  // Ближайшие 7 дней
   if (data === "week") {
     const weekLater = new Date();
     weekLater.setDate(weekLater.getDate() + 7);
@@ -136,12 +186,11 @@ async function handleCommand(chatId: number, data: string) {
         chat_id: chatId,
         text: "📅 <b>Ближайшие 7 дней</b>\n\nЗаявок нет",
         parse_mode: "HTML",
-        reply_markup: mainKeyboard(),
+        reply_markup: mainKeyboard(isOwner),
       });
       return;
     }
 
-    // Группируем по дате
     const byDate: Record<string, typeof bookings> = {};
     for (const b of bookings) {
       if (!byDate[b.start_date]) byDate[b.start_date] = [];
@@ -163,23 +212,23 @@ async function handleCommand(chatId: number, data: string) {
       chat_id: chatId,
       text: `📅 <b>Ближайшие 7 дней</b>\n\n${lines.join("\n")}\n\nВсего: ${bookings.length}`,
       parse_mode: "HTML",
-      reply_markup: mainKeyboard(),
+      reply_markup: mainKeyboard(isOwner),
     });
     return;
   }
 
+  // Статистика
   if (data === "stats") {
     const monthStart = new Date();
     monthStart.setDate(1);
-    const monthStr = monthStart.toLocaleDateString("sv");
 
     const { data: month } = await supabase
       .from("bookings")
-      .select("id, service_type, status")
+      .select("id, service_type")
       .gte("created_at", monthStart.toISOString())
       .neq("status", "cancelled");
 
-    const { data: pending } = await supabase
+    const { data: pendingAll } = await supabase
       .from("bookings")
       .select("id")
       .eq("status", "pending");
@@ -187,7 +236,6 @@ async function handleCommand(chatId: number, data: string) {
     const total = month?.length ?? 0;
     const daycare = month?.filter(b => b.service_type === "daycare").length ?? 0;
     const hotel = month?.filter(b => b.service_type === "hotel").length ?? 0;
-    const pendingCount = pending?.length ?? 0;
 
     await tg("sendMessage", {
       chat_id: chatId,
@@ -196,13 +244,49 @@ async function handleCommand(chatId: number, data: string) {
         `Всего заявок: <b>${total}</b>\n` +
         `🐾 Детский сад: <b>${daycare}</b>\n` +
         `🏨 Гостиница: <b>${hotel}</b>\n\n` +
-        `⏳ Ожидают подтверждения: <b>${pendingCount}</b>`,
+        `⏳ Ожидают подтверждения: <b>${pendingAll?.length ?? 0}</b>`,
       parse_mode: "HTML",
-      reply_markup: mainKeyboard(),
+      reply_markup: mainKeyboard(isOwner),
+    });
+    return;
+  }
+
+  // Управление пользователями (только владелец)
+  if (data === "manage_users" && isOwner) {
+    const users = await getAllUsers();
+    const text = users.length
+      ? `👥 <b>Пользователи с доступом</b>\n\nЧтобы добавить — напишите: <code>+username</code>\n\nСписок (${users.length}):`
+      : `👥 <b>Пользователи с доступом</b>\n\nПользователей пока нет.\n\nЧтобы добавить — напишите: <code>+username</code>`;
+
+    await tg("sendMessage", {
+      chat_id: chatId,
+      text,
+      parse_mode: "HTML",
+      reply_markup: await usersKeyboard(users),
+    });
+    return;
+  }
+
+  // Удалить пользователя
+  if (data.startsWith("remove_user:") && isOwner) {
+    const username = data.replace("remove_user:", "");
+    await removeUser(username);
+    const users = await getAllUsers();
+    const text = users.length
+      ? `👥 <b>Пользователи с доступом</b>\n\n✅ @${username} удалён\n\nЧтобы добавить — напишите: <code>+username</code>`
+      : `👥 <b>Пользователи с доступом</b>\n\n✅ @${username} удалён\n\nСписок пуст. Чтобы добавить — напишите: <code>+username</code>`;
+
+    await tg("sendMessage", {
+      chat_id: chatId,
+      text,
+      parse_mode: "HTML",
+      reply_markup: await usersKeyboard(users),
     });
     return;
   }
 }
+
+// ─── Webhook handler ─────────────────────────────────────────────────────────
 
 export async function POST(req: Request) {
   try {
@@ -211,37 +295,56 @@ export async function POST(req: Request) {
     // Callback query (нажатие кнопки)
     if (body.callback_query) {
       const cq = body.callback_query;
-      const username = cq.from?.username;
-      const chatId = cq.message?.chat?.id;
+      const chatId: number = cq.message?.chat?.id;
+      const username: string | undefined = cq.from?.username;
+      const isOwner = chatId === OWNER_CHAT_ID;
 
       await tg("answerCallbackQuery", { callback_query_id: cq.id });
 
-      if (!isAllowed(username)) {
+      if (cq.data === "noop") return Response.json({ ok: true });
+
+      if (!await isAllowed(chatId, username)) {
         await tg("sendMessage", { chat_id: chatId, text: "⛔ Доступ запрещён" });
         return Response.json({ ok: true });
       }
 
-      await handleCommand(chatId, cq.data);
+      await handleCommand(chatId, cq.data, isOwner);
       return Response.json({ ok: true });
     }
 
     // Обычное сообщение
     if (body.message) {
       const msg = body.message;
-      const username = msg.from?.username;
-      const chatId = msg.chat?.id;
+      const chatId: number = msg.chat?.id;
+      const username: string | undefined = msg.from?.username;
       const text: string = msg.text ?? "";
+      const isOwner = chatId === OWNER_CHAT_ID;
 
-      if (!isAllowed(username)) {
+      if (!await isAllowed(chatId, username)) {
         await tg("sendMessage", { chat_id: chatId, text: "⛔ У вас нет доступа к этому боту" });
         return Response.json({ ok: true });
       }
 
-      if (text.startsWith("/start") || text === "меню" || text === "Меню") {
-        await handleCommand(chatId, "start");
-      } else {
-        await handleCommand(chatId, "start");
+      // Добавление пользователя через +username (только владелец)
+      if (isOwner && text.startsWith("+") && text.length > 1) {
+        const newUsername = text.slice(1).replace(/^@/, "").trim();
+        if (newUsername) {
+          const ok = await addUser(newUsername);
+          const users = await getAllUsers();
+          await tg("sendMessage", {
+            chat_id: chatId,
+            text: ok
+              ? `✅ @${newUsername} добавлен\n\nЧтобы удалить — нажмите ❌ рядом с пользователем.`
+              : `⚠️ @${newUsername} уже есть в списке`,
+            parse_mode: "HTML",
+            reply_markup: await usersKeyboard(users),
+          });
+          return Response.json({ ok: true });
+        }
       }
+
+      // Все остальные сообщения — показываем главное меню
+      await handleCommand(chatId, "start", isOwner);
     }
   } catch (e) {
     console.error("Telegram webhook error:", e);
