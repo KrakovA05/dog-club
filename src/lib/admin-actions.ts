@@ -201,12 +201,12 @@ export async function createBookingForClient(data: {
     : data.start_date;
 
   await sendTelegramNotification(
-    `✅ <b>Новая запись (admin)</b>\n\n` +
+    `✅ <b>Запись создана (admin)</b>\n\n` +
     `${serviceLabel}\n` +
-    `👤 ${profile?.full_name ?? "Без имени"}${profile?.phone ? ` · ${profile.phone}` : ""}\n` +
-    `🐶 ${pet?.name ?? "Питомец"} (${pet?.type === "dog" ? "собака" : "кошка"})\n` +
+    `🐶 ${pet?.type === "dog" ? "Собака" : "Кошка"}\n` +
     `📅 ${dateInfo}` +
-    (data.notes ? `\n💬 ${data.notes}` : "")
+    (data.notes ? `\n💬 ${data.notes}` : "") +
+    `\n\n<i>Подробности — в админпанели</i>`
   );
 
   revalidatePath("/admin/daycare/bookings");

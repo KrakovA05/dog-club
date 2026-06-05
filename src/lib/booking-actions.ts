@@ -31,13 +31,6 @@ export async function submitClientBooking(data: {
   });
   if (error) throw new Error(error.message);
 
-  // Получаем профиль для уведомления
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, phone")
-    .eq("id", user.id)
-    .single();
-
   const serviceLabel = data.service_type === "hotel" ? "🏨 Гостиница" : "🐾 Детский сад";
   const dateInfo = data.end_date
     ? `${data.start_date} → ${data.end_date}`
@@ -46,10 +39,10 @@ export async function submitClientBooking(data: {
   await sendTelegramNotification(
     `🆕 <b>Новая заявка с сайта</b>\n\n` +
     `${serviceLabel}\n` +
-    `👤 ${profile?.full_name ?? user.email ?? "Клиент"}${profile?.phone ? ` · ${profile.phone}` : ""}\n` +
-    `🐶 ${pet.name} (${pet.type === "dog" ? "собака" : "кошка"})\n` +
+    `🐶 ${pet.type === "dog" ? "Собака" : "Кошка"}\n` +
     `📅 ${dateInfo}` +
-    (data.notes ? `\n💬 ${data.notes}` : "")
+    (data.notes ? `\n💬 ${data.notes}` : "") +
+    `\n\n<i>Подробности — в админпанели</i>`
   );
 
   revalidatePath("/cabinet/bookings");
