@@ -12,13 +12,48 @@ export default function AuthCallbackPage() {
     const supabase = createClient();
     let done = false;
 
+    async function handle() {
+      // Парсим hash вручную — некоторые браузеры (in-app) не дают Supabase
+      // обработать его автоматически
+      const hash = window.location.hash.substring(1);
+      const hashParams = new URLSearchParams(hash);
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      const type = hashParams.get("type");
+
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        if (!error && !done) {
+          done = true;
+          router.replace(type === "recovery" ? "/reset-password" : "/cabinet");
+          return;
+        }
+      }
+
+      // Fallback: PKCE code в query-параметрах
+      const code = new URLSearchParams(window.location.search).get("code");
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (!error && !done) {
+          done = true;
+          router.replace("/reset-password");
+          return;
+        }
+      }
+    }
+
+    handle();
+
+    // На случай если Supabase всё же обработает hash сам
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (done) return;
       if (event === "PASSWORD_RECOVERY") {
         done = true;
         router.replace("/reset-password");
       }
-      // SIGNED_IN fires before PASSWORD_RECOVERY for recovery sessions — don't handle it here
     });
 
     const timer = setTimeout(() => {
