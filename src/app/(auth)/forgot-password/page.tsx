@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
 const emailSchema = z.object({ email: z.string().email("Введите корректный email") });
-const codeSchema = z.object({ code: z.string().length(6, "Код должен содержать 6 цифр") });
+const codeSchema = z.object({ code: z.string().regex(/^\d{6,8}$/, "Введите код из письма") });
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
       <div className="bg-card rounded-2xl shadow-sm p-8">
         <h1 className="text-2xl font-bold mb-1">Введите код</h1>
         <p className="text-muted-foreground text-sm mb-6">
-          Отправили 6-значный код на <strong>{email}</strong>
+          Отправили код на <strong>{email}</strong>
         </p>
 
         <form onSubmit={codeForm.handleSubmit(onVerifyCode)} className="space-y-4">
@@ -52,8 +52,8 @@ export default function ForgotPasswordPage() {
               id="code"
               type="text"
               inputMode="numeric"
-              maxLength={6}
-              placeholder="123456"
+              maxLength={8}
+              placeholder="12345678"
               autoComplete="one-time-code"
               className="text-center text-2xl tracking-widest"
               {...codeForm.register("code")}
