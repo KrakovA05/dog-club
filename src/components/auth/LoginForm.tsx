@@ -34,17 +34,21 @@ export function LoginForm() {
 
   async function onSubmit(data: FormData) {
     setServerError(null);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    });
-    if (error) {
-      setServerError(translateSupabaseError(error.message));
-      return;
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+      if (error) {
+        setServerError(translateSupabaseError(error.message));
+        return;
+      }
+      router.push(redirect);
+      router.refresh();
+    } catch (e) {
+      setServerError(`Ошибка: ${e instanceof Error ? e.message : String(e)}`);
     }
-    router.push(redirect);
-    router.refresh();
   }
 
   return (
