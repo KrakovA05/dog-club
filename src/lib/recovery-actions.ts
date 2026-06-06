@@ -10,25 +10,17 @@ export async function sendPasswordRecovery(email: string): Promise<{ success: tr
     if (!process.env.RESEND_API_KEY) {
       return { success: false, error: "RESEND_API_KEY не настроен на сервере" };
     }
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
-    // Прямой вызов REST API минуя SDK
-    const genRes = await fetch(`${url}/auth/v1/admin/generate_link`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${key}`,
-        "apikey": key,
-      },
-      body: JSON.stringify({ type: "recovery", email }),
+    const supabase = createAdminClient();
+    const { data, error: linkError } = await supabase.auth.admin.generateLink({
+      type: "recovery",
+      email,
     });
-    const genBody = await genRes.json();
-    console.log("[recovery] REST status:", genRes.status, "body:", JSON.stringify(genBody));
 
-    if (!genRes.ok) return { success: true };
+    if (linkError) console.error("[recovery] generateLink error:", linkError.message);
 
-    const otp = genBody.email_otp;
+    // Не раскрываем существование email
+    if (!data?.properties?.email_otp) return { success: true };
 
     const otp = data.properties.email_otp;
 
@@ -58,8 +50,8 @@ export async function sendPasswordRecovery(email: string): Promise<{ success: tr
       }),
     });
 
-    const resendBody = await resendRes.text();
     if (!resendRes.ok) {
+      const resendBody = await resendRes.text();
       console.error("[recovery] Resend error:", resendRes.status, resendBody);
       return { success: false, error: `Resend ${resendRes.status}: ${resendBody}` };
     }
