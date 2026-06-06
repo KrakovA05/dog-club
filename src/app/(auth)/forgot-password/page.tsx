@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
 const emailSchema = z.object({ email: z.string().email("Введите корректный email") });
-const codeSchema = z.object({ code: z.string().regex(/^\d{6,8}$/, "Введите код из письма") });
+const codeSchema = z.object({ code: z.string().regex(/^\d{4,10}$/, "Введите код из письма") });
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -49,12 +49,16 @@ export default function ForgotPasswordPage() {
           <div className="space-y-1.5">
             <Label htmlFor="code">Код из письма</Label>
             <Input
+              key="recovery-code-field"
               id="code"
               type="text"
               inputMode="numeric"
-              maxLength={8}
-              placeholder="12345678"
+              maxLength={10}
+              placeholder="Код"
               autoComplete="one-time-code"
+              data-1p-ignore
+              data-lpignore="true"
+              data-form-type="other"
               className="text-center text-2xl tracking-widest"
               {...codeForm.register("code")}
             />
