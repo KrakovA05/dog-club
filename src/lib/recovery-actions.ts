@@ -3,6 +3,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function sendPasswordRecovery(email: string): Promise<{ success: true } | { success: false; error: string }> {
   try {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return { success: false, error: "SUPABASE_SERVICE_ROLE_KEY не настроен на сервере" };
+    }
+    if (!process.env.RESEND_API_KEY) {
+      return { success: false, error: "RESEND_API_KEY не настроен на сервере" };
+    }
     const supabase = createAdminClient();
 
     const { data, error: linkError } = await supabase.auth.admin.generateLink({
