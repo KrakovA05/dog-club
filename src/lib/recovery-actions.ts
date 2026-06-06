@@ -21,7 +21,7 @@ export async function sendPasswordRecovery(email: string): Promise<{ success: tr
     // Не раскрываем существование email — возвращаем success даже если email не найден
     if (!data?.properties?.hashed_token) return { success: true };
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lapaclub.ru";
     const recoveryUrl = `${siteUrl}/auth/confirm?token_hash=${data.properties.hashed_token}&type=recovery`;
 
     const resendRes = await fetch("https://api.resend.com/emails", {
