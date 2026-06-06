@@ -33,7 +33,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <Image src="/logo.png" alt="Лапа Клуб" width={32} height={32} className="rounded-lg object-contain brightness-200" />
+              <Image src="/icon.png" alt="Лапа Клуб" width={32} height={32} className="rounded-lg object-contain brightness-200" />
               <h3 className="font-bold text-lg">Лапа Клуб</h3>
             </div>
             <p className="text-sm opacity-70 leading-relaxed">
