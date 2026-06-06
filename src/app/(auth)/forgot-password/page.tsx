@@ -54,6 +54,7 @@ export default function ForgotPasswordPage() {
               inputMode="numeric"
               maxLength={6}
               placeholder="123456"
+              autoComplete="one-time-code"
               className="text-center text-2xl tracking-widest"
               {...codeForm.register("code")}
             />

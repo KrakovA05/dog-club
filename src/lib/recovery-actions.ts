@@ -19,6 +19,8 @@ export async function sendPasswordRecovery(email: string): Promise<{ success: tr
 
     if (linkError) console.error("[recovery] generateLink error:", linkError.message);
 
+    console.log("[recovery] properties:", JSON.stringify(data?.properties));
+
     // Не раскрываем существование email
     if (!data?.properties?.email_otp) return { success: true };
 
