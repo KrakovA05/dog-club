@@ -1,7 +1,7 @@
 "use server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export async function sendPasswordRecovery(email: string): Promise<{ success: true }> {
+export async function sendPasswordRecovery(email: string): Promise<{ success: true } | { success: false; error: string }> {
   const supabase = createAdminClient();
 
   const { data, error: linkError } = await supabase.auth.admin.generateLink({
@@ -47,7 +47,7 @@ export async function sendPasswordRecovery(email: string): Promise<{ success: tr
   if (!resendRes.ok) {
     const body = await resendRes.text();
     console.error("[recovery] Resend error:", resendRes.status, body);
-    throw new Error(`Resend ${resendRes.status}: ${body}`);
+    return { success: false, error: `Resend ${resendRes.status}: ${body}` };
   }
 
   return { success: true };

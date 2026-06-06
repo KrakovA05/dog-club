@@ -21,11 +21,14 @@ export default function ForgotPasswordPage() {
   async function onSubmit({ email }: { email: string }) {
     setServerError(null);
     try {
-      await sendPasswordRecovery(email);
-      setDone(true);
+      const result = await sendPasswordRecovery(email);
+      if (!result.success) {
+        setServerError(result.error);
+      } else {
+        setDone(true);
+      }
     } catch (e) {
-      setServerError("Ошибка при отправке. Попробуйте позже.");
-      console.error(e);
+      setServerError(`Ошибка: ${e instanceof Error ? e.message : String(e)}`);
     }
   }
 
