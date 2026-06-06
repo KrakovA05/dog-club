@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { StickyMobileCta } from "@/components/layout/StickyMobileCta";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
@@ -102,10 +99,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <Header />
-        <main className="pb-[72px] md:pb-0">{children}</main>
-        <Footer />
-        <StickyMobileCta />
+        {children}
       </body>
     </html>
   );
