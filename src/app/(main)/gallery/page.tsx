@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Фото наших питомцев и заведения.",
 };
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 async function getGallery(): Promise<GalleryItem[]> {
   try {

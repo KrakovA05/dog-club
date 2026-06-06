@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Актуальные цены на услуги зоогостиницы и детского сада Лапа Клуб в Калуге.",
 };
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 async function getPrices(): Promise<{ daycare: PriceRow[]; hotel: PriceRow[] }> {
   try {

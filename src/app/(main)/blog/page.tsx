@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "Советы по уходу за собаками и кошками от команды Лапа Клуб Калуга.",
 };
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function BlogPage() {
   const supabase = await createClient();

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://lapaclub.ru/faq" },
 };
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 async function getFaqs(): Promise<FaqRow[]> {
   try {
