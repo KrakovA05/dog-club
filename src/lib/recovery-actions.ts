@@ -1,5 +1,4 @@
 "use server";
-// rebuild trigger: пересборка для применения dog club env vars
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,14 +19,7 @@ export async function sendPasswordRecovery(email: string): Promise<{ success: tr
 
     if (linkError) {
       console.error("[recovery] generateLink error:", linkError.message);
-      // Диагностика: какой проект в URL и в service_role ключе
-      const urlRef = process.env.NEXT_PUBLIC_SUPABASE_URL?.match(/https:\/\/([a-z0-9]+)\.supabase/)?.[1];
-      let keyRef = "?";
-      try {
-        const k = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-        keyRef = JSON.parse(Buffer.from(k.split(".")[1], "base64").toString()).ref;
-      } catch {}
-      return { success: false, error: `${linkError.message} | URL→${urlRef} | KEY→${keyRef}` };
+      return { success: false, error: linkError.message };
     }
 
     // Не раскрываем существование email
