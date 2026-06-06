@@ -1,4 +1,5 @@
 "use server";
+// rebuild trigger: пересборка для применения dog club env vars
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
