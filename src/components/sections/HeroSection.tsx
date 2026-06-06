@@ -23,7 +23,7 @@ export async function HeroSection() {
             {/* Логотип на мобиле */}
             <div className="flex md:hidden justify-center mb-8">
               <Image
-                src="/logo.png"
+                src="/logo.png?v=3"
                 alt="Лапа Клуб"
                 width={120}
                 height={120}
@@ -82,7 +82,7 @@ export async function HeroSection() {
           {/* Логотип на десктопе */}
           <div className="hidden md:flex shrink-0 items-center justify-center">
             <Image
-              src="/logo.png"
+              src="/logo.png?v=3"
               alt="Лапа Клуб"
               width={320}
               height={320}
