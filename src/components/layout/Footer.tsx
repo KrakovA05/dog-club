@@ -69,7 +69,7 @@ export function Footer() {
             <div className="flex flex-col gap-3 text-sm opacity-70">
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>Калуга, ул. Дарвина 14Ф</span>
+                <span>Калуга, ул. Дарвина 14, корп. А</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 shrink-0" />

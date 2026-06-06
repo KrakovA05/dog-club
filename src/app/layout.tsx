@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: "%s | Лапа Клуб Калуга",
   },
   description:
-    "Зоогостиница и детский сад для собак и кошек в Калуге. Принимаем питомцев до 15 кг на час, полдня, полный день или длительное проживание. Ул. Дарвина 14Ф, ежедневно 8:00–20:00.",
+    "Зоогостиница и детский сад для собак и кошек в Калуге. Принимаем питомцев до 15 кг на час, полдня, полный день или длительное проживание. Ул. Дарвина 14, корп. А, ежедневно 8:00–20:00.",
   keywords: [
     "зоогостиница Калуга",
     "передержка собак Калуга",
@@ -39,12 +39,12 @@ export const metadata: Metadata = {
     siteName: "Лапа Клуб",
     title: "Лапа Клуб — Зоогостиница и детский сад для животных в Калуге",
     description:
-      "Зоогостиница и детский сад для собак и кошек в Калуге. Принимаем питомцев до 15 кг. Ул. Дарвина 14Ф.",
+      "Зоогостиница и детский сад для собак и кошек в Калуге. Принимаем питомцев до 15 кг. Ул. Дарвина 14, корп. А.",
   },
   icons: {
-    icon: [{ url: "/icon.png?v=2", type: "image/png", sizes: "1000x1000" }],
-    shortcut: "/icon.png?v=2",
-    apple: "/icon.png?v=2",
+    icon: [{ url: "/icon.png?v=3", type: "image/png", sizes: "1000x1000" }],
+    shortcut: "/icon.png?v=3",
+    apple: "/icon.png?v=3",
   },
   robots: {
     index: true,
@@ -64,7 +64,7 @@ const localBusinessSchema = {
   email: "info@lapaclub.ru",
   address: {
     "@type": "PostalAddress",
-    streetAddress: "ул. Дарвина 14Ф",
+    streetAddress: "ул. Дарвина 14, корп. А",
     addressLocality: "Калуга",
     addressRegion: "Калужская область",
     addressCountry: "RU",
