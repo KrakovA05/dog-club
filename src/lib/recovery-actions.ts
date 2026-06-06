@@ -11,22 +11,24 @@ export async function sendPasswordRecovery(email: string): Promise<{ success: tr
       return { success: false, error: "RESEND_API_KEY не настроен на сервере" };
     }
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-    const payload = JSON.parse(Buffer.from(key.split(".")[1], "base64").toString());
-    console.log("[recovery] key role:", payload.role, "ref:", payload.ref);
-    console.log("[recovery] url:", process.env.NEXT_PUBLIC_SUPABASE_URL);
-    const supabase = createAdminClient();
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
-    const { data, error: linkError } = await supabase.auth.admin.generateLink({
-      type: "recovery",
-      email,
+    // Прямой вызов REST API минуя SDK
+    const genRes = await fetch(`${url}/auth/v1/admin/generate_link`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${key}`,
+        "apikey": key,
+      },
+      body: JSON.stringify({ type: "recovery", email }),
     });
+    const genBody = await genRes.json();
+    console.log("[recovery] REST status:", genRes.status, "body:", JSON.stringify(genBody));
 
-    if (linkError) console.error("[recovery] generateLink error:", linkError.message);
+    if (!genRes.ok) return { success: true };
 
-    console.log("[recovery] properties:", JSON.stringify(data?.properties));
-
-    // Не раскрываем существование email
-    if (!data?.properties?.email_otp) return { success: true };
+    const otp = genBody.email_otp;
 
     const otp = data.properties.email_otp;
 
