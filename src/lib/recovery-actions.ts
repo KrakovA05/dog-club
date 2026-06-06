@@ -11,7 +11,8 @@ export async function sendPasswordRecovery(email: string): Promise<{ success: tr
       return { success: false, error: "RESEND_API_KEY не настроен на сервере" };
     }
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-    console.log("[recovery] key length:", key.length, "starts:", key.slice(0, 10), "ends:", key.slice(-5));
+    const payload = JSON.parse(Buffer.from(key.split(".")[1], "base64").toString());
+    console.log("[recovery] key role:", payload.role, "ref:", payload.ref);
     console.log("[recovery] url:", process.env.NEXT_PUBLIC_SUPABASE_URL);
     const supabase = createAdminClient();
 
