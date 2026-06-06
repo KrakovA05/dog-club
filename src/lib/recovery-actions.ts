@@ -10,6 +10,9 @@ export async function sendPasswordRecovery(email: string): Promise<{ success: tr
     if (!process.env.RESEND_API_KEY) {
       return { success: false, error: "RESEND_API_KEY не настроен на сервере" };
     }
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    console.log("[recovery] key length:", key.length, "starts:", key.slice(0, 10), "ends:", key.slice(-5));
+    console.log("[recovery] url:", process.env.NEXT_PUBLIC_SUPABASE_URL);
     const supabase = createAdminClient();
 
     const { data, error: linkError } = await supabase.auth.admin.generateLink({
