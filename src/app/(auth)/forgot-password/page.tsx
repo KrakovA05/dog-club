@@ -13,13 +13,20 @@ const schema = z.object({ email: z.string().email("Введите коррект
 
 export default function ForgotPasswordPage() {
   const [done, setDone] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(schema),
   });
 
   async function onSubmit({ email }: { email: string }) {
-    await sendPasswordRecovery(email);
-    setDone(true);
+    setServerError(null);
+    try {
+      await sendPasswordRecovery(email);
+      setDone(true);
+    } catch (e) {
+      setServerError("Ошибка при отправке. Попробуйте позже.");
+      console.error(e);
+    }
   }
 
   if (done) {
@@ -46,6 +53,9 @@ export default function ForgotPasswordPage() {
           <Input id="email" type="email" placeholder="you@example.com" {...register("email")} />
           {errors.email && <p className="text-destructive text-xs">{errors.email.message as string}</p>}
         </div>
+        {serverError && (
+          <p className="text-destructive text-sm bg-destructive/10 px-3 py-2 rounded-lg">{serverError}</p>
+        )}
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Отправляем..." : "Отправить ссылку"}
         </Button>

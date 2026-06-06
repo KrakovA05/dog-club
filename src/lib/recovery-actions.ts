@@ -4,10 +4,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export async function sendPasswordRecovery(email: string): Promise<{ success: true }> {
   const supabase = createAdminClient();
 
-  const { data } = await supabase.auth.admin.generateLink({
+  const { data, error: linkError } = await supabase.auth.admin.generateLink({
     type: "recovery",
     email,
   });
+
+  if (linkError) console.error("[recovery] generateLink error:", linkError.message);
 
   // Не раскрываем существование email — всегда возвращаем success
   if (!data?.properties?.hashed_token) return { success: true };
@@ -15,7 +17,7 @@ export async function sendPasswordRecovery(email: string): Promise<{ success: tr
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
   const recoveryUrl = `${siteUrl}/auth/confirm?token_hash=${data.properties.hashed_token}&type=recovery`;
 
-  await fetch("https://api.resend.com/emails", {
+  const resendRes = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
@@ -41,6 +43,12 @@ export async function sendPasswordRecovery(email: string): Promise<{ success: tr
       `,
     }),
   });
+
+  if (!resendRes.ok) {
+    const body = await resendRes.text();
+    console.error("[recovery] Resend error:", resendRes.status, body);
+    throw new Error(`Resend ${resendRes.status}: ${body}`);
+  }
 
   return { success: true };
 }
