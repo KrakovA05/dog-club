@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,6 +22,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export function RegisterForm() {
+  const router = useRouter();
   const [done, setDone] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -36,20 +38,31 @@ export function RegisterForm() {
 
     setServerError(null);
     const full_name = `${data.first_name.trim()} ${data.last_name.trim()}`;
-    const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        data: { full_name, phone: data.phone.trim() },
-        emailRedirectTo: `${window.location.origin}/auth/confirm`,
-      },
-    });
-    if (error) {
-      setServerError(translateSupabaseError(error.message));
-      return;
+    try {
+      const supabase = createClient();
+      const { data: signUpData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: { full_name, phone: data.phone.trim() },
+          emailRedirectTo: `${window.location.origin}/auth/confirm`,
+        },
+      });
+      if (error) {
+        setServerError(translateSupabaseError(error.message));
+        return;
+      }
+      // Если подтверждение email отключено — Supabase сразу выдаёт сессию.
+      if (signUpData.session) {
+        router.push("/cabinet");
+        router.refresh();
+        return;
+      }
+      // Иначе нужно подтвердить email.
+      setDone(true);
+    } catch (e) {
+      setServerError(`Ошибка: ${e instanceof Error ? e.message : String(e)}`);
     }
-    setDone(true);
   }
 
   if (done) {
