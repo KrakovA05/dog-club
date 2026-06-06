@@ -1,8 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-
-// URL проекта dog club. Не секрет — задаём константой, чтобы не зависеть
-// от build-time инлайна NEXT_PUBLIC_* (Amvera кэширует слой сборки).
-const SUPABASE_URL = "https://zmvoaanwikhztpvdjpty.supabase.co";
+import { SUPABASE_URL } from "./client";
 
 // Серверный клиент с service role — обходит RLS.
 // Использовать ТОЛЬКО в серверных компонентах и Server Actions для /admin.
