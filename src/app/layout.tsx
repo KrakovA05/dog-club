@@ -42,9 +42,9 @@ export const metadata: Metadata = {
       "Зоогостиница и детский сад для собак и кошек в Калуге. Принимаем питомцев до 15 кг. Ул. Дарвина 14, корп. А.",
   },
   icons: {
-    icon: [{ url: "/icon.png?v=3", type: "image/png", sizes: "1000x1000" }],
-    shortcut: "/icon.png?v=3",
-    apple: "/icon.png?v=3",
+    icon: [{ url: "/icon-2.png", type: "image/png", sizes: "1000x1000" }],
+    shortcut: "/icon-2.png",
+    apple: "/icon-2.png",
   },
   robots: {
     index: true,
@@ -81,7 +81,7 @@ const localBusinessSchema = {
     closes: "20:00",
   },
   priceRange: "₽₽",
-  image: `${BASE}/logo.png`,
+  image: `${BASE}/logo-2.png`,
   sameAs: [],
 };
 
