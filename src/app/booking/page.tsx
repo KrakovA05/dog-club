@@ -7,7 +7,7 @@ import type { Pet } from "@/types";
 import { UrgencyBanner } from "@/components/booking/UrgencyBanner";
 
 export const metadata: Metadata = {
-  title: "Забронировать место — Дог Клуб",
+  title: "Забронировать место — Лапа Клуб",
   description:
     "Онлайн-бронирование места в детском саду или гостинице для вашего питомца.",
 };

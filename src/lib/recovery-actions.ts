@@ -31,9 +31,9 @@ export async function sendPasswordRecovery(email: string): Promise<{ success: tr
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Дог Клуб <onboarding@resend.dev>",
+        from: "Лапа Клуб <onboarding@resend.dev>",
         to: [email],
-        subject: "Сброс пароля — Дог Клуб",
+        subject: "Сброс пароля — Лапа Клуб",
         html: `
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
             <h2 style="margin:0 0 12px;color:#1a1a1a;">Сброс пароля</h2>

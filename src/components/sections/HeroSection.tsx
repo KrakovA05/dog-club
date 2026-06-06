@@ -24,7 +24,7 @@ export async function HeroSection() {
             <div className="flex md:hidden justify-center mb-8">
               <Image
                 src="/logo.png"
-                alt="Дог Клуб"
+                alt="Лапа Клуб"
                 width={120}
                 height={120}
                 className="object-contain drop-shadow-lg"
@@ -83,7 +83,7 @@ export async function HeroSection() {
           <div className="hidden md:flex shrink-0 items-center justify-center">
             <Image
               src="/logo.png"
-              alt="Дог Клуб"
+              alt="Лапа Клуб"
               width={320}
               height={320}
               className="object-contain drop-shadow-xl"

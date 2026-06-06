@@ -4,7 +4,7 @@ import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "Email подтверждён — Дог Клуб",
+  title: "Email подтверждён — Лапа Клуб",
 };
 
 export default function ConfirmedPage() {

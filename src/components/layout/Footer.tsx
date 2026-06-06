@@ -33,8 +33,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <Image src="/logo.png" alt="Дог Клуб" width={32} height={32} className="rounded-lg object-contain brightness-200" />
-              <h3 className="font-bold text-lg">Дог Клуб</h3>
+              <Image src="/logo.png" alt="Лапа Клуб" width={32} height={32} className="rounded-lg object-contain brightness-200" />
+              <h3 className="font-bold text-lg">Лапа Клуб</h3>
             </div>
             <p className="text-sm opacity-70 leading-relaxed">
               Зоогостиница и детский сад для собак и кошек в Калуге.
@@ -79,8 +79,8 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0" />
-                <a href="mailto:info@dogclub-kaluga.ru" className="hover:opacity-100 transition-opacity">
-                  info@dogclub-kaluga.ru
+                <a href="mailto:info@lapaclub.ru" className="hover:opacity-100 transition-opacity">
+                  info@lapaclub.ru
                 </a>
               </div>
               <div className="flex items-start gap-2">
@@ -94,7 +94,7 @@ export function Footer() {
         <Separator className="my-8 opacity-20" />
 
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm opacity-50">
-          <p>© 2026 Дог Клуб. Все права защищены.</p>
+          <p>© 2026 Лапа Клуб. Все права защищены.</p>
           <Link href="/privacy" className="hover:opacity-70 transition-opacity">
             Политика конфиденциальности
           </Link>

@@ -63,7 +63,7 @@ serve(async (req) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "Дог Клуб <noreply@dogclub-kaluga.ru>",
+      from: "Лапа Клуб <noreply@lapaclub.ru>",
       to: [ADMIN_EMAIL],
       subject: `Новая заявка — ${serviceLabel} — ${b.start_date}`,
       html,

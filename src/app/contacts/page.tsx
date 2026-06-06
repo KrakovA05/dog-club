@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button";
 import { ContactForm } from "@/components/contacts/ContactForm";
 
 export const metadata: Metadata = {
-  title: "Контакты — Дог Клуб Калуга",
+  title: "Контакты — Лапа Клуб Калуга",
   description: "Адрес: Калуга, ул. Дарвина 14Ф. Телефон: +7 (4842) 00-00-00. Ежедневно 8:00–20:00. Зоогостиница и детский сад для животных.",
-  alternates: { canonical: "https://dogclub-kaluga.ru/contacts" },
+  alternates: { canonical: "https://lapaclub.ru/contacts" },
 };
 
 const contacts = [
   { icon: MapPin, label: "Адрес", value: "Калуга, ул. Дарвина 14Ф", href: null },
   { icon: Phone, label: "Телефон", value: "+7 (4842) 00-00-00", href: "tel:+74842000000" },
-  { icon: Mail, label: "Email", value: "info@dogclub-kaluga.ru", href: "mailto:info@dogclub-kaluga.ru" },
+  { icon: Mail, label: "Email", value: "info@lapaclub.ru", href: "mailto:info@lapaclub.ru" },
   { icon: Clock, label: "Режим работы", value: "Ежедневно 8:00 – 20:00", href: null },
 ];
 
@@ -66,7 +66,7 @@ export default function ContactsPage() {
                 height="100%"
                 style={{ border: "none", minHeight: "400px" }}
                 allowFullScreen
-                title="Дог Клуб на карте"
+                title="Лапа Клуб на карте"
               />
             </div>
           </div>

@@ -47,14 +47,14 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* Бренд — цвета из логотипа Дог Клуб */
+  /* Бренд — цвета из логотипа Лапа Клуб */
   --color-brand-primary: var(--brand-primary);
   --color-brand-dark: var(--brand-dark);
   --color-brand-light: var(--brand-light);
 }
 
 :root {
-  /* Бренд — цвета из логотипа Дог Клуб */
+  /* Бренд — цвета из логотипа Лапа Клуб */
   --brand-primary: oklch(0.67 0.12 75);   /* тёплый золотисто-коричневый */
   --brand-dark: oklch(0.28 0.08 50);      /* тёмно-коричневый */
   --brand-light: oklch(0.97 0.03 80);     /* очень светлый тёплый фон */

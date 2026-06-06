@@ -8,7 +8,7 @@ import type { PriceRow } from "@/types";
 
 export const metadata: Metadata = {
   title: "Цены — детский сад и гостиница для животных",
-  description: "Актуальные цены на услуги зоогостиницы и детского сада Дог Клуб в Калуге.",
+  description: "Актуальные цены на услуги зоогостиницы и детского сада Лапа Клуб в Калуге.",
 };
 
 export const revalidate = 3600;

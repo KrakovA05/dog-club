@@ -10,13 +10,13 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
-const BASE = "https://dogclub-kaluga.ru";
+const BASE = "https://lapaclub.ru";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE),
   title: {
-    default: "Дог Клуб — Зоогостиница и детский сад для животных в Калуге",
-    template: "%s | Дог Клуб Калуга",
+    default: "Лапа Клуб — Зоогостиница и детский сад для животных в Калуге",
+    template: "%s | Лапа Клуб Калуга",
   },
   description:
     "Зоогостиница и детский сад для собак и кошек в Калуге. Принимаем питомцев до 15 кг на час, полдня, полный день или длительное проживание. Ул. Дарвина 14Ф, ежедневно 8:00–20:00.",
@@ -26,12 +26,12 @@ export const metadata: Metadata = {
     "детский сад для животных Калуга",
     "передержка кошек Калуга",
     "гостиница для собак Калуга",
-    "дог клуб Калуга",
+    "лапа клуб Калуга",
     "уход за питомцами Калуга",
     "передержка животных Калуга",
   ],
-  authors: [{ name: "Дог Клуб" }],
-  creator: "Дог Клуб",
+  authors: [{ name: "Лапа Клуб" }],
+  creator: "Лапа Клуб",
   alternates: {
     canonical: BASE,
   },
@@ -39,8 +39,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ru_RU",
     url: BASE,
-    siteName: "Дог Клуб",
-    title: "Дог Клуб — Зоогостиница и детский сад для животных в Калуге",
+    siteName: "Лапа Клуб",
+    title: "Лапа Клуб — Зоогостиница и детский сад для животных в Калуге",
     description:
       "Зоогостиница и детский сад для собак и кошек в Калуге. Принимаем питомцев до 15 кг. Ул. Дарвина 14Ф.",
   },
@@ -60,11 +60,11 @@ const localBusinessSchema = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "@id": BASE,
-  name: "Дог Клуб",
+  name: "Лапа Клуб",
   description: "Зоогостиница и детский сад для собак и кошек в Калуге",
   url: BASE,
   telephone: "+74842000000",
-  email: "info@dogclub-kaluga.ru",
+  email: "info@lapaclub.ru",
   address: {
     "@type": "PostalAddress",
     streetAddress: "ул. Дарвина 14Ф",

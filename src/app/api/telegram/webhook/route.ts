@@ -90,7 +90,7 @@ async function handleCommand(chatId: number, data: string, isOwner: boolean) {
   if (data === "start") {
     await tg("sendMessage", {
       chat_id: chatId,
-      text: "🐾 <b>Дог Клуб</b> — управление заявками\n\nВыберите действие:",
+      text: "🐾 <b>Лапа Клуб</b> — управление заявками\n\nВыберите действие:",
       parse_mode: "HTML",
       reply_markup: mainKeyboard(isOwner),
     });
@@ -160,7 +160,7 @@ async function handleCommand(chatId: number, data: string, isOwner: boolean) {
 
     await tg("sendMessage", {
       chat_id: chatId,
-      text: `⏳ <b>Ожидают подтверждения</b>\n\n${lines.join("\n")}\n\nИтого: ${bookings.length}\n\n<a href="https://dogclub-kaluga.ru/admin/calendar">Открыть календарь</a>`,
+      text: `⏳ <b>Ожидают подтверждения</b>\n\n${lines.join("\n")}\n\nИтого: ${bookings.length}\n\n<a href="https://lapaclub.ru/admin/calendar">Открыть календарь</a>`,
       parse_mode: "HTML",
       reply_markup: mainKeyboard(isOwner),
     });

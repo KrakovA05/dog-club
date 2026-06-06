@@ -50,7 +50,7 @@ export function LoginForm() {
   return (
     <div className="bg-card rounded-2xl shadow-sm p-8">
       <h1 className="text-2xl font-bold mb-1">Войти</h1>
-      <p className="text-muted-foreground text-sm mb-6">В личный кабинет Дог Клуб</p>
+      <p className="text-muted-foreground text-sm mb-6">В личный кабинет Лапа Клуб</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-1.5">

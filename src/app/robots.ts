@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/admin/", "/cabinet/", "/staff/", "/api/"],
     },
-    sitemap: "https://dogclub-kaluga.ru/sitemap.xml",
-    host: "https://dogclub-kaluga.ru",
+    sitemap: "https://lapaclub.ru/sitemap.xml",
+    host: "https://lapaclub.ru",
   };
 }

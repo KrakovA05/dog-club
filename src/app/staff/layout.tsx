@@ -6,7 +6,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen flex">
       <aside className="w-52 bg-foreground text-background flex flex-col shrink-0">
         <div className="p-4 border-b border-background/10">
-          <div className="font-bold text-sm">Дог Клуб</div>
+          <div className="font-bold text-sm">Лапа Клуб</div>
           <div className="text-xs text-background/40 mt-0.5">Панель сотрудника</div>
         </div>
 

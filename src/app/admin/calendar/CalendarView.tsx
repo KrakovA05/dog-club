@@ -336,7 +336,7 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
                                 const pet = b.pets?.name ?? "питомец";
                                 const date = b.start_date;
                                 const amount = paymentAmount || "—";
-                                const msg = `Дог Клуб — оплата услуги\n${service}: ${pet}\nДата: ${date}\nСумма: ${amount} ₽\n\nРеквизиты уточните у администратора`;
+                                const msg = `Лапа Клуб — оплата услуги\n${service}: ${pet}\nДата: ${date}\nСумма: ${amount} ₽\n\nРеквизиты уточните у администратора`;
                                 navigator.clipboard.writeText(msg);
                                 setPaymentBookingId(null);
                               }}

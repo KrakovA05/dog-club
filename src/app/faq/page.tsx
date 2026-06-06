@@ -12,8 +12,8 @@ import type { FaqRow } from "@/types";
 export const metadata: Metadata = {
   title: "Частые вопросы о зоогостинице и детском саде",
   description:
-    "Ответы на частые вопросы о зоогостинице и детском саде для животных Дог Клуб в Калуге. Требования к питомцам, цены, что взять с собой.",
-  alternates: { canonical: "https://dogclub-kaluga.ru/faq" },
+    "Ответы на частые вопросы о зоогостинице и детском саде для животных Лапа Клуб в Калуге. Требования к питомцам, цены, что взять с собой.",
+  alternates: { canonical: "https://lapaclub.ru/faq" },
 };
 
 export const revalidate = 3600;

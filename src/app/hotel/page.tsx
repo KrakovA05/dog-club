@@ -11,11 +11,11 @@ export const metadata: Metadata = {
   title: "Зоогостиница для собак и кошек в Калуге — от 1 500 ₽/сутки",
   description: "Зоогостиница в Калуге для собак и кошек до 15 кг. Открытые боксы, ежедневные прогулки, кормление вашим кормом. От 1 500 ₽ в сутки. Ул. Дарвина 14Ф.",
   keywords: ["зоогостиница Калуга", "гостиница для собак Калуга", "передержка собак Калуга", "гостиница для кошек Калуга", "куда отдать собаку Калуга"],
-  alternates: { canonical: "https://dogclub-kaluga.ru/hotel" },
+  alternates: { canonical: "https://lapaclub.ru/hotel" },
   openGraph: {
     title: "Зоогостиница для собак и кошек в Калуге",
     description: "Открытые боксы, прогулки, кормление. От 1 500 ₽ в сутки.",
-    url: "https://dogclub-kaluga.ru/hotel",
+    url: "https://lapaclub.ru/hotel",
   },
 };
 

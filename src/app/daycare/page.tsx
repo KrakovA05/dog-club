@@ -11,11 +11,11 @@ export const metadata: Metadata = {
   title: "Детский сад для собак и кошек в Калуге",
   description: "Дневной уход за собаками и кошками в Калуге. Час от 400 ₽, полдня от 1 200 ₽, полный день от 1 800 ₽. Развивающие игры, прогулки. Ул. Дарвина 14Ф.",
   keywords: ["детский сад для собак Калуга", "дневной уход за собакой Калуга", "передержка собак на день Калуга", "детский сад для кошек Калуга"],
-  alternates: { canonical: "https://dogclub-kaluga.ru/daycare" },
+  alternates: { canonical: "https://lapaclub.ru/daycare" },
   openGraph: {
     title: "Детский сад для собак и кошек в Калуге",
     description: "Час от 400 ₽, полдня от 1 200 ₽, полный день от 1 800 ₽. Развивающие игры, прогулки.",
-    url: "https://dogclub-kaluga.ru/daycare",
+    url: "https://lapaclub.ru/daycare",
   },
 };
 

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Политика конфиденциальности — Дог Клуб",
-  description: "Политика обработки персональных данных зоогостиницы Дог Клуб (Калуга).",
+  title: "Политика конфиденциальности — Лапа Клуб",
+  description: "Политика обработки персональных данных зоогостиницы Лапа Клуб (Калуга).",
 };
 
 const UPDATED = "01 июня 2026 г.";
@@ -26,8 +26,8 @@ export default function PrivacyPage() {
             <p className="text-muted-foreground">
               Настоящая Политика конфиденциальности (далее — «Политика») определяет порядок
               обработки и защиты персональных данных пользователей сайта{" "}
-              <strong>dogclub-kaluga.ru</strong> (далее — «Сайт»), которые принадлежат
-              зоогостинице «Дог Клуб» (далее — «Оператор»), расположенной по адресу:
+              <strong>lapaclub.ru</strong> (далее — «Сайт»), которые принадлежат
+              зоогостинице «Лапа Клуб» (далее — «Оператор»), расположенной по адресу:
               г. Калуга, ул. Дарвина, д. 14Ф.
             </p>
             <p className="text-muted-foreground mt-3">
@@ -205,12 +205,12 @@ export default function PrivacyPage() {
           <div>
             <h2 className="text-lg font-semibold mb-3">8. Контактные данные оператора</h2>
             <div className="rounded-xl border p-5 text-muted-foreground space-y-1.5">
-              <p><strong className="text-foreground">Оператор:</strong> Зоогостиница «Дог Клуб»</p>
+              <p><strong className="text-foreground">Оператор:</strong> Зоогостиница «Лапа Клуб»</p>
               <p><strong className="text-foreground">Адрес:</strong> 248000, г. Калуга, ул. Дарвина, д. 14Ф</p>
               <p>
                 <strong className="text-foreground">Email:</strong>{" "}
-                <a href="mailto:info@dogclub-kaluga.ru" className="text-primary hover:underline underline-offset-2">
-                  info@dogclub-kaluga.ru
+                <a href="mailto:info@lapaclub.ru" className="text-primary hover:underline underline-offset-2">
+                  info@lapaclub.ru
                 </a>
               </p>
             </div>

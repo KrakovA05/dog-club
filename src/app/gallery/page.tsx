@@ -4,7 +4,7 @@ import { ImageIcon } from "lucide-react";
 import type { GalleryItem } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Галерея — Дог Клуб Калуга",
+  title: "Галерея — Лапа Клуб Калуга",
   description: "Фото наших питомцев и заведения.",
 };
 

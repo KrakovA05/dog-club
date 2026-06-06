@@ -25,12 +25,12 @@ export async function Header() {
           <Link href="/" className="flex items-center gap-2.5">
             <Image
               src="/logo-icon.png"
-              alt="Дог Клуб"
+              alt="Лапа Клуб"
               width={36}
               height={36}
               className="rounded-lg object-contain"
             />
-            <span className="font-bold text-xl text-brand-dark">Дог Клуб</span>
+            <span className="font-bold text-xl text-brand-dark">Лапа Клуб</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">

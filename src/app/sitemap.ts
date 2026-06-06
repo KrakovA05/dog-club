@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { MetadataRoute } from "next";
 
-const BASE = "https://dogclub-kaluga.ru";
+const BASE = "https://lapaclub.ru";
 
 const staticPages: MetadataRoute.Sitemap = [
   { url: BASE, lastModified: new Date(), changeFrequency: "weekly", priority: 1.0 },

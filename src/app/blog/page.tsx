@@ -5,8 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { BlogPost } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Блог — Дог Клуб",
-  description: "Советы по уходу за собаками и кошками от команды Дог Клуб Калуга.",
+  title: "Блог — Лапа Клуб",
+  description: "Советы по уходу за собаками и кошками от команды Лапа Клуб Калуга.",
 };
 
 export const revalidate = 3600;

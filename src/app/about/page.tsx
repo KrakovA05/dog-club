@@ -3,7 +3,7 @@ import { CtaBanner } from "@/components/sections/CtaBanner";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata: Metadata = {
-  title: "О нас — Дог Клуб Калуга",
+  title: "О нас — Лапа Клуб Калуга",
   description: "Команда профессионалов, которые любят животных. Зоогостиница и детский сад в Калуге.",
 };
 
@@ -16,7 +16,7 @@ export default function AboutPage() {
             <Badge className="mb-4">О нас</Badge>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Мы любим животных</h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Дог Клуб — это команда профессионалов в Калуге, которые создали место,
+              Лапа Клуб — это команда профессионалов в Калуге, которые создали место,
               где каждому питомцу рады. Мы принимаем собак и кошек до 15 кг
               на дневное пребывание и длительное проживание.
             </p>
