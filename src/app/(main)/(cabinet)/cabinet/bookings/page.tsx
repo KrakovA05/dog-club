@@ -102,7 +102,7 @@ export default async function BookingsPage() {
                         {booking.price_total.toLocaleString("ru-RU")} ₽
                       </div>
                     )}
-                    {booking.status === "pending" && (
+                    {(booking.status === "pending" || booking.status === "confirmed") && (
                       <CancelBookingButton id={booking.id} />
                     )}
                   </div>

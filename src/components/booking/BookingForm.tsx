@@ -142,11 +142,11 @@ export function BookingForm({ pets, daycareprices, hotelNightly = 0 }: { pets: P
       <Card className="border-0 shadow-sm text-center">
         <CardContent className="pt-10 pb-10">
           <CheckCircle2 className="h-16 w-16 text-primary mx-auto mb-4 animate-in zoom-in-50 duration-500 motion-reduce:animate-none" />
-          <h2 className="text-xl font-bold mb-2 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150 motion-reduce:animate-none">Заявка принята!</h2>
+          <h2 className="text-xl font-bold mb-2 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150 motion-reduce:animate-none">Бронь подтверждена!</h2>
           <p className="text-muted-foreground text-sm max-w-xs mx-auto animate-in fade-in duration-500 delay-300 motion-reduce:animate-none">
-            Подтверждение и статус появятся в{" "}
-            <a href="/cabinet/bookings" className="text-primary underline">личном кабинете</a>{" "}
-            — мы также напишем вам на почту.
+            Место забронировано. Детали и статус — в{" "}
+            <a href="/cabinet/bookings" className="text-primary underline">личном кабинете</a>.
+            Оплата — на месте.
           </p>
         </CardContent>
       </Card>

@@ -8,13 +8,13 @@ export async function cancelBooking(id: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Не авторизован");
 
-  // RLS сам проверит: auth.uid() = user_id AND status = 'pending'
+  // RLS разрешает отмену своих броней из pending/confirmed (только в cancelled)
   const { error } = await supabase
     .from("bookings")
     .update({ status: "cancelled" })
     .eq("id", id)
     .eq("user_id", user.id)
-    .eq("status", "pending");
+    .in("status", ["pending", "confirmed"]);
 
   if (error) throw new Error(error.message);
 

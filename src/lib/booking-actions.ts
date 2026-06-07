@@ -62,8 +62,8 @@ export async function submitClientBooking(data: {
     .single();
   if (!pet) throw new Error("Питомец не найден");
 
-  // Не даём оставить заявку на заведомо занятые даты (мягкая проверка;
-  // жёсткая гарантия — триггер БД в момент подтверждения).
+  // Мягкая проверка свободных мест (дружелюбная ошибка).
+  // Жёсткая гарантия — триггер вместимости при вставке confirmed (атомарно, без гонки).
   const availability = await getAvailability({
     service_type: data.service_type,
     pet_type: pet.type as "dog" | "cat",
@@ -73,10 +73,11 @@ export async function submitClientBooking(data: {
   const full = availability.find((day) => day.remaining <= 0);
   if (full) throw new Error(`CAPACITY_FULL|${full.d}|`);
 
+  // Бронь подтверждается автоматически (без участия админа) и сразу занимает место.
   const { error } = await supabase.from("bookings").insert({
     ...data,
     user_id: user.id,
-    status: "pending",
+    status: "confirmed",
   });
   if (error) throw new Error(error.message);
 
@@ -86,7 +87,7 @@ export async function submitClientBooking(data: {
     : data.start_date;
 
   await sendTelegramNotification(
-    `🆕 <b>Новая заявка с сайта</b>\n\n` +
+    `✅ <b>Новая бронь с сайта</b> (подтверждена)\n\n` +
     `${serviceLabel}\n` +
     `🐶 ${pet.type === "dog" ? "Собака" : "Кошка"}\n` +
     `📅 ${dateInfo}` +
