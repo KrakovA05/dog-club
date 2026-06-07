@@ -34,7 +34,7 @@ export async function HeroSection() {
 
             <Badge variant="secondary" className="mb-6 text-sm">
               <MapPin className="h-3 w-3 mr-1" />
-              Калуга, ул. Дарвина 14, стр. А
+              Калуга, ул. Дарвина 14
             </Badge>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">

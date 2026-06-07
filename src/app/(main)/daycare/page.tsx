@@ -9,7 +9,7 @@ import { Clock, Check, AlertCircle, Heart, Users, Shield } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Детский сад для собак в Калуге",
-  description: "Дневной уход за собаками в Калуге. Развивающие игры, прогулки, базовое воспитание. Ул. Дарвина 14, стр. А.",
+  description: "Дневной уход за собаками в Калуге. Развивающие игры, прогулки, базовое воспитание. Ул. Дарвина 14.",
   keywords: ["детский сад для собак Калуга", "дневной уход за собакой Калуга", "передержка собак на день Калуга"],
   alternates: { canonical: "https://lapaclub.ru/daycare" },
   openGraph: {
