@@ -22,11 +22,11 @@ export function DashboardShell({
   return (
     <div className="min-h-screen md:flex">
       {/* Мобильная шапка */}
-      <div className="md:hidden sticky top-0 z-30 flex items-center justify-between bg-foreground text-background px-4 h-14">
-        <div className="font-bold text-sm">Лапа Клуб</div>
-        <button onClick={() => setOpen(true)} aria-label="Открыть меню" className="p-2 -mr-2">
+      <div className="md:hidden sticky top-0 z-30 flex items-center gap-3 bg-foreground text-background px-4 h-14">
+        <button onClick={() => setOpen(true)} aria-label="Открыть меню" className="p-2 -ml-2">
           <Menu className="h-5 w-5" />
         </button>
+        <div className="font-bold text-sm">Лапа Клуб</div>
       </div>
 
       {/* Затемнение под дровером */}
