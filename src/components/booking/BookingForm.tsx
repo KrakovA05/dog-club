@@ -7,9 +7,9 @@ import { AvailabilityCalendar } from "@/components/booking/AvailabilityCalendar"
 import { QuickAddPet } from "@/components/booking/QuickAddPet";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle } from "lucide-react";
 import type { Pet, DayAvailability } from "@/types";
-import { translateSupabaseError, formatCalendarDate, parseLocalDate } from "@/lib/utils";
+import { translateSupabaseError, formatCalendarDate, parseLocalDate, pickHotelNightly } from "@/lib/utils";
 import { useCountUp } from "@/hooks/useCountUp";
 
 type FormErrors = Partial<Record<string, string>>;
@@ -28,7 +28,7 @@ const LABEL_TO_VALUE: Record<string, string> = {
   "Полный день": "full_day", "полный день": "full_day",
 };
 
-export function BookingForm({ pets, daycareprices, hotelNightly = 0 }: { pets: Pet[]; daycareprices?: DaycarePrice[]; hotelNightly?: number }) {
+export function BookingForm({ pets, daycareprices, hotelPrices = [] }: { pets: Pet[]; daycareprices?: DaycarePrice[]; hotelPrices?: { label: string; price: number }[] }) {
   const formats = (daycareprices && daycareprices.length > 0 ? daycareprices : FALLBACK_PRICES).map((p, i) => ({
     value: LABEL_TO_VALUE[p.label] ?? ["hour", "half_day", "full_day"][i] ?? `format_${i}`,
     label: p.label,
@@ -54,6 +54,15 @@ export function BookingForm({ pets, daycareprices, hotelNightly = 0 }: { pets: P
   const [checkingAvail, setCheckingAvail] = useState(false);
 
   const selectedPet = petList.find((p) => p.id === petId);
+  const isCat = selectedPet?.type === "cat";
+
+  // Кошек в детский сад не берём — только гостиница
+  function selectPet(p: Pet) {
+    setPetId(p.id);
+    if (p.type === "cat" && serviceType === "daycare") {
+      setServiceType("hotel"); setDaycareFormat(""); setStartDate(""); setEndDate("");
+    }
+  }
 
   // Подгружаем доступность при изменении питомца/услуги/дат
   useEffect(() => {
@@ -92,6 +101,7 @@ export function BookingForm({ pets, daycareprices, hotelNightly = 0 }: { pets: P
   const nights = serviceType === "hotel" && startDate && endDate && endDate > startDate
     ? Math.round((parseLocalDate(endDate).getTime() - parseLocalDate(startDate).getTime()) / 86400000)
     : 0;
+  const hotelNightly = selectedPet ? pickHotelNightly(selectedPet.type, hotelPrices) : 0;
   const totalPrice = serviceType === "hotel"
     ? nights * hotelNightly
     : (formats.find((f) => f.value === daycareFormat)?.priceNum ?? 0);
@@ -158,6 +168,15 @@ export function BookingForm({ pets, daycareprices, hotelNightly = 0 }: { pets: P
       <CardContent className="pt-6">
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
 
+          {/* Важное предупреждение */}
+          <div className="flex gap-3 rounded-xl bg-destructive/10 border border-destructive/30 px-4 py-3">
+            <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+            <p className="text-sm text-destructive">
+              <strong>Важно.</strong> Мы не принимаем агрессивных животных и животных
+              с агрессией к сородичам — ради безопасности всех питомцев.
+            </p>
+          </div>
+
           {/* Питомец */}
           <div className="space-y-2">
             <Label>Питомец *</Label>
@@ -170,7 +189,7 @@ export function BookingForm({ pets, daycareprices, hotelNightly = 0 }: { pets: P
                       name="pet_id"
                       value={pet.id}
                       checked={petId === pet.id}
-                      onChange={() => setPetId(pet.id)}
+                      onChange={() => selectPet(pet)}
                       className="sr-only peer"
                     />
                     <div className="rounded-xl border-2 p-3 peer-checked:border-primary peer-checked:bg-brand-light transition-all hover:border-primary/50">
@@ -198,7 +217,7 @@ export function BookingForm({ pets, daycareprices, hotelNightly = 0 }: { pets: P
               <QuickAddPet
                 onAdded={(pet) => {
                   setPetList((prev) => [...prev, pet]);
-                  setPetId(pet.id);
+                  selectPet(pet);
                   setAddingPet(false);
                 }}
                 onCancel={petList.length > 0 ? () => setAddingPet(false) : undefined}
@@ -214,22 +233,26 @@ export function BookingForm({ pets, daycareprices, hotelNightly = 0 }: { pets: P
               {([
                 { value: "daycare" as const, label: "Детский сад", sub: "до 11 часов" },
                 { value: "hotel" as const,   label: "Гостиница",   sub: "от суток" },
-              ] as const).map((s) => (
-                <label key={s.value} className="cursor-pointer">
+              ] as const).map((s) => {
+                const blocked = s.value === "daycare" && isCat; // кошек в детсад не берём
+                return (
+                <label key={s.value} className={blocked ? "cursor-not-allowed" : "cursor-pointer"}>
                   <input
                     type="radio"
                     name="service_type"
                     value={s.value}
                     checked={serviceType === s.value}
+                    disabled={blocked}
                     onChange={() => { setServiceType(s.value); setDaycareFormat(""); setStartDate(""); setEndDate(""); }}
                     className="sr-only peer"
                   />
-                  <div className="rounded-xl border-2 p-4 peer-checked:border-primary peer-checked:bg-brand-light transition-all">
+                  <div className="rounded-xl border-2 p-4 peer-checked:border-primary peer-checked:bg-brand-light transition-all peer-disabled:opacity-40">
                     <div className="font-medium">{s.label}</div>
-                    <div className="text-xs text-muted-foreground">{s.sub}</div>
+                    <div className="text-xs text-muted-foreground">{blocked ? "Только для собак" : s.sub}</div>
                   </div>
                 </label>
-              ))}
+                );
+              })}
             </div>
           </div>
 

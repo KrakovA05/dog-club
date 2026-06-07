@@ -27,6 +27,20 @@ export function translateSupabaseError(message: string): string {
   return "Что-то пошло не так — попробуйте ещё раз.";
 }
 
+// Выбор суточной цены гостиницы по виду питомца.
+// Сопоставление по ключевому слову в названии строки прайса: «собак» / «кошк».
+// Доп.услуги («дрессировка», «+») в авто-расчёт не берём. Фолбэк — первая обычная строка.
+export function pickHotelNightly(
+  petType: "dog" | "cat",
+  rows: { label: string; price: number }[],
+): number {
+  const species = petType === "cat" ? /кошк/i : /собак/i;
+  const match = rows.find((r) => species.test(r.label));
+  if (match) return match.price;
+  const base = rows.find((r) => !/дрессир|\+/i.test(r.label)) ?? rows[0];
+  return base?.price ?? 0;
+}
+
 export function parseLocalDate(str: string): Date {
   const [y, m, d] = str.split("-").map(Number);
   return new Date(y, m - 1, d);

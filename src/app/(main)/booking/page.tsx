@@ -50,8 +50,8 @@ export default async function BookingPage() {
 
   const allPrices = prices ?? [];
   const daycareprices = allPrices.filter((p) => p.service_type === "daycare");
-  // Цена гостиницы за ночь = первая строка hotel по sort_order («Сутки»)
-  const hotelNightly = allPrices.find((p) => p.service_type === "hotel")?.price ?? 0;
+  // Все строки гостиницы — суточная цена выбирается по виду питомца в форме
+  const hotelPrices = allPrices.filter((p) => p.service_type === "hotel");
 
   return (
     <>
@@ -88,7 +88,7 @@ export default async function BookingPage() {
 
       <section className="py-10 md:py-14">
         <div className="container mx-auto max-w-xl px-4">
-          <BookingForm pets={(pets as Pet[]) ?? []} daycareprices={daycareprices} hotelNightly={hotelNightly} />
+          <BookingForm pets={(pets as Pet[]) ?? []} daycareprices={daycareprices} hotelPrices={hotelPrices} />
         </div>
       </section>
     </>

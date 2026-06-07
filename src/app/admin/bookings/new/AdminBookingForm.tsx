@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createBookingForClient } from "@/lib/admin-actions";
 import { getAvailability } from "@/lib/booking-actions";
-import { formatCalendarDate, parseLocalDate } from "@/lib/utils";
+import { formatCalendarDate, parseLocalDate, pickHotelNightly } from "@/lib/utils";
 import { useCountUp } from "@/hooks/useCountUp";
 import type { DayAvailability } from "@/types";
 import { Input } from "@/components/ui/input";
@@ -38,13 +38,13 @@ export function AdminBookingForm({
   profiles,
   allPets,
   daycareprices,
-  hotelNightly = 0,
+  hotelPrices = [],
   preselectedClientId,
 }: {
   profiles: Profile[];
   allPets: Pet[];
   daycareprices?: DaycarePrice[];
-  hotelNightly?: number;
+  hotelPrices?: { label: string; price: number }[];
   preselectedClientId?: string;
 }) {
   const FORMAT_OPTIONS = (daycareprices && daycareprices.length > 0
@@ -71,6 +71,16 @@ export function AdminBookingForm({
   const clientPets = allPets.filter((p) => p.owner_id === clientId);
   const selectedPet = allPets.find((p) => p.id === petId);
   const selectedClient = profiles.find((p) => p.id === clientId);
+  const isCat = selectedPet?.type === "cat";
+
+  // Кошек в детский сад не берём — только гостиница
+  function selectPet(id: string) {
+    setPetId(id);
+    const p = allPets.find((x) => x.id === id);
+    if (p?.type === "cat" && serviceType === "daycare") {
+      setServiceType("hotel"); setDaycareFormat(""); setStartDate(""); setEndDate("");
+    }
+  }
 
   const [availability, setAvailability] = useState<DayAvailability[] | null>(null);
   const [checkingAvail, setCheckingAvail] = useState(false);
@@ -112,6 +122,7 @@ export function AdminBookingForm({
   const nights = serviceType === "hotel" && startDate && endDate && endDate > startDate
     ? Math.round((parseLocalDate(endDate).getTime() - parseLocalDate(startDate).getTime()) / 86400000)
     : 0;
+  const hotelNightly = selectedPet ? pickHotelNightly(selectedPet.type as "dog" | "cat", hotelPrices) : 0;
   const totalPrice = serviceType === "hotel"
     ? nights * hotelNightly
     : (FORMAT_OPTIONS.find((f) => f.value === daycareFormat)?.priceNum ?? 0);
@@ -218,7 +229,7 @@ export function AdminBookingForm({
                     name="pet"
                     value={pet.id}
                     checked={petId === pet.id}
-                    onChange={() => setPetId(pet.id)}
+                    onChange={() => selectPet(pet.id)}
                     className="accent-primary"
                   />
                   <div className="flex-1 min-w-0">
@@ -264,18 +275,22 @@ export function AdminBookingForm({
               {([
                 { value: "daycare" as const, label: "Детский сад", sub: "до 11 часов" },
                 { value: "hotel"   as const, label: "Гостиница",   sub: "от суток" },
-              ] as const).map((s) => (
-                <label key={s.value} className="cursor-pointer">
+              ] as const).map((s) => {
+                const blocked = s.value === "daycare" && isCat; // кошек в детсад не берём
+                return (
+                <label key={s.value} className={blocked ? "cursor-not-allowed" : "cursor-pointer"}>
                   <input type="radio" name="service" value={s.value}
                     checked={serviceType === s.value}
+                    disabled={blocked}
                     onChange={() => { setServiceType(s.value); setDaycareFormat(""); setStartDate(""); setEndDate(""); }}
                     className="sr-only peer" />
-                  <div className="rounded-xl border-2 p-3 peer-checked:border-primary peer-checked:bg-brand-light transition-all text-sm">
+                  <div className="rounded-xl border-2 p-3 peer-checked:border-primary peer-checked:bg-brand-light transition-all text-sm peer-disabled:opacity-40">
                     <div className="font-medium">{s.label}</div>
-                    <div className="text-xs text-muted-foreground">{s.sub}</div>
+                    <div className="text-xs text-muted-foreground">{blocked ? "Только для собак" : s.sub}</div>
                   </div>
                 </label>
-              ))}
+                );
+              })}
             </div>
           </div>
 

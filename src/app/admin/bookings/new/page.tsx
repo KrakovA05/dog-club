@@ -31,8 +31,8 @@ export default async function AdminNewBookingPage({
 
   const allPrices = prices ?? [];
   const daycareprices = allPrices.filter((p) => p.service_type === "daycare");
-  // Цена гостиницы за ночь = первая строка hotel по sort_order
-  const hotelNightly = allPrices.find((p) => p.service_type === "hotel")?.price ?? 0;
+  // Все строки гостиницы — суточная цена выбирается по виду питомца в форме
+  const hotelPrices = allPrices.filter((p) => p.service_type === "hotel");
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -50,7 +50,7 @@ export default async function AdminNewBookingPage({
         profiles={(profiles ?? []) as unknown as Profile[]}
         allPets={(pets ?? []) as unknown as Pet[]}
         daycareprices={daycareprices as unknown as DaycarePrice[]}
-        hotelNightly={hotelNightly}
+        hotelPrices={hotelPrices}
         preselectedClientId={preselectedClient}
       />
     </div>

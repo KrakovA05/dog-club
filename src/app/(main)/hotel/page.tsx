@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CtaBanner } from "@/components/sections/CtaBanner";
 import { PhotoPromise } from "@/components/sections/PhotoPromise";
+import { SafetyNotice } from "@/components/sections/SafetyNotice";
 import { Check, Moon, Package } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -94,6 +95,7 @@ export default function HotelPage() {
         </div>
       </section>
 
+      <SafetyNotice />
       <PhotoPromise />
       <CtaBanner />
     </>

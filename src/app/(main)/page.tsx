@@ -5,12 +5,14 @@ import { WhyUs } from "@/components/sections/WhyUs";
 import { ReviewsSlider } from "@/components/sections/ReviewsSlider";
 import { BlogTeaser } from "@/components/sections/BlogTeaser";
 import { CtaBanner } from "@/components/sections/CtaBanner";
+import { SafetyNotice } from "@/components/sections/SafetyNotice";
 import { Reveal } from "@/components/ui/Reveal";
 
 export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <SafetyNotice />
       <HowItWorks />
       <ServicesPreview />
       <Reveal><WhyUs /></Reveal>

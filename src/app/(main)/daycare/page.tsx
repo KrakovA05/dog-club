@@ -8,12 +8,12 @@ import { PhotoPromise } from "@/components/sections/PhotoPromise";
 import { Clock, Check, AlertCircle, Heart, Users, Shield } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Детский сад для собак и кошек в Калуге",
-  description: "Дневной уход за собаками и кошками в Калуге. Час от 400 ₽, полдня от 1 200 ₽, полный день от 1 800 ₽. Развивающие игры, прогулки. Ул. Дарвина 14, стр. А.",
-  keywords: ["детский сад для собак Калуга", "дневной уход за собакой Калуга", "передержка собак на день Калуга", "детский сад для кошек Калуга"],
+  title: "Детский сад для собак в Калуге",
+  description: "Дневной уход за собаками в Калуге. Развивающие игры, прогулки, базовое воспитание. Ул. Дарвина 14, стр. А.",
+  keywords: ["детский сад для собак Калуга", "дневной уход за собакой Калуга", "передержка собак на день Калуга"],
   alternates: { canonical: "https://lapaclub.ru/daycare" },
   openGraph: {
-    title: "Детский сад для собак и кошек в Калуге",
+    title: "Детский сад для собак в Калуге",
     description: "Час от 400 ₽, полдня от 1 200 ₽, полный день от 1 800 ₽. Развивающие игры, прогулки.",
     url: "https://lapaclub.ru/daycare",
   },
@@ -62,8 +62,9 @@ const whyReasons = [
 ];
 
 const requirements = [
-  "Собаки и кошки весом до 15 кг",
-  "Актуальные прививки (ветпаспорт обязателен)",
+  "Только собаки весом до 15 кг (детский сад — без кошек)",
+  "Без агрессии к людям и другим животным",
+  "Актуальные прививки",
   "Возраст от 3 месяцев",
   "Здоровый питомец (без признаков болезни)",
 ];
@@ -158,6 +159,14 @@ export default function DaycarePage() {
                 </li>
               ))}
             </ul>
+
+            <div className="mt-6 flex gap-3 rounded-xl bg-destructive/10 border border-destructive/30 px-4 py-3">
+              <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+              <p className="text-sm text-destructive">
+                <strong>Важно.</strong> Мы не принимаем агрессивных собак и собак с агрессией
+                к сородичам — это безопасность всех питомцев в группе.
+              </p>
+            </div>
           </div>
         </div>
       </section>
