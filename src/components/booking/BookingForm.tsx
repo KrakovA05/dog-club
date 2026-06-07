@@ -221,7 +221,7 @@ export function BookingForm({ pets, daycareprices, hotelNightly = 0 }: { pets: P
                     name="service_type"
                     value={s.value}
                     checked={serviceType === s.value}
-                    onChange={() => { setServiceType(s.value); setDaycareFormat(""); }}
+                    onChange={() => { setServiceType(s.value); setDaycareFormat(""); setStartDate(""); setEndDate(""); }}
                     className="sr-only peer"
                   />
                   <div className="rounded-xl border-2 p-4 peer-checked:border-primary peer-checked:bg-brand-light transition-all">

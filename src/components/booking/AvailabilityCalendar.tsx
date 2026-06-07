@@ -195,8 +195,8 @@ export function AvailabilityCalendar({
               )}
             >
               <span>{day}</span>
-              {!past && free && !selected && r !== undefined && (
-                <span className="text-[9px] leading-none text-primary/70">{r}</span>
+              {!past && free && !selected && r !== undefined && r <= 5 && (
+                <span className="text-[9px] leading-none text-orange-500 font-medium">{r} мест</span>
               )}
             </button>
           );

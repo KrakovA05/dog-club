@@ -268,7 +268,7 @@ export function AdminBookingForm({
                 <label key={s.value} className="cursor-pointer">
                   <input type="radio" name="service" value={s.value}
                     checked={serviceType === s.value}
-                    onChange={() => { setServiceType(s.value); setDaycareFormat(""); }}
+                    onChange={() => { setServiceType(s.value); setDaycareFormat(""); setStartDate(""); setEndDate(""); }}
                     className="sr-only peer" />
                   <div className="rounded-xl border-2 p-3 peer-checked:border-primary peer-checked:bg-brand-light transition-all text-sm">
                     <div className="font-medium">{s.label}</div>
