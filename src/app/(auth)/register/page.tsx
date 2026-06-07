@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 
 export const metadata: Metadata = { title: "Регистрация — Лапа Клуб" };
 
 export default function RegisterPage() {
-  return <RegisterForm />;
+  return <Suspense><RegisterForm /></Suspense>;
 }

@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://dogclub-kaluga.ru
+Host: https://lapaclub.ru
 
 # Sitemaps
-Sitemap: https://dogclub-kaluga.ru/sitemap.xml
+Sitemap: https://lapaclub.ru/sitemap.xml
