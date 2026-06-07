@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-<url><loc>https://lapaclub.ru/auth/confirmed</loc><lastmod>2026-06-07T13:59:07.396Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://lapaclub.ru/auth-callback</loc><lastmod>2026-06-07T13:59:07.397Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://lapaclub.ru/forgot-password</loc><lastmod>2026-06-07T13:59:07.397Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://lapaclub.ru/icon.png</loc><lastmod>2026-06-07T13:59:07.397Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://lapaclub.ru/login</loc><lastmod>2026-06-07T13:59:07.397Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://lapaclub.ru/register</loc><lastmod>2026-06-07T13:59:07.397Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://lapaclub.ru/reset-password</loc><lastmod>2026-06-07T13:59:07.397Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://lapaclub.ru/robots.txt</loc><lastmod>2026-06-07T13:59:07.397Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://lapaclub.ru/auth/confirmed</loc><lastmod>2026-06-07T16:33:18.592Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://lapaclub.ru/auth-callback</loc><lastmod>2026-06-07T16:33:18.594Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://lapaclub.ru/forgot-password</loc><lastmod>2026-06-07T16:33:18.594Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://lapaclub.ru/icon.png</loc><lastmod>2026-06-07T16:33:18.594Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://lapaclub.ru/login</loc><lastmod>2026-06-07T16:33:18.594Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://lapaclub.ru/register</loc><lastmod>2026-06-07T16:33:18.594Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://lapaclub.ru/reset-password</loc><lastmod>2026-06-07T16:33:18.594Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://lapaclub.ru/robots.txt</loc><lastmod>2026-06-07T16:33:18.594Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
 </urlset>
