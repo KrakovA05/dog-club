@@ -37,7 +37,7 @@ export function ContactForm() {
       <div className="rounded-2xl border p-8 text-center">
         <div className="text-4xl mb-3">✓</div>
         <h3 className="font-semibold text-lg mb-1">Заявка отправлена</h3>
-        <p className="text-muted-foreground text-sm">Свяжемся с вами в течение часа (8:00–20:00)</p>
+        <p className="text-muted-foreground text-sm">Свяжемся с вами в течение часа (9:00–20:00)</p>
       </div>
     );
   }

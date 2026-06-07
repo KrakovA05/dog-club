@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { updateBookingStatus, updateBookingPrice } from "@/lib/admin-actions";
 import type { BookingStatus } from "@/types";
@@ -19,7 +20,7 @@ const FORMAT_LABELS: Record<string, string> = {
   hour: "Час", half_day: "Полдня", full_day: "Полный день",
 };
 
-interface BookingRow {
+export interface BookingRow {
   id: string;
   service_type: string;
   daycare_format: string | null;
@@ -105,6 +106,23 @@ function formatDate(d: string) {
 }
 
 export function BookingsAdmin({ bookings }: { bookings: BookingRow[] }) {
+  const router = useRouter();
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<{ id: string; msg: string } | null>(null);
+
+  async function changeStatus(id: string, status: BookingStatus) {
+    setBusyId(id);
+    setActionError(null);
+    try {
+      await updateBookingStatus(id, status);
+      router.refresh();
+    } catch (e) {
+      setActionError({ id, msg: e instanceof Error ? e.message : "Не удалось изменить статус" });
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   if (!bookings.length) {
     return (
       <div className="rounded-xl border border-dashed p-12 text-center text-muted-foreground">
@@ -131,23 +149,25 @@ export function BookingsAdmin({ bookings }: { bookings: BookingRow[] }) {
               </div>
               <div className="flex gap-2">
                 {sc.next && (
-                  <form action={updateBookingStatus.bind(null, b.id, sc.next)}>
-                    <button type="submit"
-                      className="px-3 py-1.5 text-xs rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-                      {sc.action}
-                    </button>
-                  </form>
+                  <button type="button" onClick={() => changeStatus(b.id, sc.next!)} disabled={busyId === b.id}
+                    className="px-3 py-1.5 text-xs rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors">
+                    {busyId === b.id ? "..." : sc.action}
+                  </button>
                 )}
                 {b.status === "pending" && (
-                  <form action={updateBookingStatus.bind(null, b.id, "cancelled")}>
-                    <button type="submit"
-                      className="px-3 py-1.5 text-xs rounded-lg border hover:bg-destructive/10 hover:text-destructive transition-colors">
-                      Отменить
-                    </button>
-                  </form>
+                  <button type="button" onClick={() => changeStatus(b.id, "cancelled")} disabled={busyId === b.id}
+                    className="px-3 py-1.5 text-xs rounded-lg border hover:bg-destructive/10 hover:text-destructive disabled:opacity-50 transition-colors">
+                    Отменить
+                  </button>
                 )}
               </div>
             </div>
+
+            {actionError?.id === b.id && (
+              <div className="px-5 py-2 text-sm bg-destructive/10 text-destructive border-b">
+                {actionError.msg}
+              </div>
+            )}
 
             {/* Тело */}
             <div className="p-5 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">

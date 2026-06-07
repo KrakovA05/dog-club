@@ -4,6 +4,12 @@ import { createClient as createServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { BookingStatus } from "@/types";
 import { sendTelegramNotification } from "@/lib/telegram";
+import { translateSupabaseError } from "@/lib/utils";
+
+// Превращаем технический отказ триггера вместимости в понятный текст
+function capacityError(message: string): Error {
+  return new Error(message.includes("CAPACITY_FULL") ? translateSupabaseError(message) : message);
+}
 
 async function requireAdmin() {
   const supabase = await createServerClient();
@@ -21,7 +27,7 @@ export async function updateBookingStatus(id: string, status: BookingStatus) {
   await requireAdmin();
   const supabase = createClient();
   const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
-  if (error) throw new Error(error.message);
+  if (error) throw capacityError(error.message);
   revalidatePath("/admin/daycare/bookings");
   revalidatePath("/admin/hotel/bookings");
   revalidatePath("/admin/calendar");
@@ -174,6 +180,15 @@ export async function deleteBlogPost(id: string) {
   revalidatePath("/blog");
 }
 
+export async function updateCapacity(zone: string, capacity: number) {
+  await requireAdmin();
+  if (!Number.isInteger(capacity) || capacity < 0) throw new Error("Некорректное число мест");
+  const supabase = createClient();
+  const { error } = await supabase.from("capacity_zones").update({ capacity }).eq("zone", zone);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/settings");
+}
+
 export async function createBookingForClient(data: {
   user_id: string;
   pet_id: string;
@@ -193,16 +208,21 @@ export async function createBookingForClient(data: {
   ]);
 
   const { error } = await supabase.from("bookings").insert({ ...data, status: "confirmed" });
-  if (error) throw new Error(error.message);
+  if (error) throw capacityError(error.message);
 
   const serviceLabel = data.service_type === "hotel" ? "🏨 Гостиница" : "🐾 Детский сад";
   const dateInfo = data.end_date
     ? `${data.start_date} → ${data.end_date}`
     : data.start_date;
 
+  const clientInfo = profile?.full_name
+    ? `👤 ${profile.full_name}${profile.phone ? ` · ${profile.phone}` : ""}\n`
+    : "";
+
   await sendTelegramNotification(
     `✅ <b>Запись создана (admin)</b>\n\n` +
     `${serviceLabel}\n` +
+    clientInfo +
     `🐶 ${pet?.type === "dog" ? "Собака" : "Кошка"}\n` +
     `📅 ${dateInfo}` +
     (data.notes ? `\n💬 ${data.notes}` : "") +

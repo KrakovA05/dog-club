@@ -1,5 +1,5 @@
 import { createAdminClient as createClient } from "@/lib/supabase/admin";
-import { BookingsAdmin } from "@/components/admin/BookingsAdmin";
+import { BookingsAdmin, type BookingRow } from "@/components/admin/BookingsAdmin";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
@@ -28,7 +28,7 @@ export default async function DaycareBookingsPage() {
           <Button size="sm" variant="outline" render={<Link href="/admin/hotel/bookings">Гостиница →</Link>} />
         </div>
       </div>
-      <BookingsAdmin bookings={(bookings as any[]) ?? []}  />
+      <BookingsAdmin bookings={(bookings ?? []) as unknown as BookingRow[]} />
     </div>
   );
 }

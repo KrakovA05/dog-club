@@ -6,6 +6,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function translateSupabaseError(message: string): string {
+  // Отказ по вместимости из триггера БД: CAPACITY_FULL|YYYY-MM-DD|zone
+  if (message.includes("CAPACITY_FULL")) {
+    const match = message.match(/CAPACITY_FULL\|(\d{4}-\d{2}-\d{2})/);
+    if (match) return `На ${formatCalendarDate(match[1])} свободных мест нет — выберите другую дату.`;
+    return "На выбранную дату свободных мест нет — выберите другую.";
+  }
   const m = message.toLowerCase();
   if (m.includes("invalid login credentials") || m.includes("invalid email or password")) return "Неверный email или пароль.";
   if (m.includes("email not confirmed")) return "Подтвердите email — проверьте почту.";

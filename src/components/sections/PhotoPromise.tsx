@@ -13,7 +13,7 @@ const perks = [
   },
   {
     icon: Clock,
-    title: "С 8:00 до 20:00",
+    title: "С 9:00 до 20:00",
     desc: "Заберите в любое удобное время. Работаем ежедневно без выходных.",
   },
 ];
@@ -24,7 +24,7 @@ export function PhotoPromise() {
       <div className="container mx-auto max-w-6xl px-4">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-3">
-            Уходите спокойно — будем на связи
+            Отдыхайте спокойно — будем на связи
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Мы понимаем, как тяжело оставлять питомца. Поэтому держим вас в курсе.

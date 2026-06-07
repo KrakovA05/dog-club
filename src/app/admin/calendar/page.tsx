@@ -1,5 +1,5 @@
 import { createAdminClient as createClient } from "@/lib/supabase/admin";
-import { CalendarView } from "./CalendarView";
+import { CalendarView, type BookingRow } from "./CalendarView";
 import { RefreshButton } from "@/components/admin/RefreshButton";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +24,7 @@ export default async function AdminCalendarPage() {
         <h1 className="text-2xl font-bold">Календарь записей</h1>
         <RefreshButton />
       </div>
-      <CalendarView bookings={(bookings as any[]) ?? []} />
+      <CalendarView bookings={(bookings ?? []) as unknown as BookingRow[]} />
     </div>
   );
 }

@@ -18,7 +18,7 @@ export function Footer() {
               size="sm"
               variant="outline"
               className="border-white/30 text-brand-light bg-transparent hover:bg-white/10 hover:text-brand-light"
-              render={<a href="tel:+74842000000">Позвонить</a>}
+              render={<a href="tel:+79605185000">Позвонить</a>}
             />
             <Button
               size="sm"
@@ -69,12 +69,12 @@ export function Footer() {
             <div className="flex flex-col gap-3 text-sm opacity-70">
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>Калуга, ул. Дарвина 14, корп. А</span>
+                <span>Калуга, ул. Дарвина 14, стр. А</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 shrink-0" />
-                <a href="tel:+74842000000" className="hover:opacity-100 transition-opacity">
-                  +7 (4842) 00-00-00
+                <a href="tel:+79605185000" className="hover:opacity-100 transition-opacity">
+                  +7 (960) 518-50-00
                 </a>
               </div>
               <div className="flex items-center gap-2">
@@ -85,7 +85,7 @@ export function Footer() {
               </div>
               <div className="flex items-start gap-2">
                 <Clock className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>Ежедневно 8:00 – 20:00</span>
+                <span>Ежедневно 9:00 – 20:00</span>
               </div>
             </div>
           </div>

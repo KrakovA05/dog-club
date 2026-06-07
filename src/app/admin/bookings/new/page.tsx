@@ -1,5 +1,5 @@
 import { createAdminClient as createClient } from "@/lib/supabase/admin";
-import { AdminBookingForm } from "./AdminBookingForm";
+import { AdminBookingForm, type Profile, type Pet, type DaycarePrice } from "./AdminBookingForm";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
@@ -25,10 +25,14 @@ export default async function AdminNewBookingPage({
       .order("name"),
     supabase
       .from("prices")
-      .select("label, price")
-      .eq("service_type", "daycare")
+      .select("service_type, label, price")
       .order("sort_order"),
   ]);
+
+  const allPrices = prices ?? [];
+  const daycareprices = allPrices.filter((p) => p.service_type === "daycare");
+  // Цена гостиницы за ночь = первая строка hotel по sort_order
+  const hotelNightly = allPrices.find((p) => p.service_type === "hotel")?.price ?? 0;
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -43,9 +47,10 @@ export default async function AdminNewBookingPage({
       </div>
 
       <AdminBookingForm
-        profiles={(profiles as any[]) ?? []}
-        allPets={(pets as any[]) ?? []}
-        daycareprices={(prices as any[]) ?? []}
+        profiles={(profiles ?? []) as unknown as Profile[]}
+        allPets={(pets ?? []) as unknown as Pet[]}
+        daycareprices={daycareprices as unknown as DaycarePrice[]}
+        hotelNightly={hotelNightly}
         preselectedClientId={preselectedClient}
       />
     </div>

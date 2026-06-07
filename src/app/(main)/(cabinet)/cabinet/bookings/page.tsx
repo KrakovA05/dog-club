@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Plus } from "lucide-react";
 import Link from "next/link";
 import { CancelBookingButton } from "@/components/cabinet/CancelBookingButton";
+import { formatCalendarDate } from "@/lib/utils";
 import type { Booking, BookingStatus } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -14,12 +15,12 @@ export const metadata: Metadata = { title: "Мои бронирования" };
 
 const statusConfig: Record<
   BookingStatus,
-  { label: string; variant: "default" | "secondary" | "destructive" | "outline" }
+  { label: string; variant: "default" | "secondary" | "destructive" | "outline"; hint: string }
 > = {
-  pending:   { label: "Ожидает подтверждения", variant: "secondary" },
-  confirmed: { label: "Подтверждено",          variant: "default" },
-  cancelled: { label: "Отменено",              variant: "destructive" },
-  completed: { label: "Завершено",             variant: "outline" },
+  pending:   { label: "Ожидает подтверждения", variant: "secondary",   hint: "Подтвердим в ближайшее время — уведомление придёт в кабинет и на почту" },
+  confirmed: { label: "Подтверждено",          variant: "default",     hint: "Бронь подтверждена — ждём вас в назначенную дату" },
+  cancelled: { label: "Отменено",              variant: "destructive", hint: "Заявка отменена" },
+  completed: { label: "Завершено",             variant: "outline",     hint: "Визит завершён — спасибо, что выбрали нас!" },
 };
 
 const serviceLabels: Record<string, string> = {
@@ -67,8 +68,8 @@ export default async function BookingsPage() {
           {(bookings as Booking[]).map((booking) => {
             const status = statusConfig[booking.status];
             const dateStr = booking.end_date
-              ? `${booking.start_date} — ${booking.end_date}`
-              : booking.start_date;
+              ? `${formatCalendarDate(booking.start_date)} — ${formatCalendarDate(booking.end_date)}`
+              : formatCalendarDate(booking.start_date);
 
             return (
               <div key={booking.id} className="rounded-xl border p-5">
@@ -88,6 +89,7 @@ export default async function BookingsPage() {
                     <div className="text-sm text-muted-foreground">
                       {booking.pets?.name} · {dateStr}
                     </div>
+                    <div className="text-xs text-muted-foreground/80">{status.hint}</div>
                     {booking.notes && (
                       <div className="text-xs text-muted-foreground italic">
                         {booking.notes}

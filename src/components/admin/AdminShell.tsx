@@ -9,6 +9,7 @@ import {
   BookOpen,
   Users,
   Calendar,
+  SlidersHorizontal,
 } from "lucide-react";
 import { DashboardShell, type NavSection } from "./DashboardShell";
 
@@ -47,6 +48,12 @@ const nav: NavSection[] = [
       { href: "/admin/reviews", label: "Отзывы",  icon: Star },
       { href: "/admin/gallery", label: "Галерея", icon: Image },
       { href: "/admin/blog",    label: "Блог",    icon: BookOpen },
+    ],
+  },
+  {
+    group: "Настройки",
+    items: [
+      { href: "/admin/settings", label: "Вместимость", icon: SlidersHorizontal },
     ],
   },
 ];

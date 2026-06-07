@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Clock, Moon, ArrowRight } from "lucide-react";
+import { Reveal } from "@/components/ui/Reveal";
 
 const services = [
   {
@@ -43,10 +43,11 @@ export function ServicesPreview() {
           </p>
         </div>
         <div className="grid md:grid-cols-2 gap-6">
-          {services.map((service) => {
+          {services.map((service, i) => {
             const Icon = service.icon;
             return (
-              <Link key={service.href} href={service.href} className="group block">
+              <Reveal key={service.href} delay={i * 120} className="h-full">
+              <Link href={service.href} className="group block h-full">
                 <Card className="border-0 shadow-sm group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-200 h-full">
                   <CardHeader>
                     <div className={`w-12 h-12 rounded-xl ${service.bg} flex items-center justify-center mb-4`}>
@@ -73,6 +74,7 @@ export function ServicesPreview() {
                   </CardFooter>
                 </Card>
               </Link>
+              </Reveal>
             );
           })}
         </div>

@@ -90,3 +90,19 @@ export interface Booking {
   created_at: string;
   pets?: Pick<Pet, "name" | "type" | "breed">;
 }
+
+export type CapacityZone = "dog_daycare" | "dog_hotel" | "cats";
+
+export interface CapacityZoneRow {
+  zone: CapacityZone;
+  label: string;
+  capacity: number;
+}
+
+// Доступность по одной дате (результат RPC get_availability)
+export interface DayAvailability {
+  d: string;
+  capacity: number;
+  occupied: number;
+  remaining: number;
+}

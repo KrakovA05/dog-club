@@ -47,11 +47,11 @@ export async function Header() {
 
           <div className="flex items-center gap-2">
             <a
-              href="tel:+74842000000"
+              href="tel:+79605185000"
               className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               <Phone className="h-4 w-4" />
-              +7 (4842) 00-00-00
+              +7 (960) 518-50-00
             </a>
             <Link
               href="/booking"

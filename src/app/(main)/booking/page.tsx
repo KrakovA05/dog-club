@@ -24,10 +24,11 @@ export default async function BookingPage() {
         <div className="container mx-auto max-w-md px-4 text-center">
           <h1 className="text-3xl font-bold mb-4">Забронировать место</h1>
           <p className="text-muted-foreground mb-8">
-            Для бронирования нужен личный кабинет
+            Регистрация займёт минуту — и сразу вернётесь к бронированию.
+            Так вы сможете отслеживать статус и историю визитов в кабинете.
           </p>
           <div className="flex gap-3 justify-center">
-            <Button render={<Link href="/register">Зарегистрироваться</Link>} />
+            <Button render={<Link href="/register?redirect=/booking">Зарегистрироваться</Link>} />
             <Button variant="outline" render={<Link href="/login?redirect=/booking">Войти</Link>} />
           </div>
         </div>
@@ -43,10 +44,14 @@ export default async function BookingPage() {
       .order("created_at"),
     supabase
       .from("prices")
-      .select("service_type, label, price, unit")
-      .eq("service_type", "daycare")
+      .select("service_type, label, price, unit, sort_order")
       .order("sort_order"),
   ]);
+
+  const allPrices = prices ?? [];
+  const daycareprices = allPrices.filter((p) => p.service_type === "daycare");
+  // Цена гостиницы за ночь = первая строка hotel по sort_order («Сутки»)
+  const hotelNightly = allPrices.find((p) => p.service_type === "hotel")?.price ?? 0;
 
   return (
     <>
@@ -56,7 +61,7 @@ export default async function BookingPage() {
             Забронировать место
           </h1>
           <p className="text-muted-foreground text-lg mb-4">
-            Заполните форму — ответим в течение нескольких часов
+            Выберите услугу и дату — свободные места и цена видны сразу
           </p>
           <UrgencyBanner />
         </div>
@@ -68,9 +73,9 @@ export default async function BookingPage() {
           <div className="rounded-xl bg-muted/40 p-5 space-y-3 text-sm mb-2">
             <p className="font-semibold text-base">Частые вопросы</p>
             {[
-              ["Когда с нами свяжутся?", "В течение 1–2 часов в рабочее время (8:00–20:00)."],
-              ["Что взять с собой?", "Ветпаспорт питомца с актуальными прививками и его корм."],
-              ["Как отменить бронирование?", "Через личный кабинет или позвоните нам по телефону."],
+              ["Как подтверждается бронь?", "Статус появится в личном кабинете, мы также напишем на почту."],
+              ["Что взять с собой?", "Корм питомца. Ветпаспорт — по желанию, можно прикрепить заранее в кабинете."],
+              ["Как отменить бронирование?", "В личном кабинете в разделе «Мои бронирования» или позвоните нам."],
             ].map(([q, a]) => (
               <div key={q}>
                 <p className="font-medium">{q}</p>
@@ -83,7 +88,7 @@ export default async function BookingPage() {
 
       <section className="py-10 md:py-14">
         <div className="container mx-auto max-w-xl px-4">
-          <BookingForm pets={(pets as Pet[]) ?? []} daycareprices={prices ?? []} />
+          <BookingForm pets={(pets as Pet[]) ?? []} daycareprices={daycareprices} hotelNightly={hotelNightly} />
         </div>
       </section>
     </>

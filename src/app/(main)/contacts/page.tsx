@@ -6,15 +6,15 @@ import { ContactForm } from "@/components/contacts/ContactForm";
 
 export const metadata: Metadata = {
   title: "Контакты — Лапа Клуб Калуга",
-  description: "Адрес: Калуга, ул. Дарвина 14, корп. А. Телефон: +7 (4842) 00-00-00. Ежедневно 8:00–20:00. Зоогостиница и детский сад для животных.",
+  description: "Адрес: Калуга, ул. Дарвина 14, стр. А. Телефон: +7 (960) 518-50-00. Ежедневно 9:00–20:00. Зоогостиница и детский сад для животных.",
   alternates: { canonical: "https://lapaclub.ru/contacts" },
 };
 
 const contacts = [
-  { icon: MapPin, label: "Адрес", value: "Калуга, ул. Дарвина 14, корп. А", href: null },
-  { icon: Phone, label: "Телефон", value: "+7 (4842) 00-00-00", href: "tel:+74842000000" },
+  { icon: MapPin, label: "Адрес", value: "Калуга, ул. Дарвина 14, стр. А", href: null },
+  { icon: Phone, label: "Телефон", value: "+7 (960) 518-50-00", href: "tel:+79605185000" },
   { icon: Mail, label: "Email", value: "info@lapaclub.ru", href: "mailto:info@lapaclub.ru" },
-  { icon: Clock, label: "Режим работы", value: "Ежедневно 8:00 – 20:00", href: null },
+  { icon: Clock, label: "Режим работы", value: "Ежедневно 9:00 – 20:00", href: null },
 ];
 
 export default function ContactsPage() {
@@ -51,7 +51,7 @@ export default function ContactsPage() {
                   </CardContent>
                 </Card>
               ))}
-              <Button size="lg" className="w-full mt-4" render={<a href="tel:+74842000000">Позвонить сейчас</a>} />
+              <Button size="lg" className="w-full mt-4" render={<a href="tel:+79605185000">Позвонить сейчас</a>} />
 
               <div className="pt-4">
                 <ContactForm />

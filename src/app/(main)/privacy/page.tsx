@@ -28,7 +28,7 @@ export default function PrivacyPage() {
               обработки и защиты персональных данных пользователей сайта{" "}
               <strong>lapaclub.ru</strong> (далее — «Сайт»), которые принадлежат
               зоогостинице «Лапа Клуб» (далее — «Оператор»), расположенной по адресу:
-              г. Калуга, ул. Дарвина, д. 14, корп. А.
+              г. Калуга, ул. Дарвина, д. 14, стр. А.
             </p>
             <p className="text-muted-foreground mt-3">
               Политика разработана в соответствии с требованиями Федерального закона
@@ -206,7 +206,7 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-semibold mb-3">8. Контактные данные оператора</h2>
             <div className="rounded-xl border p-5 text-muted-foreground space-y-1.5">
               <p><strong className="text-foreground">Оператор:</strong> Зоогостиница «Лапа Клуб»</p>
-              <p><strong className="text-foreground">Адрес:</strong> 248000, г. Калуга, ул. Дарвина, д. 14, корп. А</p>
+              <p><strong className="text-foreground">Адрес:</strong> 248000, г. Калуга, ул. Дарвина, д. 14, стр. А</p>
               <p>
                 <strong className="text-foreground">Email:</strong>{" "}
                 <a href="mailto:info@lapaclub.ru" className="text-primary hover:underline underline-offset-2">

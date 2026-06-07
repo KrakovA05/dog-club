@@ -1,5 +1,5 @@
 import { createAdminClient as createClient } from "@/lib/supabase/admin";
-import { StaffCalendarView } from "./StaffCalendarView";
+import { StaffCalendarView, type BookingRow } from "./StaffCalendarView";
 import { RefreshButton } from "@/components/admin/RefreshButton";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +24,7 @@ export default async function StaffCalendarPage() {
         <h1 className="text-2xl font-bold">Календарь записей</h1>
         <RefreshButton />
       </div>
-      <StaffCalendarView bookings={(bookings as any[]) ?? []} />
+      <StaffCalendarView bookings={(bookings ?? []) as unknown as BookingRow[]} />
     </div>
   );
 }

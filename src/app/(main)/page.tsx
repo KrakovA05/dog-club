@@ -5,6 +5,7 @@ import { WhyUs } from "@/components/sections/WhyUs";
 import { ReviewsSlider } from "@/components/sections/ReviewsSlider";
 import { BlogTeaser } from "@/components/sections/BlogTeaser";
 import { CtaBanner } from "@/components/sections/CtaBanner";
+import { Reveal } from "@/components/ui/Reveal";
 
 export default function HomePage() {
   return (
@@ -12,10 +13,10 @@ export default function HomePage() {
       <HeroSection />
       <HowItWorks />
       <ServicesPreview />
-      <WhyUs />
-      <ReviewsSlider />
-      <BlogTeaser />
-      <CtaBanner />
+      <Reveal><WhyUs /></Reveal>
+      <Reveal><ReviewsSlider /></Reveal>
+      <Reveal><BlogTeaser /></Reveal>
+      <Reveal><CtaBanner /></Reveal>
     </>
   );
 }

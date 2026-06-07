@@ -28,10 +28,8 @@ async function getPrices(): Promise<{ daycare: PriceRow[]; hotel: PriceRow[] }> 
   }
 }
 
-export default async function PricesPage() {
-  const { daycare, hotel } = await getPrices();
-
-  const PriceTable = ({ prices }: { prices: PriceRow[] }) => (
+function PriceTable({ prices }: { prices: PriceRow[] }) {
+  return (
     <div className="rounded-2xl border overflow-hidden">
       <table className="w-full">
         <thead className="bg-muted/50">
@@ -63,6 +61,10 @@ export default async function PricesPage() {
       </table>
     </div>
   );
+}
+
+export default async function PricesPage() {
+  const { daycare, hotel } = await getPrices();
 
   return (
     <>

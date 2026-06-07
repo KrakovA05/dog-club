@@ -19,7 +19,7 @@ export async function HeroSection() {
       <div className="container mx-auto max-w-6xl px-4">
         <div className="flex items-center gap-12">
           {/* Текст */}
-          <div className="flex-1">
+          <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-700 motion-reduce:animate-none">
             {/* Логотип на мобиле */}
             <div className="flex md:hidden justify-center mb-8">
               <Image
@@ -34,11 +34,11 @@ export async function HeroSection() {
 
             <Badge variant="secondary" className="mb-6 text-sm">
               <MapPin className="h-3 w-3 mr-1" />
-              Калуга, ул. Дарвина 14, корп. А
+              Калуга, ул. Дарвина 14, стр. А
             </Badge>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-              Уходите спокойно —{" "}
+              Отдыхайте спокойно —{" "}
               <span className="text-primary">питомец под присмотром</span>
             </h1>
 
@@ -68,7 +68,7 @@ export async function HeroSection() {
               </div>
               <div className="flex items-center gap-1.5">
                 <span>✓</span>
-                <span>Ветпаспорт обязателен</span>
+                <span>Прививки обязательны</span>
               </div>
               {count > 0 && (
                 <div className="flex items-center gap-1.5">
@@ -80,7 +80,7 @@ export async function HeroSection() {
           </div>
 
           {/* Логотип на десктопе */}
-          <div className="hidden md:flex shrink-0 items-center justify-center">
+          <div className="hidden md:flex shrink-0 items-center justify-center animate-in fade-in zoom-in-95 duration-1000 motion-reduce:animate-none">
             <Image
               src="/logo-2.png"
               alt="Лапа Клуб"

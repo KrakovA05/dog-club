@@ -17,7 +17,7 @@ const STATUS_COLORS: Record<string, string> = {
   completed: "bg-gray-400",
 };
 
-interface BookingRow {
+export interface BookingRow {
   id: string;
   service_type: string;
   daycare_format: string | null;
@@ -47,14 +47,21 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
   const [month, setMonth] = useState(today.getMonth());
   const [selected, setSelected] = useState<string | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [paymentBookingId, setPaymentBookingId] = useState<string | null>(null);
   const [paymentAmount, setPaymentAmount] = useState("");
 
   async function handleStatus(id: string, status: "confirmed" | "cancelled" | "completed") {
     setLoadingId(id);
-    await updateBookingStatus(id, status);
-    setLoadingId(null);
-    startTransition(() => router.refresh());
+    setActionError(null);
+    try {
+      await updateBookingStatus(id, status);
+      startTransition(() => router.refresh());
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Не удалось изменить статус");
+    } finally {
+      setLoadingId(null);
+    }
   }
 
   function prev() {
@@ -201,6 +208,12 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
                 <X className="h-4 w-4" />
               </button>
             </div>
+
+            {actionError && (
+              <div className="mx-5 mt-3 text-sm bg-destructive/10 text-destructive px-3 py-2 rounded-lg">
+                {actionError}
+              </div>
+            )}
 
             {selectedBookings.length === 0 ? (
               <div className="px-5 py-8 text-center text-muted-foreground text-sm">

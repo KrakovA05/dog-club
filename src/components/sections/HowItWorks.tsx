@@ -1,17 +1,18 @@
 import { ClipboardList, PawPrint, Smile } from "lucide-react";
+import { Reveal } from "@/components/ui/Reveal";
 
 const steps = [
   {
     icon: ClipboardList,
     step: "1",
-    title: "Оставьте заявку",
-    desc: "Заполните форму онлайн — ответим в течение часа и подберём удобное время.",
+    title: "Забронируйте онлайн",
+    desc: "Выберите услугу, свободную дату и питомца — стоимость рассчитается сразу, статус появится в кабинете.",
   },
   {
     icon: PawPrint,
     step: "2",
     title: "Приведите питомца",
-    desc: "Приходите в назначенное время с ветпаспортом и кормом. Мы познакомимся и всё оформим.",
+    desc: "Приходите в назначенное время с кормом. Ветпаспорт — по желанию, можно прикрепить заранее в кабинете.",
   },
   {
     icon: Smile,
@@ -34,10 +35,10 @@ export function HowItWorks() {
           {/* Линия между шагами (только десктоп) */}
           <div className="hidden md:block absolute top-10 left-[calc(16.6%+1rem)] right-[calc(16.6%+1rem)] h-px bg-border" />
 
-          {steps.map(({ icon: Icon, step, title, desc }) => (
-            <div key={step} className="flex flex-col items-center text-center relative">
+          {steps.map(({ icon: Icon, step, title, desc }, i) => (
+            <Reveal key={step} delay={i * 140} className="flex flex-col items-center text-center relative">
               <div className="relative mb-5">
-                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center transition-transform duration-300 hover:scale-105">
                   <Icon className="h-8 w-8 text-primary" />
                 </div>
                 <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
@@ -46,7 +47,7 @@ export function HowItWorks() {
               </div>
               <h3 className="font-semibold text-lg mb-2">{title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

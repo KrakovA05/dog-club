@@ -1,14 +1,18 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createBookingForClient } from "@/lib/admin-actions";
+import { getAvailability } from "@/lib/booking-actions";
+import { formatCalendarDate, parseLocalDate } from "@/lib/utils";
+import { useCountUp } from "@/hooks/useCountUp";
+import type { DayAvailability } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { FileCheck, FileX } from "lucide-react";
 
-interface Profile { id: string; full_name: string | null; phone: string | null; }
-interface Pet {
+export interface Profile { id: string; full_name: string | null; phone: string | null; }
+export interface Pet {
   id: string; owner_id: string; name: string; type: string;
   breed: string | null; weight_kg: number | null;
   special_needs: string | null; passport_photo_url: string | null;
@@ -22,7 +26,7 @@ const FALLBACK_FORMAT_OPTIONS = [
   { value: "full_day", label: "Полный день", sub: "1 800 ₽" },
 ];
 
-type DaycarePrice = { label: string; price: number };
+export type DaycarePrice = { label: string; price: number };
 
 const LABEL_TO_VALUE: Record<string, string> = {
   "Час": "hour", "час": "hour",
@@ -34,11 +38,13 @@ export function AdminBookingForm({
   profiles,
   allPets,
   daycareprices,
+  hotelNightly = 0,
   preselectedClientId,
 }: {
   profiles: Profile[];
   allPets: Pet[];
   daycareprices?: DaycarePrice[];
+  hotelNightly?: number;
   preselectedClientId?: string;
 }) {
   const FORMAT_OPTIONS = (daycareprices && daycareprices.length > 0
@@ -46,8 +52,9 @@ export function AdminBookingForm({
         value: LABEL_TO_VALUE[p.label] ?? ["hour", "half_day", "full_day"][i] ?? `format_${i}`,
         label: p.label,
         sub: `${p.price.toLocaleString("ru-RU")} ₽`,
+        priceNum: p.price,
       }))
-    : FALLBACK_FORMAT_OPTIONS);
+    : FALLBACK_FORMAT_OPTIONS.map((f) => ({ ...f, priceNum: 0 })));
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,6 +71,51 @@ export function AdminBookingForm({
   const clientPets = allPets.filter((p) => p.owner_id === clientId);
   const selectedPet = allPets.find((p) => p.id === petId);
   const selectedClient = profiles.find((p) => p.id === clientId);
+
+  const [availability, setAvailability] = useState<DayAvailability[] | null>(null);
+  const [checkingAvail, setCheckingAvail] = useState(false);
+
+  // Подгружаем доступность при изменении питомца/услуги/дат
+  useEffect(() => {
+    let cancelled = false;
+    const ready = !!petId && !!selectedPet && !!startDate &&
+      (serviceType === "daycare" || (!!endDate && endDate > startDate));
+
+    async function run() {
+      if (!ready) { setAvailability(null); return; }
+      setCheckingAvail(true);
+      try {
+        const rows = await getAvailability({
+          service_type: serviceType,
+          pet_type: selectedPet!.type as "dog" | "cat",
+          start_date: startDate,
+          end_date: serviceType === "hotel" ? endDate : null,
+        });
+        if (!cancelled) setAvailability(rows);
+      } catch {
+        if (!cancelled) setAvailability(null);
+      } finally {
+        if (!cancelled) setCheckingAvail(false);
+      }
+    }
+
+    run();
+    return () => { cancelled = true; };
+  }, [petId, serviceType, startDate, endDate, selectedPet]);
+
+  const fullDates = availability?.filter((d) => d.remaining <= 0) ?? [];
+  const minRemaining = availability && availability.length
+    ? Math.min(...availability.map((d) => d.remaining)) : null;
+  const availabilityBlocked = fullDates.length > 0;
+
+  // Конструктор итоговой стоимости
+  const nights = serviceType === "hotel" && startDate && endDate && endDate > startDate
+    ? Math.round((parseLocalDate(endDate).getTime() - parseLocalDate(startDate).getTime()) / 86400000)
+    : 0;
+  const totalPrice = serviceType === "hotel"
+    ? nights * hotelNightly
+    : (FORMAT_OPTIONS.find((f) => f.value === daycareFormat)?.priceNum ?? 0);
+  const animatedTotal = useCountUp(totalPrice);
 
   function handleClientChange(id: string) {
     setClientId(id);
@@ -278,12 +330,42 @@ export function AdminBookingForm({
         </div>
       )}
 
+      {/* Доступность мест */}
+      {petId && startDate && checkingAvail && (
+        <div className="h-9 rounded-lg bg-muted animate-pulse" />
+      )}
+      {petId && startDate && !checkingAvail && availability && availability.length > 0 && (
+        availabilityBlocked ? (
+          <p className="text-sm bg-destructive/10 text-destructive px-3 py-2 rounded-lg">
+            {serviceType === "hotel"
+              ? `Нет мест: ${fullDates.map((d) => formatCalendarDate(d.d)).join(", ")}. Выберите другой период.`
+              : "На эту дату мест нет — выберите другую."}
+          </p>
+        ) : (
+          <p className="text-sm bg-green-50 text-green-700 px-3 py-2 rounded-lg">
+            {serviceType === "hotel"
+              ? `Свободно на все даты (мин. ${minRemaining} мест)`
+              : `Свободно: ${minRemaining} мест`}
+          </p>
+        )
+      )}
+
+      {/* Итоговая стоимость */}
+      {petId && startDate && totalPrice > 0 && (
+        <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-brand-light">
+          <span className="font-medium">
+            Итого{serviceType === "hotel" && nights > 0 ? ` · ${nights} ноч.` : ""}
+          </span>
+          <span className="text-lg font-bold text-primary">{animatedTotal.toLocaleString("ru-RU")} ₽</span>
+        </div>
+      )}
+
       {error && (
         <p className="text-destructive text-sm bg-destructive/10 px-3 py-2 rounded-lg">{error}</p>
       )}
 
       {petId && startDate && (
-        <Button type="submit" className="w-full" size="lg" disabled={saving}>
+        <Button type="submit" className="w-full" size="lg" disabled={saving || checkingAvail || availabilityBlocked}>
           {saving ? "Создаём запись..." : "Подтвердить запись"}
         </Button>
       )}

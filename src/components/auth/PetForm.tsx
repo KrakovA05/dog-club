@@ -13,7 +13,7 @@ import type { Pet } from "@/types";
 
 const schema = z.object({
   name: z.string().min(1, "Введите кличку питомца"),
-  passport_full_name: z.string().min(2, "Введите ФИО из ветпаспорта"),
+  passport_full_name: z.string().optional(),
   type: z.enum(["dog", "cat"] as const),
   breed: z.string().optional(),
   birth_year: z.string().optional().refine(
@@ -72,6 +72,8 @@ export function PetForm({ pet, onSaved, onCancel }: Props) {
     }
 
     const ext = passportFile.name.split(".").pop();
+    // Date.now() здесь безопасен — вызов внутри async-загрузки по действию пользователя, не в рендере
+    // eslint-disable-next-line react-hooks/purity
     const path = `${userId}/${Date.now()}.${ext}`;
     const { data, error } = await supabase.storage.from("passports").upload(path, passportFile);
     setUploading(false);
@@ -92,7 +94,7 @@ export function PetForm({ pet, onSaved, onCancel }: Props) {
 
     const payload = {
       name: data.name,
-      passport_full_name: data.passport_full_name,
+      passport_full_name: data.passport_full_name?.trim() || null,
       type: data.type,
       breed: data.breed || null,
       birth_year: data.birth_year ? Number(data.birth_year) : null,
@@ -118,8 +120,8 @@ export function PetForm({ pet, onSaved, onCancel }: Props) {
         <div className="flex gap-3 bg-brand-light border border-primary/20 rounded-xl px-4 py-3">
           <ShieldCheck className="h-5 w-5 text-primary shrink-0 mt-0.5" />
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Мы принимаем только питомцев с ветеринарным паспортом. Загрузите его один раз —
-            и при каждом визите брать с собой не придётся: все данные уже будут у нас.
+            Рекомендуем прикрепить ветпаспорт один раз — тогда при каждом визите брать его
+            с собой не придётся, все данные уже будут у нас. Это необязательно — можно добавить позже.
           </p>
         </div>
       )}
@@ -161,7 +163,7 @@ export function PetForm({ pet, onSaved, onCancel }: Props) {
       {/* Паспортные данные */}
       <div className="border-t pt-5 space-y-4">
         <div className="space-y-1.5">
-          <Label>ФИО владельца из ветпаспорта *</Label>
+          <Label>ФИО владельца из ветпаспорта</Label>
           <Input placeholder="Иванов Иван Иванович" {...register("passport_full_name")} />
           {errors.passport_full_name && <p className="text-destructive text-xs">{errors.passport_full_name.message}</p>}
         </div>

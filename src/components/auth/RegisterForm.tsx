@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,6 +23,13 @@ type FormData = z.infer<typeof schema>;
 
 export function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const rawRedirect = searchParams.get("redirect") ?? "/cabinet";
+  let redirect = "/cabinet";
+  try {
+    const url = new URL(rawRedirect, "http://localhost");
+    if (url.origin === "http://localhost") redirect = rawRedirect;
+  } catch { redirect = "/cabinet"; }
   const [done, setDone] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -54,7 +61,7 @@ export function RegisterForm() {
       }
       // Если подтверждение email отключено — Supabase сразу выдаёт сессию.
       if (signUpData.session) {
-        router.push("/cabinet");
+        router.push(redirect);
         router.refresh();
         return;
       }

@@ -2,6 +2,44 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { sendTelegramNotification } from "@/lib/telegram";
+import type { DayAvailability } from "@/types";
+
+// Доступность по датам для выбранной услуги и вида питомца.
+// Детсад → одна дата; гостиница → ночи [start, end).
+export async function getAvailability(params: {
+  service_type: "daycare" | "hotel";
+  pet_type: "dog" | "cat";
+  start_date: string;
+  end_date: string | null;
+}): Promise<DayAvailability[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("get_availability", {
+    p_service: params.service_type,
+    p_pet_type: params.pet_type,
+    p_start: params.start_date,
+    p_end: params.end_date,
+  });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DayAvailability[];
+}
+
+// Доступность зоны по каждому дню диапазона (для календаря в форме брони).
+export async function getMonthAvailability(params: {
+  service_type: "daycare" | "hotel";
+  pet_type: "dog" | "cat";
+  start_date: string;
+  end_date: string;
+}): Promise<DayAvailability[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("get_range_availability", {
+    p_service: params.service_type,
+    p_pet_type: params.pet_type,
+    p_start: params.start_date,
+    p_end: params.end_date,
+  });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DayAvailability[];
+}
 
 export async function submitClientBooking(data: {
   pet_id: string;
@@ -23,6 +61,17 @@ export async function submitClientBooking(data: {
     .eq("owner_id", user.id)
     .single();
   if (!pet) throw new Error("Питомец не найден");
+
+  // Не даём оставить заявку на заведомо занятые даты (мягкая проверка;
+  // жёсткая гарантия — триггер БД в момент подтверждения).
+  const availability = await getAvailability({
+    service_type: data.service_type,
+    pet_type: pet.type as "dog" | "cat",
+    start_date: data.start_date,
+    end_date: data.end_date,
+  });
+  const full = availability.find((day) => day.remaining <= 0);
+  if (full) throw new Error(`CAPACITY_FULL|${full.d}|`);
 
   const { error } = await supabase.from("bookings").insert({
     ...data,

@@ -15,7 +15,7 @@ const STATUS_COLORS: Record<string, string> = {
   completed: "bg-gray-400",
 };
 
-interface BookingRow {
+export interface BookingRow {
   id: string;
   service_type: string;
   daycare_format: string | null;

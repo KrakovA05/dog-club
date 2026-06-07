@@ -20,9 +20,9 @@ export function CtaBanner() {
         />
         <p className="mt-5 text-primary-foreground/60 text-sm">
           Или позвоните:{" "}
-          <a href="tel:+74842000000" className="text-primary-foreground/90 hover:text-primary-foreground transition-colors font-medium inline-flex items-center gap-1">
+          <a href="tel:+79605185000" className="text-primary-foreground/90 hover:text-primary-foreground transition-colors font-medium inline-flex items-center gap-1">
             <Phone className="h-3.5 w-3.5" />
-            +7 (4842) 00-00-00
+            +7 (960) 518-50-00
           </a>
         </p>
       </div>
