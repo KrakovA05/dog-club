@@ -17,7 +17,7 @@ export default function AboutPage() {
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Мы любим животных</h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
               Лапа Клуб — это команда профессионалов в Калуге, которые создали место,
-              где каждому питомцу рады. Мы принимаем собак и кошек до 15 кг
+              где каждому питомцу рады. Мы принимаем собак и кошек до 20 кг
               на дневное пребывание и длительное проживание.
             </p>
           </div>

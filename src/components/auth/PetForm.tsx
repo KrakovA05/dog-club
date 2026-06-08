@@ -21,8 +21,8 @@ const schema = z.object({
     { message: "Год от 2000 до 2030" }
   ),
   weight_kg: z.string().optional().refine(
-    (v) => !v || (Number(v) >= 0.1 && Number(v) <= 15),
-    { message: "Максимум 15 кг" }
+    (v) => !v || (Number(v) >= 0.1 && Number(v) <= 20),
+    { message: "Максимум 20 кг" }
   ),
   special_needs: z.string().optional(),
 });
@@ -149,7 +149,7 @@ export function PetForm({ pet, onSaved, onCancel }: Props) {
           {errors.birth_year && <p className="text-destructive text-xs">{errors.birth_year.message}</p>}
         </div>
         <div className="space-y-1.5">
-          <Label>Вес, кг (до 15)</Label>
+          <Label>Вес, кг (до 20)</Label>
           <Input type="number" step="0.1" placeholder="4.5" {...register("weight_kg")} />
           {errors.weight_kg && <p className="text-destructive text-xs">{errors.weight_kg.message}</p>}
         </div>

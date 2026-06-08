@@ -25,7 +25,7 @@ export function QuickAddPet({
   async function save() {
     if (!name.trim()) { setError("Введите кличку"); return; }
     const w = weight ? Number(weight) : null;
-    if (w !== null && (isNaN(w) || w <= 0 || w > 15)) { setError("Вес от 0 до 15 кг"); return; }
+    if (w !== null && (isNaN(w) || w <= 0 || w > 20)) { setError("Вес от 0 до 20 кг"); return; }
 
     setSaving(true);
     setError(null);
