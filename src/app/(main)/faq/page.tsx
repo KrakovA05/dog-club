@@ -14,6 +14,11 @@ export const metadata: Metadata = {
   description:
     "Ответы на частые вопросы о зоогостинице и детском саде для животных Лапа Клуб в Калуге. Требования к питомцам, цены, что взять с собой.",
   alternates: { canonical: "https://lapaclub.ru/faq" },
+  openGraph: {
+    title: "Частые вопросы — Лапа Клуб Калуга",
+    description: "Требования к питомцам, цены, что взять с собой — ответы на частые вопросы.",
+    url: "/faq",
+  },
 };
 
 export const dynamic = "force-dynamic";

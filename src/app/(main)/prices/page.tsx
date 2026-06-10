@@ -9,6 +9,12 @@ import type { PriceRow } from "@/types";
 export const metadata: Metadata = {
   title: "Цены — детский сад и гостиница для животных",
   description: "Актуальные цены на услуги зоогостиницы и детского сада Лапа Клуб в Калуге.",
+  alternates: { canonical: "/prices" },
+  openGraph: {
+    title: "Цены — детский сад и гостиница для животных в Калуге",
+    description: "Актуальные цены на услуги зоогостиницы и детского сада Лапа Клуб в Калуге.",
+    url: "/prices",
+  },
 };
 
 export const dynamic = "force-dynamic";

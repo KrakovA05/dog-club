@@ -17,9 +17,9 @@ type FormErrors = Partial<Record<string, string>>;
 type DaycarePrice = { service_type: string; label: string; price: number; unit: string };
 
 const FALLBACK_PRICES: DaycarePrice[] = [
-  { service_type: "daycare", label: "Час",         price: 400,  unit: "час" },
-  { service_type: "daycare", label: "Полдня",      price: 1200, unit: "полдня" },
-  { service_type: "daycare", label: "Полный день", price: 1800, unit: "день" },
+  { service_type: "daycare", label: "Час",         price: 700,  unit: "час" },
+  { service_type: "daycare", label: "Полдня",      price: 1000, unit: "полдня" },
+  { service_type: "daycare", label: "Полный день", price: 1200, unit: "день" },
 ];
 
 const LABEL_TO_VALUE: Record<string, string> = {

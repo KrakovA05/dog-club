@@ -3,8 +3,14 @@ import { CtaBanner } from "@/components/sections/CtaBanner";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata: Metadata = {
-  title: "О нас — Лапа Клуб Калуга",
+  title: "О нас",
   description: "Команда профессионалов, которые любят животных. Зоогостиница и детский сад в Калуге.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "О нас — Лапа Клуб Калуга",
+    description: "Команда профессионалов, которые любят животных. Зоогостиница и детский сад в Калуге.",
+    url: "/about",
+  },
 };
 
 export default function AboutPage() {

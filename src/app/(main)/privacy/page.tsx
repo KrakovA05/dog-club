@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Политика конфиденциальности — Лапа Клуб",
+  title: "Политика конфиденциальности",
   description: "Политика обработки персональных данных зоогостиницы Лапа Клуб (Калуга).",
+  alternates: { canonical: "/privacy" },
+  openGraph: {
+    title: "Политика конфиденциальности — Лапа Клуб Калуга",
+    description: "Политика обработки персональных данных зоогостиницы Лапа Клуб (Калуга).",
+    url: "/privacy",
+  },
 };
 
 const UPDATED = "01 июня 2026 г.";

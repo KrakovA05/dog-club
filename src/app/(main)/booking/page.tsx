@@ -9,9 +9,15 @@ import { UrgencyBanner } from "@/components/booking/UrgencyBanner";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Забронировать место — Лапа Клуб",
+  title: "Забронировать место",
   description:
     "Онлайн-бронирование места в детском саду или гостинице для вашего питомца.",
+  alternates: { canonical: "/booking" },
+  openGraph: {
+    title: "Забронировать место — Лапа Клуб Калуга",
+    description: "Онлайн-бронирование места в детском саду или гостинице для вашего питомца.",
+    url: "/booking",
+  },
 };
 
 export default async function BookingPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {

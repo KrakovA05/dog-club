@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CtaBanner } from "@/components/sections/CtaBanner";
 import { PhotoPromise } from "@/components/sections/PhotoPromise";
+import { createClient } from "@/lib/supabase/server";
 import { Clock, Check, AlertCircle, Heart, Users, Shield } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -14,34 +15,56 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://lapaclub.ru/daycare" },
   openGraph: {
     title: "Детский сад для собак в Калуге",
-    description: "Час от 400 ₽, полдня от 1 200 ₽, полный день от 1 800 ₽. Развивающие игры, прогулки.",
+    description: "Час, полдня или полный день. Развивающие игры, прогулки, базовое воспитание.",
     url: "https://lapaclub.ru/daycare",
   },
 };
 
-const formats = [
+// Описания форматов статичные, цены — из БД (фолбэк — текущие значения)
+const FORMAT_META = [
   {
-    duration: "Час",
-    price: "от 400 ₽",
+    label: "Час",
+    fallback: 700,
     description: "Разовое посещение до 60 минут. Идеально, если нужно ненадолго отлучиться.",
     features: ["Развивающие игры, общение", "Наблюдение персонала"],
     isPopular: false,
   },
   {
-    duration: "Полдня",
-    price: "от 1 200 ₽",
+    label: "Полдня",
+    fallback: 1000,
     description: "~5 часов. Полноценный день с играми, прогулкой и отдыхом.",
     features: ["Развивающие игры, общение", "Базовое воспитание", "Прогулка", "Наблюдение персонала"],
     isPopular: true,
   },
   {
-    duration: "Полный день",
-    price: "от 1 800 ₽",
+    label: "Полный день",
+    fallback: 1200,
     description: "~11 часов. Полноценный день под присмотром — заберёте уставшего и довольного.",
     features: ["Развивающие игры, общение", "Базовое воспитание", "2 прогулки", "Наблюдение персонала", "Фото по запросу"],
     isPopular: false,
   },
 ];
+
+async function getFormats() {
+  const priceByLabel = new Map<string, number>();
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("prices")
+      .select("label, price")
+      .eq("service_type", "daycare");
+    for (const p of data ?? []) priceByLabel.set(p.label.toLowerCase(), p.price);
+  } catch {
+    // фолбэк-значения ниже
+  }
+  return FORMAT_META.map((f) => ({
+    duration: f.label,
+    price: `от ${(priceByLabel.get(f.label.toLowerCase()) ?? f.fallback).toLocaleString("ru-RU")} ₽`,
+    description: f.description,
+    features: f.features,
+    isPopular: f.isPopular,
+  }));
+}
 
 const whyReasons = [
   {
@@ -69,7 +92,8 @@ const requirements = [
   "Здоровый питомец (без признаков болезни)",
 ];
 
-export default function DaycarePage() {
+export default async function DaycarePage() {
+  const formats = await getFormats();
   return (
     <>
       <section className="bg-brand-light py-16 md:py-24">

@@ -21,9 +21,9 @@ export interface Pet {
 const today = new Date().toISOString().split("T")[0];
 
 const FALLBACK_FORMAT_OPTIONS = [
-  { value: "hour",     label: "Час",         sub: "400 ₽" },
-  { value: "half_day", label: "Полдня",      sub: "1 200 ₽" },
-  { value: "full_day", label: "Полный день", sub: "1 800 ₽" },
+  { value: "hour",     label: "Час",         sub: "700 ₽" },
+  { value: "half_day", label: "Полдня",      sub: "1 000 ₽" },
+  { value: "full_day", label: "Полный день", sub: "1 200 ₽" },
 ];
 
 export type DaycarePrice = { label: string; price: number };

@@ -8,31 +8,65 @@ import {
 } from "@/components/ui/card";
 import { Clock, Moon, ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
+import { createClient } from "@/lib/supabase/server";
 
-const services = [
-  {
-    icon: Clock,
-    title: "Детский сад",
-    description:
-      "Оставьте питомца на час, полдня или полный день. Развивающие игры, общение — всё под присмотром.",
-    features: ["Час от 400 ₽", "Полдня от 1 200 ₽", "Полный день от 1 800 ₽"],
-    href: "/daycare",
-    color: "text-primary",
-    bg: "bg-brand-light",
-  },
-  {
-    icon: Moon,
-    title: "Гостиница",
-    description:
-      "Длительное проживание в комфортных зонах отдыха. Прогулки, забота — как дома.",
-    features: ["От 1 500 ₽ в сутки", "Прогулки включены", "Воспитание по запросу"],
-    href: "/hotel",
-    color: "text-primary",
-    bg: "bg-accent",
-  },
-];
+const fmt = (n: number) => n.toLocaleString("ru-RU");
 
-export function ServicesPreview() {
+// Цены тянем из БД (источник правды — таблица prices), фолбэк — текущие значения
+async function getServices() {
+  let daycare = { hour: 700, half: 1000, full: 1200 };
+  let hotel = { dog: 1600, cat: 1200 };
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.from("prices").select("service_type, label, price");
+    for (const p of data ?? []) {
+      const l = p.label.toLowerCase();
+      if (p.service_type === "daycare") {
+        if (l === "час") daycare.hour = p.price;
+        else if (l === "полдня") daycare.half = p.price;
+        else if (l === "полный день") daycare.full = p.price;
+      } else if (p.service_type === "hotel") {
+        if (l === "сутки(собака)") hotel.dog = p.price;
+        else if (l === "сутки(кошка)") hotel.cat = p.price;
+      }
+    }
+  } catch {
+    // фолбэк-значения выше
+  }
+  return [
+    {
+      icon: Clock,
+      title: "Детский сад",
+      description:
+        "Оставьте питомца на час, полдня или полный день. Развивающие игры, общение — всё под присмотром.",
+      features: [
+        `Час от ${fmt(daycare.hour)} ₽`,
+        `Полдня от ${fmt(daycare.half)} ₽`,
+        `Полный день от ${fmt(daycare.full)} ₽`,
+      ],
+      href: "/daycare",
+      color: "text-primary",
+      bg: "bg-brand-light",
+    },
+    {
+      icon: Moon,
+      title: "Гостиница",
+      description:
+        "Длительное проживание в комфортных зонах отдыха. Прогулки, забота — как дома.",
+      features: [
+        `Собаки от ${fmt(hotel.dog)} ₽/сутки`,
+        `Кошки от ${fmt(hotel.cat)} ₽/сутки`,
+        "Прогулки включены",
+      ],
+      href: "/hotel",
+      color: "text-primary",
+      bg: "bg-accent",
+    },
+  ];
+}
+
+export async function ServicesPreview() {
+  const services = await getServices();
   return (
     <section className="py-16 md:py-24">
       <div className="container mx-auto max-w-6xl px-4">

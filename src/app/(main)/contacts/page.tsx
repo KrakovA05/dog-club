@@ -5,9 +5,14 @@ import { Button } from "@/components/ui/button";
 import { ContactForm } from "@/components/contacts/ContactForm";
 
 export const metadata: Metadata = {
-  title: "Контакты — Лапа Клуб Калуга",
+  title: "Контакты",
   description: "Адрес: Калуга, ул. Дарвина 14. Телефон: +7 (960) 518-50-00. Ежедневно 9:00–20:00. Зоогостиница и детский сад для животных.",
   alternates: { canonical: "https://lapaclub.ru/contacts" },
+  openGraph: {
+    title: "Контакты — Лапа Клуб Калуга",
+    description: "Калуга, ул. Дарвина 14. Телефон: +7 (960) 518-50-00. Ежедневно 9:00–20:00.",
+    url: "/contacts",
+  },
 };
 
 const contacts = [

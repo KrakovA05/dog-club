@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: "%s | Лапа Клуб Калуга",
   },
   description:
-    "Зоогостиница и детский сад для собак и кошек в Калуге. Принимаем питомцев до 20 кг на час, полдня, полный день или длительное проживание. Ул. Дарвина 14, ежедневно 9:00–20:00.",
+    "Зоогостиница и детский сад для собак и кошек в Калуге. Собаки до 20 кг, кошки без ограничений по весу. Час, полдня, полный день или длительное проживание. Ул. Дарвина 14, ежедневно 9:00–20:00.",
   keywords: [
     "зоогостиница Калуга",
     "передержка собак Калуга",
@@ -29,9 +29,6 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Лапа Клуб" }],
   creator: "Лапа Клуб",
-  alternates: {
-    canonical: BASE,
-  },
   openGraph: {
     type: "website",
     locale: "ru_RU",
@@ -39,12 +36,16 @@ export const metadata: Metadata = {
     siteName: "Лапа Клуб",
     title: "Лапа Клуб — Зоогостиница и детский сад для животных в Калуге",
     description:
-      "Зоогостиница и детский сад для собак и кошек в Калуге. Принимаем питомцев до 20 кг. Ул. Дарвина 14.",
+      "Зоогостиница и детский сад для собак и кошек в Калуге. Собаки до 20 кг, кошки без ограничений. Ул. Дарвина 14.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Лапа Клуб — зоогостиница в Калуге" }],
   },
   icons: {
-    icon: [{ url: "/icon-3.png", type: "image/png", sizes: "1000x1000" }],
-    shortcut: "/icon-3.png",
-    apple: "/icon-3.png",
+    icon: [
+      { url: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/icon-3.png", type: "image/png", sizes: "1000x1000" },
+    ],
+    shortcut: "/favicon-32.png",
+    apple: "/apple-touch-icon.png",
   },
   robots: {
     index: true,
@@ -60,7 +61,7 @@ const localBusinessSchema = {
   name: "Лапа Клуб",
   description: "Зоогостиница и детский сад для собак и кошек в Калуге",
   url: BASE,
-  telephone: "+74842000000",
+  telephone: "+79605185000",
   email: "info@lapaclub.ru",
   address: {
     "@type": "PostalAddress",
@@ -82,7 +83,11 @@ const localBusinessSchema = {
   },
   priceRange: "₽₽",
   image: `${BASE}/logo-2.png`,
-  sameAs: [],
+  sameAs: [
+    "https://www.instagram.com/lapaclub40",
+    "https://vk.ru/lapaclub40",
+    "https://yandex.ru/maps/-/CPh8q2zj",
+  ],
 };
 
 export default function RootLayout({

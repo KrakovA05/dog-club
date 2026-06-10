@@ -4,8 +4,14 @@ import { ImageIcon } from "lucide-react";
 import type { GalleryItem } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Галерея — Лапа Клуб Калуга",
+  title: "Галерея",
   description: "Фото наших питомцев и заведения.",
+  alternates: { canonical: "/gallery" },
+  openGraph: {
+    title: "Галерея — Лапа Клуб Калуга",
+    description: "Фото наших питомцев и заведения.",
+    url: "/gallery",
+  },
 };
 
 export const dynamic = "force-dynamic";

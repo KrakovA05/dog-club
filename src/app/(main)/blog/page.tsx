@@ -5,8 +5,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { BlogPost } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Блог — Лапа Клуб",
+  title: "Блог",
   description: "Советы по уходу за собаками и кошками от команды Лапа Клуб Калуга.",
+  alternates: { canonical: "/blog" },
+  openGraph: {
+    title: "Блог — Лапа Клуб Калуга",
+    description: "Советы по уходу за собаками и кошками от команды Лапа Клуб Калуга.",
+    url: "/blog",
+  },
 };
 
 export const dynamic = "force-dynamic";
