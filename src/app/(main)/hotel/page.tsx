@@ -7,15 +7,16 @@ import { CtaBanner } from "@/components/sections/CtaBanner";
 import { PhotoPromise } from "@/components/sections/PhotoPromise";
 import { SafetyNotice } from "@/components/sections/SafetyNotice";
 import { Check, Moon, Package } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Зоогостиница для собак и кошек в Калуге — от 1 500 ₽/сутки",
-  description: "Зоогостиница в Калуге для собак и кошек до 20 кг. Открытые боксы, ежедневные прогулки, кормление вашим кормом. От 1 500 ₽ в сутки. Ул. Дарвина 14.",
+  title: "Зоогостиница для собак и кошек в Калуге — от 1 200 ₽/сутки",
+  description: "Зоогостиница в Калуге для собак (до 20 кг) и кошек. Открытые боксы, ежедневные прогулки, кормление вашим кормом. От 1 200 ₽ в сутки. Ул. Дарвина 14.",
   keywords: ["зоогостиница Калуга", "гостиница для собак Калуга", "передержка собак Калуга", "гостиница для кошек Калуга", "куда отдать собаку Калуга"],
   alternates: { canonical: "https://lapaclub.ru/hotel" },
   openGraph: {
     title: "Зоогостиница для собак и кошек в Калуге",
-    description: "Открытые боксы, прогулки, кормление. От 1 500 ₽ в сутки.",
+    description: "Открытые боксы, прогулки, кормление. От 1 200 ₽ в сутки.",
     url: "https://lapaclub.ru/hotel",
   },
 };
@@ -33,20 +34,64 @@ const extras = [
   { name: "Такси для питомца", description: "Заберём из дома и привезём обратно", price: "уточняйте" },
 ];
 
-export default function HotelPage() {
+export default async function HotelPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
+  const { type } = await searchParams;
+  const isDogs = type === "dogs";
+  const isCats = type === "cats";
+
+  const heroTitle = isCats
+    ? "Гостиница для кошек"
+    : isDogs
+    ? "Гостиница для собак"
+    : "Гостиница для питомцев";
+
+  const heroDesc = isCats
+    ? "Уютные отдельные комнаты без ограничений по весу. Кошки отдыхают отдельно от собак — тишина и покой гарантированы."
+    : isDogs
+    ? "Просторные боксы с ежедневными прогулками для собак до 20 кг. Постоянный уход и игры с персоналом."
+    : "Уезжаете в командировку или отпуск? Ваш питомец проведёт каникулы в комфортной зоне отдыха под постоянным присмотром.";
+
+  const heroPrice = isCats ? "от 1 200 ₽/сутки" : isDogs ? "от 1 600 ₽/сутки" : "от 1 200 ₽/сутки";
+  const bookingHref = isCats ? "/booking?type=cats" : isDogs ? "/booking?type=dogs" : "/booking";
+
   return (
     <>
       <section className="bg-accent py-16 md:py-24">
         <div className="container mx-auto max-w-6xl px-4">
           <div className="max-w-2xl">
             <Badge variant="secondary" className="mb-4">Гостиница</Badge>
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Гостиница для питомцев</h1>
-            <p className="text-lg text-muted-foreground mb-4">
-              Уезжаете в командировку или отпуск? Ваш питомец проведёт каникулы
-              в комфортной зоне отдыха под постоянным присмотром. Минимальный срок — одни сутки.
-            </p>
-            <div className="text-3xl font-bold text-primary mb-8">от 1 500 ₽/сутки</div>
-            <Button size="lg" render={<Link href="/booking">Зарезервировать место</Link>} />
+
+            {/* Desktop type switch */}
+            <div className="hidden md:flex gap-2 mb-6">
+              <Link
+                href="/hotel?type=dogs"
+                className={cn(
+                  "px-5 py-2 rounded-full border text-sm font-medium transition-colors",
+                  isDogs
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-border bg-background hover:border-primary/50"
+                )}
+              >
+                Собаки
+              </Link>
+              <Link
+                href="/hotel?type=cats"
+                className={cn(
+                  "px-5 py-2 rounded-full border text-sm font-medium transition-colors",
+                  isCats
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-border bg-background hover:border-primary/50"
+                )}
+              >
+                Кошки
+              </Link>
+            </div>
+
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">{heroTitle}</h1>
+            <p className="text-lg text-muted-foreground mb-4">{heroDesc}</p>
+            <p className="text-sm text-muted-foreground mb-6">Минимальный срок — одни сутки.</p>
+            <div className="text-3xl font-bold text-primary mb-8">{heroPrice}</div>
+            <Button size="lg" render={<Link href={bookingHref}>Зарезервировать место</Link>} />
           </div>
         </div>
       </section>

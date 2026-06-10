@@ -28,7 +28,19 @@ const LABEL_TO_VALUE: Record<string, string> = {
   "Полный день": "full_day", "полный день": "full_day",
 };
 
-export function BookingForm({ pets, daycareprices, hotelPrices = [] }: { pets: Pet[]; daycareprices?: DaycarePrice[]; hotelPrices?: { label: string; price: number }[] }) {
+export function BookingForm({
+  pets,
+  daycareprices,
+  hotelPrices = [],
+  petTypeFilter,
+  defaultService,
+}: {
+  pets: Pet[];
+  daycareprices?: DaycarePrice[];
+  hotelPrices?: { label: string; price: number }[];
+  petTypeFilter?: "dog" | "cat";
+  defaultService?: "daycare" | "hotel";
+}) {
   const formats = (daycareprices && daycareprices.length > 0 ? daycareprices : FALLBACK_PRICES).map((p, i) => ({
     value: LABEL_TO_VALUE[p.label] ?? ["hour", "half_day", "full_day"][i] ?? `format_${i}`,
     label: p.label,
@@ -36,19 +48,21 @@ export function BookingForm({ pets, daycareprices, hotelPrices = [] }: { pets: P
     priceNum: p.price,
   }));
   const [done, setDone] = useState(false);
+  const [submittedWithoutPassport, setSubmittedWithoutPassport] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
 
   const [petId, setPetId] = useState("");
-  const [serviceType, setServiceType] = useState<"daycare" | "hotel">("daycare");
+  const [serviceType, setServiceType] = useState<"daycare" | "hotel">(defaultService ?? "daycare");
   const [daycareFormat, setDaycareFormat] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [notes, setNotes] = useState("");
 
-  const [petList, setPetList] = useState<Pet[]>(pets);
-  const [addingPet, setAddingPet] = useState(pets.length === 0);
+  const filteredPets = petTypeFilter ? pets.filter((p) => p.type === petTypeFilter) : pets;
+  const [petList, setPetList] = useState<Pet[]>(filteredPets);
+  const [addingPet, setAddingPet] = useState(filteredPets.length === 0);
 
   const [availability, setAvailability] = useState<DayAvailability[] | null>(null);
   const [checkingAvail, setCheckingAvail] = useState(false);
@@ -101,7 +115,7 @@ export function BookingForm({ pets, daycareprices, hotelPrices = [] }: { pets: P
   const nights = serviceType === "hotel" && startDate && endDate && endDate > startDate
     ? Math.round((parseLocalDate(endDate).getTime() - parseLocalDate(startDate).getTime()) / 86400000)
     : 0;
-  const hotelNightly = selectedPet ? pickHotelNightly(selectedPet.type, hotelPrices) : 0;
+  const hotelNightly = selectedPet ? pickHotelNightly(selectedPet.type, hotelPrices, nights) : 0;
   const totalPrice = serviceType === "hotel"
     ? nights * hotelNightly
     : (formats.find((f) => f.value === daycareFormat)?.priceNum ?? 0);
@@ -139,6 +153,7 @@ export function BookingForm({ pets, daycareprices, hotelPrices = [] }: { pets: P
         notes: notes || null,
       });
 
+      setSubmittedWithoutPassport(!selectedPet?.passport_photo_url);
       setDone(true);
     } catch (e: unknown) {
       setServerError(e instanceof Error ? translateSupabaseError(e.message) : "Произошла ошибка. Попробуйте ещё раз.");
@@ -150,14 +165,24 @@ export function BookingForm({ pets, daycareprices, hotelPrices = [] }: { pets: P
   if (done) {
     return (
       <Card className="border-0 shadow-sm text-center">
-        <CardContent className="pt-10 pb-10">
-          <CheckCircle2 className="h-16 w-16 text-primary mx-auto mb-4 animate-in zoom-in-50 duration-500 motion-reduce:animate-none" />
-          <h2 className="text-xl font-bold mb-2 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150 motion-reduce:animate-none">Бронь подтверждена!</h2>
+        <CardContent className="pt-10 pb-10 space-y-4">
+          <CheckCircle2 className="h-16 w-16 text-primary mx-auto animate-in zoom-in-50 duration-500 motion-reduce:animate-none" />
+          <h2 className="text-xl font-bold animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150 motion-reduce:animate-none">Бронь подтверждена!</h2>
           <p className="text-muted-foreground text-sm max-w-xs mx-auto animate-in fade-in duration-500 delay-300 motion-reduce:animate-none">
             Место забронировано. Детали и статус — в{" "}
             <a href="/cabinet/bookings" className="text-primary underline">личном кабинете</a>.
             Оплата — на месте.
           </p>
+          {submittedWithoutPassport && (
+            <div className="flex gap-3 rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 text-left animate-in fade-in duration-500 delay-500 motion-reduce:animate-none">
+              <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-800">
+                Мы подтвердили вашу бронь, но принять питомца без ветпаспорта не сможем.{" "}
+                Возьмите паспорт с собой или{" "}
+                <a href="/cabinet/pets" className="underline font-medium">загрузите его в кабинете</a>.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     );
@@ -224,6 +249,15 @@ export function BookingForm({ pets, daycareprices, hotelPrices = [] }: { pets: P
               />
             )}
             {errors.pet_id && <p className="text-destructive text-xs">{errors.pet_id}</p>}
+            {selectedPet && !selectedPet.passport_photo_url && (
+              <div className="flex gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2">
+                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-800">
+                  У питомца не загружен ветпаспорт. Без него мы не сможем принять животное.{" "}
+                  <a href="/cabinet/pets" className="underline font-medium">Загрузить в кабинете</a>.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Тип услуги */}
@@ -355,9 +389,6 @@ export function BookingForm({ pets, daycareprices, hotelPrices = [] }: { pets: P
             {submitting ? "Отправляем заявку..." : "Отправить заявку"}
           </Button>
 
-          <p className="text-xs text-muted-foreground text-center">
-            После отправки мы свяжемся для подтверждения. Оплата — при заселении.
-          </p>
         </form>
       </CardContent>
     </Card>

@@ -6,13 +6,18 @@ import Link from "next/link";
 import type { Pet } from "@/types";
 import { UrgencyBanner } from "@/components/booking/UrgencyBanner";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Забронировать место — Лапа Клуб",
   description:
     "Онлайн-бронирование места в детском саду или гостинице для вашего питомца.",
 };
 
-export default async function BookingPage() {
+export default async function BookingPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
+  const { type } = await searchParams;
+  const petTypeFilter: "dog" | "cat" | undefined =
+    type === "cats" ? "cat" : type === "dogs" ? "dog" : undefined;
   const supabase = await createClient();
   const {
     data: { user },
@@ -39,7 +44,7 @@ export default async function BookingPage() {
   const [{ data: pets }, { data: prices }] = await Promise.all([
     supabase
       .from("pets")
-      .select("id, name, type, breed, weight_kg, special_needs, owner_id, birth_year, created_at")
+      .select("id, name, type, breed, weight_kg, special_needs, owner_id, birth_year, created_at, passport_photo_url")
       .eq("owner_id", user.id)
       .order("created_at"),
     supabase
@@ -88,7 +93,13 @@ export default async function BookingPage() {
 
       <section className="py-10 md:py-14">
         <div className="container mx-auto max-w-xl px-4">
-          <BookingForm pets={(pets as Pet[]) ?? []} daycareprices={daycareprices} hotelPrices={hotelPrices} />
+          <BookingForm
+            pets={(pets as Pet[]) ?? []}
+            daycareprices={daycareprices}
+            hotelPrices={hotelPrices}
+            petTypeFilter={petTypeFilter}
+            defaultService={petTypeFilter ? "hotel" : undefined}
+          />
         </div>
       </section>
     </>

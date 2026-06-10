@@ -17,7 +17,7 @@ const statusConfig: Record<
   BookingStatus,
   { label: string; variant: "default" | "secondary" | "destructive" | "outline"; hint: string }
 > = {
-  pending:   { label: "Ожидает подтверждения", variant: "secondary",   hint: "Подтвердим в ближайшее время — уведомление придёт в кабинет и на почту" },
+  pending:   { label: "Ожидает подтверждения", variant: "secondary",   hint: "Обрабатываем заявку — обычно это занимает несколько минут" },
   confirmed: { label: "Подтверждено",          variant: "default",     hint: "Бронь подтверждена — ждём вас в назначенную дату" },
   cancelled: { label: "Отменено",              variant: "destructive", hint: "Заявка отменена" },
   completed: { label: "Завершено",             variant: "outline",     hint: "Визит завершён — спасибо, что выбрали нас!" },

@@ -27,18 +27,26 @@ export function translateSupabaseError(message: string): string {
   return "Что-то пошло не так — попробуйте ещё раз.";
 }
 
-// Выбор суточной цены гостиницы по виду питомца.
-// Сопоставление по ключевому слову в названии строки прайса: «собак» / «кошк».
+// Выбор суточной цены гостиницы по виду питомца и количеству ночей.
+// Тиры: «от пяти» (≥5 ночей), «от трёх» (≥3), базовая (1+).
 // Доп.услуги («дрессировка», «+») в авто-расчёт не берём. Фолбэк — первая обычная строка.
 export function pickHotelNightly(
   petType: "dog" | "cat",
   rows: { label: string; price: number }[],
+  nights = 1,
 ): number {
   const species = petType === "cat" ? /кошк/i : /собак/i;
-  const match = rows.find((r) => species.test(r.label));
-  if (match) return match.price;
-  const base = rows.find((r) => !/дрессир|\+/i.test(r.label)) ?? rows[0];
-  return base?.price ?? 0;
+  const tier = rows.filter((r) => species.test(r.label) && !/дрессир/i.test(r.label));
+  if (!tier.length) {
+    const base = rows.find((r) => !/дрессир|\+/i.test(r.label)) ?? rows[0];
+    return base?.price ?? 0;
+  }
+  const fivePlus  = tier.find((r) => /от.*пят|5\+/i.test(r.label));
+  const threePlus = tier.find((r) => /от.*тр[её]|3\+/i.test(r.label));
+  const base      = tier.find((r) => !/от\s/i.test(r.label)) ?? tier[0];
+  if (nights >= 5 && fivePlus)  return fivePlus.price;
+  if (nights >= 3 && threePlus) return threePlus.price;
+  return base.price;
 }
 
 export function parseLocalDate(str: string): Date {
