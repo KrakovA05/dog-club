@@ -89,14 +89,14 @@ export default async function AdminClientPage({ params }: { params: Promise<{ id
                   {/* Фото паспорта */}
                   {pet.passport_photo_url ? (
                     <a
-                      href={pet.passport_photo_url}
+                      href={`/api/passport/${pet.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="shrink-0"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={pet.passport_photo_url}
+                        src={`/api/passport/${pet.id}`}
                         alt="Ветпаспорт"
                         className="h-24 w-auto rounded-lg border object-cover hover:opacity-90 transition-opacity"
                       />

@@ -10,7 +10,7 @@ export default async function AdminCalendarPage() {
   const { data: bookings } = await supabase
     .from("bookings")
     .select(`
-      id, service_type, daycare_format,
+      id, pet_id, service_type, daycare_format,
       start_date, end_date, status,
       pets(name, type, breed, passport_photo_url),
       profiles(full_name, phone)

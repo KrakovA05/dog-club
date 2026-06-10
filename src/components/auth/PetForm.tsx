@@ -21,10 +21,15 @@ const schema = z.object({
     { message: "Год от 2000 до 2030" }
   ),
   weight_kg: z.string().optional().refine(
-    (v) => !v || (Number(v) >= 0.1 && Number(v) <= 20),
-    { message: "Максимум 20 кг" }
+    (v) => !v || Number(v) >= 0.1,
+    { message: "Введите корректный вес" }
   ),
   special_needs: z.string().optional(),
+}).superRefine((data, ctx) => {
+  // Лимит веса действует только для собак — кошек принимаем без ограничений
+  if (data.type === "dog" && data.weight_kg && Number(data.weight_kg) > 20) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["weight_kg"], message: "Собак принимаем до 20 кг" });
+  }
 });
 type FormData = z.infer<typeof schema>;
 
@@ -33,7 +38,11 @@ interface Props { pet?: Pet; onSaved: () => void; onCancel: () => void; }
 export function PetForm({ pet, onSaved, onCancel }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [passportFile, setPassportFile] = useState<File | null>(null);
-  const [passportPreview, setPassportPreview] = useState<string | null>(pet?.passport_photo_url ?? null);
+  // Превью существующего паспорта — через наш прокси-роут: прямые ссылки
+  // на *.supabase.co у части провайдеров не открываются
+  const [passportPreview, setPassportPreview] = useState<string | null>(
+    pet?.passport_photo_url ? `/api/passport/${pet.id}` : null
+  );
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 

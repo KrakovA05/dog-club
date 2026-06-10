@@ -25,7 +25,8 @@ export function QuickAddPet({
   async function save() {
     if (!name.trim()) { setError("Введите кличку"); return; }
     const w = weight ? Number(weight) : null;
-    if (w !== null && (isNaN(w) || w <= 0 || w > 20)) { setError("Вес от 0 до 20 кг"); return; }
+    if (w !== null && (isNaN(w) || w <= 0)) { setError("Введите корректный вес"); return; }
+    if (type === "dog" && w !== null && w > 20) { setError("Собак принимаем до 20 кг"); return; }
 
     setSaving(true);
     setError(null);
@@ -76,7 +77,7 @@ export function QuickAddPet({
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
-        Ветпаспорт можно прикрепить позже в кабинете — это необязательно.
+        Ветпаспорт обязателен при заселении — прикрепите его в кабинете или возьмите с собой.
       </p>
       {error && <p className="text-destructive text-xs">{error}</p>}
       <div className="flex gap-2">

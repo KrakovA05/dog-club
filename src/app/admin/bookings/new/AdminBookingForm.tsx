@@ -246,7 +246,7 @@ export function AdminBookingForm({
                     )}
                   </div>
                   {pet.passport_photo_url ? (
-                    <a href={pet.passport_photo_url} target="_blank" rel="noopener noreferrer"
+                    <a href={`/api/passport/${pet.id}`} target="_blank" rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
                       className="flex items-center gap-1 text-xs text-green-600 shrink-0 hover:underline">
                       <FileCheck className="h-3.5 w-3.5" /> Паспорт

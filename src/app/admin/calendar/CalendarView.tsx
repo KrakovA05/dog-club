@@ -19,6 +19,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export interface BookingRow {
   id: string;
+  pet_id: string;
   service_type: string;
   daycare_format: string | null;
   start_date: string;
@@ -259,7 +260,7 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
                         <div className="flex items-center gap-1.5">
                           {b.pets?.passport_photo_url ? (
                             <a
-                              href={b.pets.passport_photo_url}
+                              href={`/api/passport/${b.pet_id}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center gap-1 text-xs text-green-600 hover:underline"
