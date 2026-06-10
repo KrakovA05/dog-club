@@ -2,6 +2,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { sendTelegramNotification } from "@/lib/telegram";
+import { sendBookingConfirmationEmail } from "@/lib/email";
 import type { DayAvailability } from "@/types";
 
 // Доступность по датам для выбранной услуги и вида питомца.
@@ -94,6 +95,18 @@ export async function submitClientBooking(data: {
     (data.notes ? `\n💬 ${data.notes}` : "") +
     `\n\n<i>Подробности — в админпанели</i>`
   );
+
+  // Письмо клиенту — ошибки не роняют бронь (логируются внутри)
+  if (user.email) {
+    await sendBookingConfirmationEmail({
+      to: user.email,
+      petName: pet.name,
+      serviceType: data.service_type,
+      daycareFormat: data.daycare_format,
+      startDate: data.start_date,
+      endDate: data.end_date,
+    });
+  }
 
   revalidatePath("/cabinet/bookings");
 }

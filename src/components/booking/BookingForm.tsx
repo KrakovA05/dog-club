@@ -169,7 +169,8 @@ export function BookingForm({
           <CheckCircle2 className="h-16 w-16 text-primary mx-auto animate-in zoom-in-50 duration-500 motion-reduce:animate-none" />
           <h2 className="text-xl font-bold animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150 motion-reduce:animate-none">Бронь подтверждена!</h2>
           <p className="text-muted-foreground text-sm max-w-xs mx-auto animate-in fade-in duration-500 delay-300 motion-reduce:animate-none">
-            Место забронировано. Детали и статус — в{" "}
+            Место забронировано, письмо с деталями отправили на почту.
+            Статус брони — в{" "}
             <a href="/cabinet/bookings" className="text-primary underline">личном кабинете</a>.
             Оплата — на месте.
           </p>

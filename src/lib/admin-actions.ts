@@ -4,6 +4,7 @@ import { createClient as createServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { BookingStatus } from "@/types";
 import { sendTelegramNotification } from "@/lib/telegram";
+import { sendBookingConfirmationEmail } from "@/lib/email";
 import { translateSupabaseError } from "@/lib/utils";
 
 // Превращаем технический отказ триггера вместимости в понятный текст
@@ -203,7 +204,7 @@ export async function createBookingForClient(data: {
 
   // Получаем данные клиента и питомца для уведомления
   const [{ data: profile }, { data: pet }] = await Promise.all([
-    supabase.from("profiles").select("full_name, phone").eq("id", data.user_id).single(),
+    supabase.from("profiles").select("full_name, phone, email").eq("id", data.user_id).single(),
     supabase.from("pets").select("name, type").eq("id", data.pet_id).single(),
   ]);
 
@@ -228,6 +229,18 @@ export async function createBookingForClient(data: {
     (data.notes ? `\n💬 ${data.notes}` : "") +
     `\n\n<i>Подробности — в админпанели</i>`
   );
+
+  // Письмо клиенту — ошибки не роняют запись (логируются внутри)
+  if (profile?.email && pet) {
+    await sendBookingConfirmationEmail({
+      to: profile.email,
+      petName: pet.name,
+      serviceType: data.service_type,
+      daycareFormat: data.daycare_format,
+      startDate: data.start_date,
+      endDate: data.end_date,
+    });
+  }
 
   revalidatePath("/admin/daycare/bookings");
   revalidatePath("/admin/hotel/bookings");
