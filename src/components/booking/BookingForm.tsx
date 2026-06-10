@@ -365,8 +365,8 @@ export function BookingForm({
             ) : (
               <p className="text-sm bg-green-50 text-green-700 px-3 py-2 rounded-lg">
                 {serviceType === "hotel"
-                  ? `Свободно на все даты (мин. ${minRemaining} мест)`
-                  : `Свободно: ${minRemaining} мест`}
+                  ? "Место свободно на выбранные даты"
+                  : "Место свободно"}
               </p>
             )
           )}
