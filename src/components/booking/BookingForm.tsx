@@ -53,14 +53,14 @@ export function BookingForm({
   const [serverError, setServerError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const [petId, setPetId] = useState("");
+  const filteredPets = petTypeFilter ? pets.filter((p) => p.type === petTypeFilter) : pets;
+  const [petId, setPetId] = useState(filteredPets.length === 1 ? filteredPets[0].id : "");
   const [serviceType, setServiceType] = useState<"daycare" | "hotel">(defaultService ?? "daycare");
   const [daycareFormat, setDaycareFormat] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [notes, setNotes] = useState("");
 
-  const filteredPets = petTypeFilter ? pets.filter((p) => p.type === petTypeFilter) : pets;
   const [petList, setPetList] = useState<Pet[]>(filteredPets);
   const [addingPet, setAddingPet] = useState(filteredPets.length === 0);
 
