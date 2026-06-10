@@ -7,11 +7,11 @@ import { CtaBanner } from "@/components/sections/CtaBanner";
 import { PhotoPromise } from "@/components/sections/PhotoPromise";
 import { SafetyNotice } from "@/components/sections/SafetyNotice";
 import { Check, Moon, Package } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { HotelTypeSwitch } from "@/components/hotel/HotelTypeSwitch";
 
 export const metadata: Metadata = {
   title: "Зоогостиница для собак и кошек в Калуге — от 1 200 ₽/сутки",
-  description: "Зоогостиница в Калуге для собак (до 20 кг) и кошек. Открытые боксы, ежедневные прогулки, кормление вашим кормом. От 1 200 ₽ в сутки. Ул. Дарвина 14.",
+  description: "Зоогостиница в Калуге для собак до 20 кг (от 1 600 ₽/сут) и кошек без ограничений по весу (от 1 200 ₽/сут). Открытые боксы, прогулки, ваш корм. Ул. Дарвина 14.",
   keywords: ["зоогостиница Калуга", "гостиница для собак Калуга", "передержка собак Калуга", "гостиница для кошек Калуга", "куда отдать собаку Калуга"],
   alternates: { canonical: "https://lapaclub.ru/hotel" },
   openGraph: {
@@ -61,31 +61,7 @@ export default async function HotelPage({ searchParams }: { searchParams: Promis
           <div className="max-w-2xl">
             <Badge variant="secondary" className="mb-4">Гостиница</Badge>
 
-            {/* Desktop type switch */}
-            <div className="hidden md:flex gap-2 mb-6">
-              <Link
-                href="/hotel?type=dogs"
-                className={cn(
-                  "px-5 py-2 rounded-full border text-sm font-medium transition-colors",
-                  isDogs
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "border-border bg-background hover:border-primary/50"
-                )}
-              >
-                Собаки
-              </Link>
-              <Link
-                href="/hotel?type=cats"
-                className={cn(
-                  "px-5 py-2 rounded-full border text-sm font-medium transition-colors",
-                  isCats
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "border-border bg-background hover:border-primary/50"
-                )}
-              >
-                Кошки
-              </Link>
-            </div>
+            <HotelTypeSwitch currentType={isDogs ? "dogs" : isCats ? "cats" : null} />
 
             <h1 className="text-4xl md:text-5xl font-bold mb-6">{heroTitle}</h1>
             <p className="text-lg text-muted-foreground mb-4">{heroDesc}</p>

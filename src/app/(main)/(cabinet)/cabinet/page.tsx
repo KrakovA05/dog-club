@@ -34,7 +34,17 @@ export default async function CabinetPage() {
 
       <div className="rounded-xl border p-6 space-y-4">
         <h2 className="font-semibold">Редактировать данные</h2>
-        {profile && <ProfileForm profile={profile} />}
+        <ProfileForm
+          profile={profile ?? {
+            id: user.id,
+            full_name: null,
+            phone: null,
+            email: user.email ?? null,
+            is_admin: false,
+            is_staff: false,
+            created_at: user.created_at,
+          }}
+        />
       </div>
     </div>
   );

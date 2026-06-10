@@ -37,6 +37,7 @@ export interface BookingRow {
     weight_kg: number | null;
     special_needs: string | null;
     passport_full_name: string | null;
+    passport_photo_url: string | null;
   } | null;
   profiles: { full_name: string | null; phone: string | null } | null;
 }
@@ -218,6 +219,9 @@ export function BookingsAdmin({ bookings }: { bookings: BookingRow[] }) {
                 {b.pets?.weight_kg && <div className="text-xs text-muted-foreground">{b.pets.weight_kg} кг</div>}
                 {b.pets?.passport_full_name && (
                   <div className="text-xs text-muted-foreground">Владелец по паспорту: {b.pets.passport_full_name}</div>
+                )}
+                {!b.pets?.passport_photo_url && (
+                  <div className="text-xs text-red-600 font-medium">⚠ Паспорт не загружен</div>
                 )}
                 {b.pets?.special_needs && (
                   <div className="text-xs text-orange-600 font-medium">{b.pets.special_needs}</div>
