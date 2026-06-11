@@ -1,0 +1,29 @@
+name: DB Backup
+
+on:
+  schedule:
+    # 03:23 UTC понедельник = 06:23 МСК (некруглое время — меньше задержки очереди)
+    - cron: "23 3 * * 1"
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install pg_dump 17
+        run: |
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y postgresql-client-17
+
+      - name: Dump database
+        run: |
+          /usr/lib/postgresql/17/bin/pg_dump "${{ secrets.SUPABASE_DB_URL }}" \
+            --no-owner --format=custom -f backup.dump
+          ls -lh backup.dump
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: backup.dump
+          retention-days: 90
