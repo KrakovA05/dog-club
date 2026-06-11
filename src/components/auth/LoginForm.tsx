@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,7 +18,6 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const rawRedirect = searchParams.get("redirect") ?? "/cabinet";
   let redirect = "/cabinet";
@@ -44,8 +43,7 @@ export function LoginForm() {
         setServerError(translateSupabaseError(error.message));
         return;
       }
-      router.push(redirect);
-      router.refresh();
+      window.location.assign(redirect);
     } catch (e) {
       setServerError(`Ошибка: ${e instanceof Error ? e.message : String(e)}`);
     }

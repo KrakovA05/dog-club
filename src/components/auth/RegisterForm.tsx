@@ -61,8 +61,7 @@ export function RegisterForm() {
       }
       // Если подтверждение email отключено — Supabase сразу выдаёт сессию.
       if (signUpData.session) {
-        router.push(redirect);
-        router.refresh();
+        window.location.assign(redirect);
         return;
       }
       // Иначе нужно подтвердить email.
