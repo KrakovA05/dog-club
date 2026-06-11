@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     "передержка животных недорого Калуга",
   ],
   verification: {
-    yandex: "f107603b532f7756",
+    yandex: "40321a38420fdaed",
   },
   authors: [{ name: "Лапа Клуб" }],
   creator: "Лапа Клуб",
