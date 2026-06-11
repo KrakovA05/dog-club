@@ -303,6 +303,13 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
+    // TEMP DEBUG: что реально присылает Telegram (убрать после отладки chat_id)
+    {
+      const u = body.message?.from ?? body.callback_query?.from;
+      const c = body.message?.chat?.id ?? body.callback_query?.message?.chat?.id;
+      console.log("TG update:", JSON.stringify({ chat: c, username: u?.username, from_id: u?.id, text: body.message?.text, cb: body.callback_query?.data }));
+    }
+
     // Callback query (нажатие кнопки)
     if (body.callback_query) {
       const cq = body.callback_query;
