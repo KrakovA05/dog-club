@@ -8,18 +8,16 @@ import {
 } from "@/components/ui/card";
 import { Clock, Moon, ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
-import { createClient } from "@/lib/supabase/server";
+import { getPublicPrices } from "@/lib/public-queries";
 
 const fmt = (n: number) => n.toLocaleString("ru-RU");
 
-// Цены тянем из БД (источник правды — таблица prices), фолбэк — текущие значения
 async function getServices() {
   let daycare = { hour: 700, half: 1000, full: 1200 };
   let hotel = { dog: 1600, cat: 1200 };
   try {
-    const supabase = await createClient();
-    const { data } = await supabase.from("prices").select("service_type, label, price");
-    for (const p of data ?? []) {
+    const data = await getPublicPrices();
+    for (const p of data) {
       const l = p.label.toLowerCase();
       if (p.service_type === "daycare") {
         if (l === "час") daycare.hour = p.price;

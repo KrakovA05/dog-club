@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { createClient } from "@/lib/supabase/server";
+import { getLatestBlogPosts } from "@/lib/public-queries";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,15 +7,9 @@ import { ArrowRight } from "lucide-react";
 import type { BlogPost } from "@/types";
 
 export async function BlogTeaser() {
-  const supabase = await createClient();
-  const { data: posts } = await supabase
-    .from("blog_posts")
-    .select("id, slug, title, excerpt, cover_url, published_at")
-    .eq("is_published", true)
-    .order("published_at", { ascending: false })
-    .limit(2);
+  const posts = await getLatestBlogPosts();
 
-  if (!posts?.length) return null;
+  if (!posts.length) return null;
 
   return (
     <section className="py-16 md:py-24 bg-muted/30">

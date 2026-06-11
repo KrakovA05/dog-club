@@ -3,16 +3,11 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { getPublishedReviewRatings } from "@/lib/public-queries";
 
 export async function HeroSection() {
-  const supabase = await createClient();
-  const { data: reviews } = await supabase
-    .from("reviews")
-    .select("rating")
-    .eq("is_published", true);
-
-  const count = reviews?.length ?? 0;
+  const reviews = await getPublishedReviewRatings();
+  const count = reviews.length;
 
   return (
     <section className="relative overflow-hidden bg-brand-light py-16 md:py-32">

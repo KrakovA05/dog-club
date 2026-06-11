@@ -1,24 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
+import { getPublishedReviews } from "@/lib/public-queries";
 import { Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { ReviewRow } from "@/types";
 
 export async function ReviewsSlider() {
-  let reviews: ReviewRow[] | null = null;
-  try {
-    const supabase = await createClient();
-    const { data } = await supabase
-      .from("reviews")
-      .select("*")
-      .eq("is_published", true)
-      .order("created_at", { ascending: false })
-      .limit(6);
-    reviews = data as ReviewRow[] | null;
-  } catch {
-    return null;
-  }
-
-  if (!reviews || reviews.length === 0) return null;
+  const reviews = await getPublishedReviews();
+  if (reviews.length === 0) return null;
 
   return (
     <section className="py-16 md:py-24">
