@@ -27,6 +27,16 @@ async function isAllowed(chatId: number, username?: string): Promise<boolean> {
   return !!data;
 }
 
+// Запоминаем chat_id — без него нельзя слать уведомления (по username Telegram не отправляет)
+async function rememberChatId(chatId: number, username?: string) {
+  if (!username || chatId === OWNER_CHAT_ID) return;
+  const supabase = createAdminClient();
+  await supabase
+    .from("telegram_bot_users")
+    .update({ chat_id: chatId })
+    .eq("username", username.toLowerCase());
+}
+
 async function getAllUsers(): Promise<string[]> {
   const supabase = createAdminClient();
   const { data } = await supabase
@@ -308,6 +318,7 @@ export async function POST(req: Request) {
         return Response.json({ ok: true });
       }
 
+      await rememberChatId(chatId, username);
       await handleCommand(chatId, cq.data, isOwner);
       return Response.json({ ok: true });
     }
@@ -324,6 +335,8 @@ export async function POST(req: Request) {
         await tg("sendMessage", { chat_id: chatId, text: "⛔ У вас нет доступа к этому боту" });
         return Response.json({ ok: true });
       }
+
+      await rememberChatId(chatId, username);
 
       // Добавление пользователя через +username (только владелец)
       if (isOwner && text.startsWith("+") && text.length > 1) {
