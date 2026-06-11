@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { sendTelegramNotification } from "@/lib/telegram";
+import { sendTechNotification } from "@/lib/telegram";
 
 const SITE_URL = "https://lapaclub.ru";
 
@@ -163,7 +163,7 @@ ${statsContext}`,
     .filter((line) => line !== null)
     .join("\n");
 
-  await sendTelegramNotification(message);
+  await sendTechNotification(message);
 
   return NextResponse.json({ ok: true, date: todayStr });
 }
