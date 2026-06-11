@@ -1,0 +1,17 @@
+name: Daily Report
+
+on:
+  schedule:
+    # 06:00 UTC = 09:00 МСК
+    - cron: "0 6 * * *"
+  workflow_dispatch: # ручной запуск для теста
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send daily report
+        run: |
+          curl -s -X GET \
+            -H "x-report-secret: ${{ secrets.REPORT_SECRET }}" \
+            https://lapaclub.ru/api/admin/daily-report
