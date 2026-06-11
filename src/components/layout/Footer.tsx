@@ -34,7 +34,7 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-2.5 mb-4">
               <Image src="/icon-3.png" alt="Лапа Клуб" width={32} height={32} className="rounded-lg object-contain brightness-200" />
-              <h3 className="font-bold text-lg">Лапа Клуб</h3>
+              <p className="font-bold text-lg">Лапа Клуб</p>
             </div>
             <p className="text-sm opacity-70 leading-relaxed">
               Зоогостиница и детский сад для собак и кошек в Калуге.
@@ -43,7 +43,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-bold mb-4">Услуги</h3>
+            <p className="font-bold mb-4">Услуги</p>
             <nav className="flex flex-col gap-2">
               {[
                 { href: "/daycare", label: "Детский сад" },
@@ -65,7 +65,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-bold mb-4">Контакты</h3>
+            <p className="font-bold mb-4">Контакты</p>
             <div className="flex flex-col gap-3 text-sm opacity-70">
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0" />

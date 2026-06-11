@@ -112,7 +112,6 @@ const localBusinessSchema = {
   priceRange: "₽₽",
   image: `${BASE}/logo-2.png`,
   sameAs: [
-    "https://www.instagram.com/lapaclub40",
     "https://vk.ru/lapaclub40",
     "https://yandex.ru/maps/-/CPh8q2zj",
   ],
