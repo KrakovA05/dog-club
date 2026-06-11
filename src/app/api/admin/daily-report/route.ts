@@ -15,11 +15,9 @@ async function checkSiteUptime(): Promise<{ ok: boolean; ms: number }> {
   }
 }
 
-async function getAiComment(apiKey: string, context: string, isEvening: boolean): Promise<string> {
+async function getAiComment(apiKey: string, context: string): Promise<string> {
   try {
-    const prompt = isEvening
-      ? `Ты — технический ассистент зоопансиона «Лапа Клуб». Проанализируй итоги сегодняшнего дня. Напиши 2-3 предложения: что прошло хорошо, есть ли поводы для беспокойства, одна рекомендация на завтра. Кратко, без вступлений, без markdown.`
-      : `Ты — технический ассистент зоопансиона «Лапа Клуб». Проанализируй данные за вчера. Напиши 2-3 предложения: что хорошо, что настораживает, одна конкретная рекомендация. Кратко, без вступлений, без markdown.`;
+    const prompt = `Ты — технический ассистент зоопансиона «Лапа Клуб». Оцени техническое состояние системы. Напиши 1-2 предложения: всё ли в норме, есть ли поводы для беспокойства. Кратко, без вступлений, без markdown.`;
 
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -56,101 +54,33 @@ export async function GET(req: Request) {
 
   const supabase = createClient(SUPABASE_URL, serviceKey);
 
-  const url = new URL(req.url);
-  const isEvening = url.searchParams.get("today") === "1";
-
   const now = new Date();
   const todayStr = now.toISOString().slice(0, 10);
-  const yesterday = new Date(now);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().slice(0, 10);
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
 
-  // Период для статистики: сегодня (вечер) или вчера (утро)
-  const periodStart = isEvening ? todayStr : yesterdayStr;
-  const periodEnd = isEvening ? todayStr : todayStr;
-  const periodLabel = isEvening ? `сегодня (${todayStr})` : `вчера (${yesterdayStr})`;
-
-  const [uptime, periodBookings, newUsers, totalBookings, tomorrowArrivals] = await Promise.all([
+  const [uptime, dbCheck] = await Promise.all([
     checkSiteUptime(),
-
-    supabase
-      .from("bookings")
-      .select("id, service_type, status, start_date")
-      .gte("created_at", periodStart + "T00:00:00")
-      .lte("created_at", periodEnd + "T23:59:59")
-      .neq("status", "cancelled"),
-
-    supabase
-      .from("profiles")
-      .select("id", { count: "exact", head: true })
-      .gte("created_at", periodStart + "T00:00:00")
-      .lte("created_at", periodEnd + "T23:59:59"),
-
-    supabase
-      .from("bookings")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "confirmed"),
-
-    // Завтрашние заезды — всегда показываем
-    supabase
-      .from("bookings")
-      .select("id, service_type, pets(name, type)")
-      .eq("start_date", tomorrowStr)
-      .eq("status", "confirmed"),
+    // Проверка доступности БД — лёгкий запрос
+    supabase.from("profiles").select("id", { count: "exact", head: true }).limit(1),
   ]);
 
-  const bookings = periodBookings.data ?? [];
-  const confirmed = bookings.filter((b) => b.status === "confirmed").length;
-  const pending = bookings.filter((b) => b.status === "pending").length;
-  const newUsersCount = newUsers.count ?? 0;
-  const totalActive = totalBookings.count ?? 0;
-  const arrivals = tomorrowArrivals.data ?? [];
+  const dbOk = !dbCheck.error;
 
   const statsContext = `
-Период: ${periodLabel}
-Сайт: ${uptime.ok ? `доступен (${uptime.ms}ms)` : `НЕДОСТУПЕН`}
-Новых броней: ${bookings.length} (подтверждено: ${confirmed}, ожидает: ${pending})
-Новых клиентов: ${newUsersCount}
-Всего активных броней в системе: ${totalActive}
-Завтра заезжает питомцев: ${arrivals.length}
+Дата: ${todayStr}
+Сайт: ${uptime.ok ? `доступен (${uptime.ms}ms)` : "НЕДОСТУПЕН"}
+База данных: ${dbOk ? "доступна" : `ошибка: ${dbCheck.error?.message}`}
 `.trim();
 
-  const aiComment = await getAiComment(apiKey, statsContext, isEvening);
+  const aiComment = await getAiComment(apiKey, statsContext);
 
   const statusIcon = uptime.ok ? "✅" : "🔴";
-  const siteStatus = uptime.ok ? `доступен (${uptime.ms}ms)` : `<b>НЕДОСТУПЕН!</b>`;
-
-  const arrivalsText = arrivals.length > 0
-    ? arrivals.map((b) => {
-        const pet = b.pets as unknown as { name: string; type: string } | null;
-        const icon = pet?.type === "cat" ? "🐱" : "🐶";
-        return `  ${icon} ${pet?.name ?? "?"} (${b.service_type === "hotel" ? "гостиница" : "сад"})`;
-      }).join("\n")
-    : "  нет заездов";
-
-  const header = isEvening
-    ? `🔧 <b>Техотчёт — итоги ${todayStr}</b>`
-    : `🔧 <b>Техотчёт — доброе утро, ${todayStr}</b>`;
-
-  const periodTitle = isEvening ? "<b>За сегодня:</b>" : "<b>Вчера:</b>";
+  const dbIcon = dbOk ? "✅" : "🔴";
 
   const message = [
-    header,
+    `🔧 <b>Техотчёт — ${todayStr}</b>`,
     "",
-    `${statusIcon} Сайт: ${siteStatus}`,
-    "",
-    periodTitle,
-    `📋 Новых броней: ${bookings.length}`,
-    `✅ Подтверждено: ${confirmed}`,
-    pending > 0 ? `⏳ Ожидает подтверждения: ${pending}` : null,
-    `👥 Новых клиентов: ${newUsersCount}`,
-    `📊 Активных броней в системе: ${totalActive}`,
-    "",
-    `<b>Завтра заезжают (${arrivals.length}):</b>`,
-    arrivalsText,
+    `${statusIcon} Сайт: ${uptime.ok ? `доступен (${uptime.ms}ms)` : "<b>НЕДОСТУПЕН!</b>"}`,
+    `${dbIcon} База данных: ${dbOk ? "в норме" : `<b>ошибка!</b> ${dbCheck.error?.message}`}`,
     "",
     aiComment ? `📌 <i>${aiComment}</i>` : null,
   ]
@@ -159,5 +89,5 @@ export async function GET(req: Request) {
 
   await sendTechNotification(message);
 
-  return NextResponse.json({ ok: true, date: todayStr, mode: isEvening ? "evening" : "morning" });
+  return NextResponse.json({ ok: true, date: todayStr });
 }
