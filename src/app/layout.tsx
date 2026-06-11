@@ -1,10 +1,28 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin", "cyrillic"],
+const inter = localFont({
+  src: [
+    {
+      path: "../../public/fonts/inter-cyrillic-ext-normal.woff2",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/inter-cyrillic-normal.woff2",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/inter-latin-ext-normal.woff2",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/inter-latin-normal.woff2",
+      style: "normal",
+    },
+  ],
   variable: "--font-sans",
+  display: "swap",
 });
 
 const BASE = "https://lapaclub.ru";
