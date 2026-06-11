@@ -4,13 +4,15 @@ import { ImageIcon } from "lucide-react";
 import type { GalleryItem } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Галерея",
-  description: "Фото наших питомцев и заведения.",
-  alternates: { canonical: "/gallery" },
+  title: "Галерея — зоогостиница и детский сад для животных в Калуге",
+  description: "Фото зоогостиницы и детского сада Лапа Клуб в Калуге: наши питомцы, игровые зоны, боксы для проживания. Смотрите, как живут собаки и кошки у нас.",
+  keywords: ["фото зоогостиница Калуга", "детский сад для собак фото", "передержка животных Калуга фото"],
+  alternates: { canonical: "https://lapaclub.ru/gallery" },
   openGraph: {
-    title: "Галерея — Лапа Клуб Калуга",
-    description: "Фото наших питомцев и заведения.",
-    url: "/gallery",
+    title: "Галерея — зоогостиница и детский сад для животных в Калуге",
+    description: "Фото зоогостиницы Лапа Клуб: наши питомцы, игровые зоны, боксы для проживания.",
+    url: "https://lapaclub.ru/gallery",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Галерея Лапа Клуб" }],
   },
 };
 

@@ -3,13 +3,14 @@ import { CtaBanner } from "@/components/sections/CtaBanner";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata: Metadata = {
-  title: "О нас",
-  description: "Команда профессионалов, которые любят животных. Зоогостиница и детский сад в Калуге.",
-  alternates: { canonical: "/about" },
+  title: "О зоогостинице Лапа Клуб — команда и ценности",
+  description: "Лапа Клуб — зоогостиница и детский сад для животных в Калуге. Принимаем собак до 20 кг и кошек. Профессиональный уход, ул. Дарвина 14.",
+  keywords: ["о нас лапа клуб", "зоогостиница Калуга команда", "передержка животных Калуга о нас"],
+  alternates: { canonical: "https://lapaclub.ru/about" },
   openGraph: {
-    title: "О нас — Лапа Клуб Калуга",
-    description: "Команда профессионалов, которые любят животных. Зоогостиница и детский сад в Калуге.",
-    url: "/about",
+    title: "О зоогостинице Лапа Клуб — команда и ценности",
+    description: "Лапа Клуб — зоогостиница и детский сад для животных в Калуге. Профессиональный уход, ул. Дарвина 14.",
+    url: "https://lapaclub.ru/about",
   },
 };
 

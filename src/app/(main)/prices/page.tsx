@@ -7,13 +7,14 @@ import { CtaBanner } from "@/components/sections/CtaBanner";
 import type { PriceRow } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Цены — детский сад и гостиница для животных",
-  description: "Актуальные цены на услуги зоогостиницы и детского сада Лапа Клуб в Калуге.",
-  alternates: { canonical: "/prices" },
+  title: "Цены на зоогостиницу и детский сад для животных в Калуге",
+  description: "Цены на передержку собак и кошек в Калуге: детский сад от 350 ₽/час, гостиница от 1 200 ₽/сутки. Актуальный прайс-лист Лапа Клуб.",
+  keywords: ["цены зоогостиница Калуга", "стоимость передержки собак Калуга", "прайс детский сад для собак", "сколько стоит передержка кошки Калуга"],
+  alternates: { canonical: "https://lapaclub.ru/prices" },
   openGraph: {
-    title: "Цены — детский сад и гостиница для животных в Калуге",
-    description: "Актуальные цены на услуги зоогостиницы и детского сада Лапа Клуб в Калуге.",
-    url: "/prices",
+    title: "Цены на зоогостиницу и детский сад для животных в Калуге",
+    description: "Цены на передержку собак и кошек в Калуге: детский сад от 350 ₽/час, гостиница от 1 200 ₽/сутки.",
+    url: "https://lapaclub.ru/prices",
   },
 };
 
@@ -69,11 +70,51 @@ function PriceTable({ prices }: { prices: PriceRow[] }) {
   );
 }
 
+function buildPriceSchema(daycare: PriceRow[], hotel: PriceRow[]) {
+  const toOffer = (p: PriceRow) => ({
+    "@type": "Offer",
+    name: p.label,
+    description: p.description ?? undefined,
+    price: p.price,
+    priceCurrency: "RUB",
+    availability: "https://schema.org/InStock",
+    seller: { "@type": "LocalBusiness", name: "Лапа Клуб" },
+  });
+
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: "Детский сад для собак — Лапа Клуб",
+      description: "Дневной уход за собаками в Калуге. Игры, прогулки, кормление вашим кормом.",
+      url: "https://lapaclub.ru/daycare",
+      provider: { "@type": "LocalBusiness", name: "Лапа Клуб", url: "https://lapaclub.ru" },
+      areaServed: { "@type": "City", name: "Калуга" },
+      offers: daycare.map(toOffer),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: "Зоогостиница для собак и кошек — Лапа Клуб",
+      description: "Длительная передержка собак до 20 кг и кошек в Калуге.",
+      url: "https://lapaclub.ru/hotel",
+      provider: { "@type": "LocalBusiness", name: "Лапа Клуб", url: "https://lapaclub.ru" },
+      areaServed: { "@type": "City", name: "Калуга" },
+      offers: hotel.map(toOffer),
+    },
+  ];
+}
+
 export default async function PricesPage() {
   const { daycare, hotel } = await getPrices();
+  const priceSchema = buildPriceSchema(daycare, hotel);
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(priceSchema) }}
+      />
       <section className="bg-brand-light py-16 md:py-20">
         <div className="container mx-auto max-w-6xl px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Цены</h1>
