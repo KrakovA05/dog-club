@@ -122,7 +122,7 @@ export function AdminBookingForm({
   const nights = serviceType === "hotel" && startDate && endDate && endDate > startDate
     ? Math.round((parseLocalDate(endDate).getTime() - parseLocalDate(startDate).getTime()) / 86400000)
     : 0;
-  const hotelNightly = selectedPet ? pickHotelNightly(selectedPet.type as "dog" | "cat", hotelPrices) : 0;
+  const hotelNightly = selectedPet ? pickHotelNightly(selectedPet.type as "dog" | "cat", hotelPrices, nights) : 0;
   const totalPrice = serviceType === "hotel"
     ? nights * hotelNightly
     : (FORMAT_OPTIONS.find((f) => f.value === daycareFormat)?.priceNum ?? 0);
