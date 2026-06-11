@@ -31,10 +31,11 @@ async function isAllowed(chatId: number, username?: string): Promise<boolean> {
 async function rememberChatId(chatId: number, username?: string) {
   if (!username || chatId === OWNER_CHAT_ID) return;
   const supabase = createAdminClient();
-  await supabase
+  const { error } = await supabase
     .from("telegram_bot_users")
     .update({ chat_id: chatId })
     .eq("username", username.toLowerCase());
+  if (error) console.error("rememberChatId failed:", username, error.message);
 }
 
 async function getAllUsers(): Promise<string[]> {
