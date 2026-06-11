@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+
+export const dynamic = "force-static";
 import { CtaBanner } from "@/components/sections/CtaBanner";
 import { Badge } from "@/components/ui/badge";
 

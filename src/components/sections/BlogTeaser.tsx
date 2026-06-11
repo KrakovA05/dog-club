@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,9 +33,8 @@ export async function BlogTeaser() {
             <Link key={post.id} href={`/blog/${post.slug}`}>
               <Card className="border-0 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 h-full">
                 {post.cover_url && (
-                  <div className="aspect-video rounded-t-lg overflow-hidden bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={post.cover_url} alt={post.title ?? ""} className="w-full h-full object-cover" />
+                  <div className="aspect-video rounded-t-lg overflow-hidden bg-muted relative">
+                    <Image src={post.cover_url} alt={post.title ?? ""} fill className="object-cover" sizes="(max-width: 640px) 100vw, 50vw" />
                   </div>
                 )}
                 <CardContent className="pt-5 pb-5">

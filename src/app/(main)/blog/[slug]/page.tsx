@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+
+export const revalidate = 3600;
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
@@ -71,9 +74,8 @@ export default async function BlogPostPage({ params }: Props) {
           </header>
 
           {p.cover_url && (
-            <div className="aspect-video rounded-2xl overflow-hidden mb-8 bg-muted">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.cover_url} alt={p.title} className="w-full h-full object-cover" />
+            <div className="aspect-video rounded-2xl overflow-hidden mb-8 bg-muted relative">
+              <Image src={p.cover_url} alt={p.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 800px" priority />
             </div>
           )}
 
