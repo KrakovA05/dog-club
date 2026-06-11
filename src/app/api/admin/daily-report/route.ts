@@ -139,7 +139,7 @@ export async function GET(req: Request) {
     .filter((line) => line !== null)
     .join("\n");
 
-  await sendTechNotification(message);
+  const result = await sendTechNotification(message);
 
-  return NextResponse.json({ ok: true, date: todayStr });
+  return NextResponse.json({ ok: true, date: todayStr, telegram: result });
 }

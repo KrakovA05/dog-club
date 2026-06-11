@@ -147,7 +147,7 @@ export async function GET(req: Request) {
     arrivals.forEach((b) => lines.push(bookingLine(b, false)));
   }
 
-  await sendTelegramNotification(lines.join("\n"));
+  const result = await sendTelegramNotification(lines.join("\n"));
 
-  return NextResponse.json({ ok: true, date: todayStr });
+  return NextResponse.json({ ok: true, date: todayStr, telegram: result });
 }
