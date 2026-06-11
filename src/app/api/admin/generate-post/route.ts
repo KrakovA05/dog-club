@@ -37,7 +37,7 @@ async function requireAdmin() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
   const { data: profile } = await supabase.from("profiles").select("is_staff").eq("id", user.id).single();
-  return profile?.is_staff ? user : null;
+  return (profile?.is_admin || profile?.is_staff) ? user : null;
 }
 
 export async function GET() {
