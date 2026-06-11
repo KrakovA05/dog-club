@@ -48,8 +48,8 @@ export async function POST(req: NextRequest) {
   const user = await requireAdmin();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return NextResponse.json({ error: "ANTHROPIC_API_KEY не настроен" }, { status: 500 });
+  const apiKey = process.env.CLAUDE_API_KEY;
+  if (!apiKey) return NextResponse.json({ error: "CLAUDE_API_KEY не настроен" }, { status: 500 });
 
   const body = await req.json();
   const topic: string = body.topic?.trim();
