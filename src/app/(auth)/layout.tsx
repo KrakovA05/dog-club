@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { InAppBrowserWarning } from "@/components/auth/InAppBrowserWarning";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,6 +12,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             Лапа Клуб
           </Link>
         </div>
+        <InAppBrowserWarning />
         {children}
       </div>
     </div>
