@@ -41,11 +41,15 @@ async function sendMessage(token: string, chatId: string, text: string): Promise
 }
 
 // Основной бот — брони, клиенты, бизнес-события.
-// Рассылается владельцу и всем из telegram_bot_users с известным chat_id.
+// Если задан TELEGRAM_CHAT_ID_NOTIFY (групповая беседа) — шлём только туда,
+// иначе владельцу + всем из telegram_bot_users с известным chat_id.
 export async function sendTelegramNotification(text: string): Promise<SendResult> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!token || !chatId) return { sent: false, error: "TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID не заданы" };
+
+  const groupId = process.env.TELEGRAM_CHAT_ID_NOTIFY;
+  if (groupId) return sendMessage(token, groupId, text);
 
   const extras = await getExtraRecipients();
   const ids = [chatId, ...extras.filter((id) => id !== chatId)];
