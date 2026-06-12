@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import type { Pet } from "@/types";
 import { UrgencyBanner } from "@/components/booking/UrgencyBanner";
+import { BOOKING_OPEN } from "@/lib/booking-config";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,29 @@ export const metadata: Metadata = {
 };
 
 export default async function BookingPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
+  if (!BOOKING_OPEN) {
+    return (
+      <section className="py-20 md:py-32">
+        <div className="container mx-auto max-w-md px-4 text-center">
+          <div className="text-6xl mb-6">🐾</div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">Мы готовимся к открытию!</h1>
+          <p className="text-muted-foreground text-lg mb-3">
+            Совсем скоро здесь можно будет забронировать место
+            в детском саду или гостинице для вашего питомца.
+          </p>
+          <p className="text-muted-foreground mb-8">
+            Онлайн-бронирование пока закрыто — следите за новостями
+            или позвоните нам, если есть вопросы.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button render={<Link href="/contacts">Контакты</Link>} />
+            <Button variant="outline" render={<Link href="/">На главную</Link>} />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const { type } = await searchParams;
   const petTypeFilter: "dog" | "cat" | undefined =
     type === "cats" ? "cat" : type === "dogs" ? "dog" : undefined;
