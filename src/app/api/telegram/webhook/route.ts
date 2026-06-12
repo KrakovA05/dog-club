@@ -29,7 +29,8 @@ async function isAllowed(chatId: number, username?: string): Promise<boolean> {
 
 // Запоминаем chat_id — без него нельзя слать уведомления (по username Telegram не отправляет)
 async function rememberChatId(chatId: number, username?: string) {
-  if (!username || chatId === OWNER_CHAT_ID) return;
+  // Отрицательный id = групповой чат, личным chat_id не считается
+  if (!username || chatId === OWNER_CHAT_ID || chatId < 0) return;
   const supabase = createAdminClient();
   const { error } = await supabase
     .from("telegram_bot_users")
