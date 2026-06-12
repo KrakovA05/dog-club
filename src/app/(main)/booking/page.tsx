@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import type { Pet } from "@/types";
 import { UrgencyBanner } from "@/components/booking/UrgencyBanner";
-import { BOOKING_OPEN } from "@/lib/booking-config";
+import { isAnyBookingOpen, isBookingOpenFor, BOOKING_OPENS_LABEL } from "@/lib/booking-config";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 export default async function BookingPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
-  if (!BOOKING_OPEN) {
+  if (!isAnyBookingOpen()) {
     return (
       <section className="py-20 md:py-32">
         <div className="container mx-auto max-w-md px-4 text-center">
@@ -33,10 +33,11 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
             Совсем скоро здесь можно будет забронировать место
             в детском саду или гостинице для вашего питомца.
           </p>
-          <p className="text-muted-foreground mb-8">
-            Онлайн-бронирование пока закрыто — следите за новостями
-            или позвоните нам, если есть вопросы.
-          </p>
+          <div className="rounded-xl bg-brand-light p-5 mb-8 space-y-2 text-left">
+            <p className="font-medium">📅 Когда откроется бронь:</p>
+            <p>🐶 Для собак — <b>{BOOKING_OPENS_LABEL.dog}</b> (садик и гостиница)</p>
+            <p>🐱 Для кошек — <b>{BOOKING_OPENS_LABEL.cat}</b></p>
+          </div>
           <div className="flex gap-3 justify-center">
             <Button render={<Link href="/contacts">Контакты</Link>} />
             <Button variant="outline" render={<Link href="/">На главную</Link>} />
@@ -124,12 +125,21 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
 
       <section className="py-10 md:py-14">
         <div className="container mx-auto max-w-xl px-4">
+          {!isBookingOpenFor("cat") && (
+            <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 mb-4 text-sm text-amber-900">
+              🐱 Бронь для кошек откроется <b>{BOOKING_OPENS_LABEL.cat}</b> — пока принимаем только собак.
+            </div>
+          )}
           <BookingForm
             pets={(pets as Pet[]) ?? []}
             daycareprices={daycareprices}
             hotelPrices={hotelPrices}
             petTypeFilter={petTypeFilter}
             defaultService={petTypeFilter ? "hotel" : undefined}
+            closedPetTypes={{
+              ...(isBookingOpenFor("dog") ? {} : { dog: `Бронь для собак откроется ${BOOKING_OPENS_LABEL.dog}` }),
+              ...(isBookingOpenFor("cat") ? {} : { cat: `Бронь для кошек откроется ${BOOKING_OPENS_LABEL.cat}` }),
+            }}
           />
         </div>
       </section>

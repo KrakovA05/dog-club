@@ -34,12 +34,14 @@ export function BookingForm({
   hotelPrices = [],
   petTypeFilter,
   defaultService,
+  closedPetTypes = {},
 }: {
   pets: Pet[];
   daycareprices?: DaycarePrice[];
   hotelPrices?: { label: string; price: number }[];
   petTypeFilter?: "dog" | "cat";
   defaultService?: "daycare" | "hotel";
+  closedPetTypes?: Partial<Record<"dog" | "cat", string>>;
 }) {
   const formats = (daycareprices && daycareprices.length > 0 ? daycareprices : FALLBACK_PRICES).map((p, i) => ({
     value: LABEL_TO_VALUE[p.label] ?? ["hour", "half_day", "full_day"][i] ?? `format_${i}`,
@@ -72,6 +74,7 @@ export function BookingForm({
 
   // Кошек в детский сад не берём — только гостиница
   function selectPet(p: Pet) {
+    if (closedPetTypes[p.type]) return; // бронь для этого вида ещё не открыта
     setPetId(p.id);
     if (p.type === "cat" && serviceType === "daycare") {
       setServiceType("hotel"); setDaycareFormat(""); setStartDate(""); setEndDate("");
@@ -124,6 +127,7 @@ export function BookingForm({
   function validate(): boolean {
     const e: FormErrors = {};
     if (!petId) e.pet_id = "Выберите питомца";
+    if (selectedPet && closedPetTypes[selectedPet.type]) e.pet_id = closedPetTypes[selectedPet.type];
     if (!startDate) e.start_date = "Выберите дату";
     if (serviceType === "hotel" && !endDate) e.end_date = "Укажите дату выезда";
     if (serviceType === "hotel" && endDate && endDate <= startDate) e.end_date = "Дата выезда должна быть позже даты заезда";
@@ -208,25 +212,32 @@ export function BookingForm({
             <Label>Питомец *</Label>
             {petList.length > 0 && (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {petList.map((pet) => (
-                  <label key={pet.id} className="cursor-pointer">
-                    <input
-                      type="radio"
-                      name="pet_id"
-                      value={pet.id}
-                      checked={petId === pet.id}
-                      onChange={() => selectPet(pet)}
-                      className="sr-only peer"
-                    />
-                    <div className="rounded-xl border-2 p-3 peer-checked:border-primary peer-checked:bg-brand-light transition-all hover:border-primary/50">
-                      <div className="font-medium text-sm">{pet.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {pet.type === "dog" ? "Собака" : "Кошка"}
-                        {pet.breed ? ` · ${pet.breed}` : ""}
+                {petList.map((pet) => {
+                  const closedHint = closedPetTypes[pet.type];
+                  return (
+                    <label key={pet.id} className={closedHint ? "cursor-not-allowed" : "cursor-pointer"}>
+                      <input
+                        type="radio"
+                        name="pet_id"
+                        value={pet.id}
+                        checked={petId === pet.id}
+                        onChange={() => selectPet(pet)}
+                        disabled={!!closedHint}
+                        className="sr-only peer"
+                      />
+                      <div className={`rounded-xl border-2 p-3 transition-all ${closedHint ? "opacity-50" : "peer-checked:border-primary peer-checked:bg-brand-light hover:border-primary/50"}`}>
+                        <div className="font-medium text-sm">{pet.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {pet.type === "dog" ? "Собака" : "Кошка"}
+                          {pet.breed ? ` · ${pet.breed}` : ""}
+                        </div>
+                        {closedHint && (
+                          <div className="text-[11px] text-amber-700 mt-1">{closedHint}</div>
+                        )}
                       </div>
-                    </div>
-                  </label>
-                ))}
+                    </label>
+                  );
+                })}
                 {!addingPet && (
                   <button
                     type="button"

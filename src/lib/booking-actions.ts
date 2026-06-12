@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { sendTelegramNotification } from "@/lib/telegram";
 import { sendBookingConfirmationEmail } from "@/lib/email";
-import { BOOKING_OPEN } from "@/lib/booking-config";
+import { isBookingOpenFor, BOOKING_OPENS_LABEL } from "@/lib/booking-config";
 import type { DayAvailability } from "@/types";
 
 // Доступность по датам для выбранной услуги и вида питомца.
@@ -51,8 +51,6 @@ export async function submitClientBooking(data: {
   end_date: string | null;
   notes: string | null;
 }) {
-  if (!BOOKING_OPEN) throw new Error("Бронирование пока закрыто — мы готовимся к открытию");
-
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
@@ -65,6 +63,11 @@ export async function submitClientBooking(data: {
     .eq("owner_id", user.id)
     .single();
   if (!pet) throw new Error("Питомец не найден");
+
+  const petType = pet.type as "dog" | "cat";
+  if (!isBookingOpenFor(petType)) {
+    throw new Error(`Бронь для ${petType === "cat" ? "кошек" : "собак"} откроется ${BOOKING_OPENS_LABEL[petType]}`);
+  }
 
   // Мягкая проверка свободных мест (дружелюбная ошибка).
   // Жёсткая гарантия — триггер вместимости при вставке confirmed (атомарно, без гонки).
