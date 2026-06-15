@@ -103,9 +103,14 @@ export function Footer() {
 
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm opacity-50">
           <p>© 2026 Лапа Клуб. Все права защищены.</p>
-          <Link href="/privacy" className="hover:opacity-70 transition-opacity">
-            Политика конфиденциальности
-          </Link>
+          <div className="flex gap-4">
+            <Link href="/offer" className="hover:opacity-70 transition-opacity">
+              Публичная оферта
+            </Link>
+            <Link href="/privacy" className="hover:opacity-70 transition-opacity">
+              Политика конфиденциальности
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

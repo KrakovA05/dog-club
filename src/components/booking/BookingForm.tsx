@@ -62,6 +62,7 @@ export function BookingForm({
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [agree, setAgree] = useState(false);
 
   const [petList, setPetList] = useState<Pet[]>(filteredPets);
   const [addingPet, setAddingPet] = useState(filteredPets.length === 0);
@@ -132,6 +133,7 @@ export function BookingForm({
     if (serviceType === "hotel" && !endDate) e.end_date = "Укажите дату выезда";
     if (serviceType === "hotel" && endDate && endDate <= startDate) e.end_date = "Дата выезда должна быть позже даты заезда";
     if (serviceType === "daycare" && !daycareFormat) e.daycare_format = "Выберите формат посещения";
+    if (!agree) e.agree = "Необходимо принять условия договора";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -392,6 +394,29 @@ export function BookingForm({
               <span className="text-lg font-bold text-primary">{animatedTotal.toLocaleString("ru-RU")} ₽</span>
             </div>
           )}
+
+          {/* Акцепт оферты */}
+          <div className="space-y-1.5">
+            <label className="flex gap-2.5 items-start cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={agree}
+                onChange={(ev) => {
+                  setAgree(ev.target.checked);
+                  if (ev.target.checked) setErrors((prev) => ({ ...prev, agree: undefined }));
+                }}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-primary cursor-pointer"
+              />
+              <span className="text-sm text-muted-foreground leading-snug">
+                Я ознакомился(-ась) с условиями{" "}
+                <a href="/offer" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">публичной оферты</a>
+                {" "}и{" "}
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">политики конфиденциальности</a>
+                {" "}и принимаю их.
+              </span>
+            </label>
+            {errors.agree && <p className="text-destructive text-xs">{errors.agree}</p>}
+          </div>
 
           {serverError && (
             <p className="text-destructive text-sm bg-destructive/10 px-3 py-2 rounded-lg">{serverError}</p>

@@ -25,7 +25,15 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  // Вызов к Supabase (внешний, может быть медленным с российского хостинга).
+  // Оборачиваем, чтобы зависший/упавший auth не отдавал 502 — считаем гостем.
+  let user = null;
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+  } catch (e) {
+    console.error("Middleware: getUser упал:", e);
+  }
 
   // /cabinet — требует авторизации
   if (!user && request.nextUrl.pathname.startsWith("/cabinet")) {
@@ -81,7 +89,14 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // Только защищённые пути и auth-страницы. Публичные страницы (главная, /about,
+  // /blog и т.д.) не запускают middleware и не ходят в Supabase — это убирает
+  // лишний внешний вызов с критического пути и причину 502 по таймауту.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/cabinet/:path*",
+    "/admin/:path*",
+    "/staff/:path*",
+    "/login",
+    "/register",
   ],
 };

@@ -134,7 +134,7 @@ export default function PrivacyPage() {
             <div className="space-y-2 text-muted-foreground">
               {[
                 ["Supabase Inc.", "Хранение данных и аутентификация", "supabase.com/privacy"],
-                ["Vercel Inc.", "Хостинг и доставка контента", "vercel.com/legal/privacy-policy"],
+                ["Amvera Cloud", "Хостинг и доставка контента", "amvera.ru/docs/terms"],
                 ["Yandex LLC", "Встроенные карты на странице «Контакты»", "yandex.ru/legal/confidential"],
                 ["Resend Inc.", "Отправка транзакционных email-уведомлений", "resend.com/legal/privacy-policy"],
               ].map(([name, purpose, link]) => (
