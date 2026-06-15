@@ -2,8 +2,9 @@ name: Tech Evening Report
 
 on:
   schedule:
-    # 17:47 UTC = 20:47 МСК (некруглое время — меньше задержки очереди GitHub)
-    - cron: "47 17 * * *"
+    # 15:31 UTC = 18:31 МСК. Запускаем сильно раньше: GitHub задерживает
+    # scheduled-воркфлоу на 1–3 часа, чтобы отчёт приходил к ~21:00.
+    - cron: "31 15 * * *"
   workflow_dispatch:
 
 jobs:

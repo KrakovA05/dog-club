@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_URL } from "@/lib/supabase/client";
-import { sendTelegramNotification } from "@/lib/telegram";
+import { sendTelegramNotification, escapeHtml } from "@/lib/telegram";
 
 const DAYCRE_LABELS: Record<string, string> = {
   hour: "1 час",
@@ -39,7 +39,7 @@ function bookingLine(b: {
 }, showStatus = false): string {
   const pet = b.pets as { name: string; type: string } | null;
   const icon = petIcon(pet?.type ?? b.guest_pet_type ?? "dog");
-  const name = pet?.name ?? b.guest_pet_name ?? "?";
+  const name = escapeHtml(pet?.name ?? b.guest_pet_name ?? "?");
 
   let detail = "";
   if (b.service_type === "daycare") {

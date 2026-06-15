@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { escapeHtml } from "@/lib/telegram";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
 // Владелец — всегда имеет доступ, видит кнопку управления
@@ -134,7 +135,7 @@ async function handleCommand(chatId: number, data: string, isOwner: boolean) {
       const g = b as { guest_pet_name?: string | null; guest_pet_type?: string | null };
       const pName = pet?.name ?? g.guest_pet_name;
       const pType = pet?.type ?? g.guest_pet_type;
-      const petStr = pName ? `${pName} (${pType === "dog" ? "собака" : "кошка"})` : "—";
+      const petStr = pName ? `${escapeHtml(pName)} (${pType === "dog" ? "собака" : "кошка"})` : "—";
       const statusEmoji = b.status === "confirmed" ? "✅" : b.status === "pending" ? "⏳" : "✔️";
       return `${svc} — ${petStr} ${statusEmoji}`;
     });
@@ -171,7 +172,7 @@ async function handleCommand(chatId: number, data: string, isOwner: boolean) {
       const pet = (Array.isArray(b.pets) ? b.pets[0] : b.pets) as { name: string; type: string } | null;
       const pName = pet?.name ?? (b as { guest_pet_name?: string | null }).guest_pet_name;
       const dateStr = b.end_date ? `${b.start_date} → ${b.end_date}` : b.start_date;
-      return `${i + 1}. ${svc} ${pName ?? "—"} — ${dateStr}`;
+      return `${i + 1}. ${svc} ${escapeHtml(pName) || "—"} — ${dateStr}`;
     });
 
     await tg("sendMessage", {
@@ -221,7 +222,7 @@ async function handleCommand(chatId: number, data: string, isOwner: boolean) {
         const pet = (Array.isArray(b.pets) ? b.pets[0] : b.pets) as { name: string; type: string } | null;
         const pName = pet?.name ?? (b as { guest_pet_name?: string | null }).guest_pet_name;
         const status = b.status === "confirmed" ? "✅" : "⏳";
-        lines.push(`  ${svc} ${pName ?? "—"} ${status}`);
+        lines.push(`  ${svc} ${escapeHtml(pName) || "—"} ${status}`);
       }
     }
 

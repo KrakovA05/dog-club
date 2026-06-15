@@ -3,6 +3,15 @@ import { SUPABASE_URL } from "@/lib/supabase/client";
 
 type SendResult = { sent: boolean; error?: string };
 
+// Экранирование для parse_mode: "HTML". Пользовательский текст (клички, имена,
+// комментарии) может содержать <, >, & — без экранирования Telegram не парсит
+// сообщение и молча его отбрасывает (sent:false). Применять ко ВСЕМ вставкам
+// пользовательских данных в HTML-сообщения.
+export function escapeHtml(s: string | null | undefined): string {
+  if (!s) return "";
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 // chat_id заполняется вебхуком при первом обращении пользователя к боту
 async function getExtraRecipients(): Promise<string[]> {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;

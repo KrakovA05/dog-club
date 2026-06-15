@@ -1,7 +1,7 @@
 "use server";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { sendTelegramNotification } from "@/lib/telegram";
+import { sendTelegramNotification, escapeHtml } from "@/lib/telegram";
 import { sendBookingConfirmationEmail } from "@/lib/email";
 import { isBookingOpenFor, BOOKING_OPENS_LABEL } from "@/lib/booking-config";
 import type { DayAvailability } from "@/types";
@@ -98,7 +98,7 @@ export async function submitClientBooking(data: {
     `${serviceLabel}\n` +
     `🐶 ${pet.type === "dog" ? "Собака" : "Кошка"}\n` +
     `📅 ${dateInfo}` +
-    (data.notes ? `\n💬 ${data.notes}` : "") +
+    (data.notes ? `\n💬 ${escapeHtml(data.notes)}` : "") +
     `\n\n<i>Подробности — в админпанели</i>`
   );
 

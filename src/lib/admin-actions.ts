@@ -3,7 +3,7 @@ import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { BookingStatus } from "@/types";
-import { sendTelegramNotification } from "@/lib/telegram";
+import { sendTelegramNotification, escapeHtml } from "@/lib/telegram";
 import { sendBookingConfirmationEmail } from "@/lib/email";
 import { translateSupabaseError } from "@/lib/utils";
 
@@ -274,7 +274,7 @@ export async function createBookingForClient(data: RegisteredClientBooking | Gue
   const serviceLabel = data.service_type === "hotel" ? "🏨 Гостиница" : "🐾 Детский сад";
   const dateInfo = data.end_date ? `${data.start_date} → ${data.end_date}` : data.start_date;
   const clientInfo = clientName
-    ? `👤 ${clientName}${clientPhone ? ` · ${clientPhone}` : ""}\n`
+    ? `👤 ${escapeHtml(clientName)}${clientPhone ? ` · ${escapeHtml(clientPhone)}` : ""}\n`
     : "";
   const guestMark = data.mode === "guest" ? " <i>(без регистрации)</i>" : "";
 
@@ -282,9 +282,9 @@ export async function createBookingForClient(data: RegisteredClientBooking | Gue
     `✅ <b>Запись создана (admin)</b>${guestMark}\n\n` +
     `${serviceLabel}\n` +
     clientInfo +
-    `🐶 ${petType === "dog" ? "Собака" : "Кошка"} ${petName}\n` +
+    `🐶 ${petType === "dog" ? "Собака" : "Кошка"} ${escapeHtml(petName)}\n` +
     `📅 ${dateInfo}` +
-    (data.notes ? `\n💬 ${data.notes}` : "") +
+    (data.notes ? `\n💬 ${escapeHtml(data.notes)}` : "") +
     `\n\n<i>Подробности — в админпанели</i>`
   );
 
