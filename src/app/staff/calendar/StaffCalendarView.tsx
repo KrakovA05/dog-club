@@ -31,6 +31,10 @@ export interface BookingRow {
     passport_photo_url: string | null;
   } | null;
   profiles: { full_name: string | null } | null;
+  guest_name?: string | null;
+  guest_pet_name?: string | null;
+  guest_pet_type?: string | null;
+  guest_pet_breed?: string | null;
 }
 
 function getDatesInRange(start: string, end: string | null): string[] {
@@ -189,10 +193,10 @@ export function StaffCalendarView({ bookings }: { bookings: BookingRow[] }) {
                       {/* Данные питомца */}
                       <div className="bg-muted/30 rounded-xl p-3 space-y-1.5 text-sm">
                         <div className="font-semibold">
-                          {b.pets?.name ?? "—"}
+                          {b.pets?.name ?? b.guest_pet_name ?? "—"}
                           <span className="font-normal text-muted-foreground ml-1.5 text-xs">
-                            {b.pets?.type === "dog" ? "собака" : "кошка"}
-                            {b.pets?.breed ? ` · ${b.pets.breed}` : ""}
+                            {(b.pets?.type ?? b.guest_pet_type) === "dog" ? "собака" : "кошка"}
+                            {(b.pets?.breed ?? b.guest_pet_breed) ? ` · ${b.pets?.breed ?? b.guest_pet_breed}` : ""}
                           </span>
                         </div>
                         {b.pets?.weight_kg && (
@@ -213,7 +217,8 @@ export function StaffCalendarView({ bookings }: { bookings: BookingRow[] }) {
 
                       {/* Только имя владельца */}
                       <div className="text-xs text-muted-foreground">
-                        Владелец: <span className="text-foreground font-medium">{b.profiles?.full_name ?? "—"}</span>
+                        Владелец: <span className="text-foreground font-medium">{b.profiles?.full_name ?? b.guest_name ?? "—"}</span>
+                        {!b.profiles && b.guest_name && <span> (без регистрации)</span>}
                       </div>
                     </div>
                   );

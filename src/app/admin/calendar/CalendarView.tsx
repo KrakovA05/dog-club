@@ -19,7 +19,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export interface BookingRow {
   id: string;
-  pet_id: string;
+  pet_id: string | null;
   service_type: string;
   daycare_format: string | null;
   start_date: string;
@@ -27,6 +27,11 @@ export interface BookingRow {
   status: string;
   pets: { name: string; type: string; breed: string | null; passport_photo_url: string | null } | null;
   profiles: { full_name: string | null; phone: string | null } | null;
+  guest_name?: string | null;
+  guest_phone?: string | null;
+  guest_pet_name?: string | null;
+  guest_pet_type?: string | null;
+  guest_pet_breed?: string | null;
 }
 
 function getDatesInRange(start: string, end: string | null): string[] {
@@ -180,7 +185,7 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
                         <span
                           key={b.id + dateStr}
                           className={`w-2 h-2 rounded-full ${STATUS_COLORS[b.status] ?? "bg-gray-300"}`}
-                          title={`${b.pets?.name} — ${b.service_type === "hotel" ? "Гостиница" : "Сад"}`}
+                          title={`${b.pets?.name ?? b.guest_pet_name ?? "—"} — ${b.service_type === "hotel" ? "Гостиница" : "Сад"}`}
                         />
                       ))}
                       {dayBookings.length > 3 && (
@@ -254,35 +259,47 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
                       <div className="text-sm space-y-0.5 pl-4">
                         <div>
                           <span className="text-muted-foreground">Питомец: </span>
-                          <span className="font-medium">{b.pets?.name ?? "—"}</span>
-                          {b.pets?.breed && <span className="text-muted-foreground"> · {b.pets.breed}</span>}
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          {b.pets?.passport_photo_url ? (
-                            <a
-                              href={`/api/passport/${b.pet_id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-1 text-xs text-green-600 hover:underline"
-                            >
-                              <FileCheck className="h-3.5 w-3.5" />
-                              Паспорт прикреплён
-                            </a>
-                          ) : (
-                            <span className="flex items-center gap-1 text-xs text-orange-500">
-                              <FileX className="h-3.5 w-3.5" />
-                              Паспорт не загружен
-                            </span>
+                          <span className="font-medium">{b.pets?.name ?? b.guest_pet_name ?? "—"}</span>
+                          {(b.pets?.breed ?? b.guest_pet_breed) && (
+                            <span className="text-muted-foreground"> · {b.pets?.breed ?? b.guest_pet_breed}</span>
                           )}
                         </div>
+                        {b.pets ? (
+                          <div className="flex items-center gap-1.5">
+                            {b.pets.passport_photo_url ? (
+                              <a
+                                href={`/api/passport/${b.pet_id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-xs text-green-600 hover:underline"
+                              >
+                                <FileCheck className="h-3.5 w-3.5" />
+                                Паспорт прикреплён
+                              </a>
+                            ) : (
+                              <span className="flex items-center gap-1 text-xs text-orange-500">
+                                <FileX className="h-3.5 w-3.5" />
+                                Паспорт не загружен
+                              </span>
+                            )}
+                          </div>
+                        ) : b.guest_name ? (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <FileX className="h-3.5 w-3.5" />
+                            Без регистрации — паспорт проверить при приёме
+                          </div>
+                        ) : null}
                         <div>
                           <span className="text-muted-foreground">Хозяин: </span>
-                          <span>{b.profiles?.full_name ?? "—"}</span>
+                          <span>{b.profiles?.full_name ?? b.guest_name ?? "—"}</span>
+                          {!b.profiles && b.guest_name && (
+                            <span className="text-xs text-muted-foreground"> (без регистрации)</span>
+                          )}
                         </div>
-                        {b.profiles?.phone && (
+                        {(b.profiles?.phone ?? b.guest_phone) && (
                           <div>
-                            <a href={`tel:${b.profiles.phone}`} className="text-primary text-xs hover:underline">
-                              {b.profiles.phone}
+                            <a href={`tel:${b.profiles?.phone ?? b.guest_phone}`} className="text-primary text-xs hover:underline">
+                              {b.profiles?.phone ?? b.guest_phone}
                             </a>
                           </div>
                         )}
@@ -314,15 +331,13 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
                               {loadingId === b.id ? "..." : "Завершить"}
                             </button>
                           )}
-                          {b.status === "pending" && (
-                            <button
-                              onClick={() => handleStatus(b.id, "cancelled")}
-                              disabled={loadingId === b.id || isPending}
-                              className="px-3 py-1 text-xs rounded-lg border hover:bg-destructive/10 hover:text-destructive disabled:opacity-50 transition-colors"
-                            >
-                              Отменить
-                            </button>
-                          )}
+                          <button
+                            onClick={() => handleStatus(b.id, "cancelled")}
+                            disabled={loadingId === b.id || isPending}
+                            className="px-3 py-1 text-xs rounded-lg border hover:bg-destructive/10 hover:text-destructive disabled:opacity-50 transition-colors"
+                          >
+                            Отменить
+                          </button>
                           <button
                             onClick={() => { setPaymentBookingId(b.id); setPaymentAmount(""); }}
                             className="px-3 py-1 text-xs rounded-lg border hover:bg-muted transition-colors flex items-center gap-1"

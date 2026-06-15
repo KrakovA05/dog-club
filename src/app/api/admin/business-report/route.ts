@@ -34,10 +34,12 @@ function bookingLine(b: {
   end_date: string | null;
   status?: string;
   pets: { name: string; type: string } | null;
+  guest_pet_name?: string | null;
+  guest_pet_type?: string | null;
 }, showStatus = false): string {
   const pet = b.pets as { name: string; type: string } | null;
-  const icon = petIcon(pet?.type ?? "dog");
-  const name = pet?.name ?? "?";
+  const icon = petIcon(pet?.type ?? b.guest_pet_type ?? "dog");
+  const name = pet?.name ?? b.guest_pet_name ?? "?";
 
   let detail = "";
   if (b.service_type === "daycare") {
@@ -77,7 +79,7 @@ export async function GET(req: Request) {
     // Новые брони созданные сегодня (кроме отменённых)
     supabase
       .from("bookings")
-      .select("id, service_type, daycare_format, start_date, end_date, status, pets(name, type)")
+      .select("id, service_type, daycare_format, start_date, end_date, status, pets(name, type), guest_pet_name, guest_pet_type")
       .gte("created_at", todayStr + "T00:00:00")
       .lt("created_at", todayStr + "T23:59:59")
       .neq("status", "cancelled")
@@ -86,7 +88,7 @@ export async function GET(req: Request) {
     // Заезды завтра (start_date = завтра, статус confirmed)
     supabase
       .from("bookings")
-      .select("id, service_type, daycare_format, start_date, end_date, pets(name, type)")
+      .select("id, service_type, daycare_format, start_date, end_date, pets(name, type), guest_pet_name, guest_pet_type")
       .eq("start_date", tomorrowStr)
       .eq("status", "confirmed"),
 
@@ -107,6 +109,8 @@ export async function GET(req: Request) {
     end_date: string | null;
     status: string;
     pets: PetRef;
+    guest_pet_name?: string | null;
+    guest_pet_type?: string | null;
   };
   type ArrivalRow = Omit<BookingRow, "status">;
 

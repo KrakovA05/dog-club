@@ -113,7 +113,7 @@ async function handleCommand(chatId: number, data: string, isOwner: boolean) {
   if (data === "today") {
     const { data: bookings } = await supabase
       .from("bookings")
-      .select("id, service_type, daycare_format, start_date, end_date, status, pets(name, type)")
+      .select("id, service_type, daycare_format, start_date, end_date, status, pets(name, type), guest_pet_name, guest_pet_type")
       .eq("start_date", todayStr)
       .neq("status", "cancelled")
       .order("created_at");
@@ -131,7 +131,10 @@ async function handleCommand(chatId: number, data: string, isOwner: boolean) {
     const lines = bookings.map((b) => {
       const svc = b.service_type === "hotel" ? "🏨 Гостиница" : "🐾 Детский сад";
       const pet = (Array.isArray(b.pets) ? b.pets[0] : b.pets) as { name: string; type: string } | null;
-      const petStr = pet ? `${pet.name} (${pet.type === "dog" ? "собака" : "кошка"})` : "—";
+      const g = b as { guest_pet_name?: string | null; guest_pet_type?: string | null };
+      const pName = pet?.name ?? g.guest_pet_name;
+      const pType = pet?.type ?? g.guest_pet_type;
+      const petStr = pName ? `${pName} (${pType === "dog" ? "собака" : "кошка"})` : "—";
       const statusEmoji = b.status === "confirmed" ? "✅" : b.status === "pending" ? "⏳" : "✔️";
       return `${svc} — ${petStr} ${statusEmoji}`;
     });
@@ -149,7 +152,7 @@ async function handleCommand(chatId: number, data: string, isOwner: boolean) {
   if (data === "pending") {
     const { data: bookings } = await supabase
       .from("bookings")
-      .select("id, service_type, start_date, end_date, pets(name, type)")
+      .select("id, service_type, start_date, end_date, pets(name, type), guest_pet_name, guest_pet_type")
       .eq("status", "pending")
       .order("start_date");
 
@@ -166,8 +169,9 @@ async function handleCommand(chatId: number, data: string, isOwner: boolean) {
     const lines = bookings.map((b, i) => {
       const svc = b.service_type === "hotel" ? "🏨" : "🐾";
       const pet = (Array.isArray(b.pets) ? b.pets[0] : b.pets) as { name: string; type: string } | null;
+      const pName = pet?.name ?? (b as { guest_pet_name?: string | null }).guest_pet_name;
       const dateStr = b.end_date ? `${b.start_date} → ${b.end_date}` : b.start_date;
-      return `${i + 1}. ${svc} ${pet?.name ?? "—"} — ${dateStr}`;
+      return `${i + 1}. ${svc} ${pName ?? "—"} — ${dateStr}`;
     });
 
     await tg("sendMessage", {
@@ -187,7 +191,7 @@ async function handleCommand(chatId: number, data: string, isOwner: boolean) {
 
     const { data: bookings } = await supabase
       .from("bookings")
-      .select("id, service_type, start_date, status, pets(name, type)")
+      .select("id, service_type, start_date, status, pets(name, type), guest_pet_name, guest_pet_type")
       .gte("start_date", todayStr)
       .lte("start_date", weekStr)
       .neq("status", "cancelled")
@@ -215,8 +219,9 @@ async function handleCommand(chatId: number, data: string, isOwner: boolean) {
       for (const b of bks) {
         const svc = b.service_type === "hotel" ? "🏨" : "🐾";
         const pet = (Array.isArray(b.pets) ? b.pets[0] : b.pets) as { name: string; type: string } | null;
+        const pName = pet?.name ?? (b as { guest_pet_name?: string | null }).guest_pet_name;
         const status = b.status === "confirmed" ? "✅" : "⏳";
-        lines.push(`  ${svc} ${pet?.name ?? "—"} ${status}`);
+        lines.push(`  ${svc} ${pName ?? "—"} ${status}`);
       }
     }
 

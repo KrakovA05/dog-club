@@ -13,9 +13,10 @@ export default async function AdminCalendarPage() {
       id, pet_id, service_type, daycare_format,
       start_date, end_date, status,
       pets(name, type, breed, passport_photo_url),
-      profiles(full_name, phone)
+      profiles(full_name, phone),
+      guest_name, guest_phone, guest_pet_name, guest_pet_type, guest_pet_breed
     `)
-    .not("status", "eq", "cancelled")
+    .not("status", "in", "(cancelled,completed)")
     .order("start_date");
 
   return (
