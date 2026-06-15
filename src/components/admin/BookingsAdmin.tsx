@@ -30,6 +30,7 @@ export interface BookingRow {
   status: BookingStatus;
   price_total: number | null;
   created_at: string;
+  // Зарегистрированный клиент
   pets: {
     name: string;
     type: string;
@@ -40,6 +41,13 @@ export interface BookingRow {
     passport_photo_url: string | null;
   } | null;
   profiles: { full_name: string | null; phone: string | null } | null;
+  // Гостевой клиент (без регистрации)
+  guest_name?: string | null;
+  guest_phone?: string | null;
+  guest_pet_name?: string | null;
+  guest_pet_type?: string | null;
+  guest_pet_breed?: string | null;
+  guest_pet_weight?: number | null;
 }
 
 function PriceCell({ booking }: { booking: BookingRow }) {
@@ -196,11 +204,29 @@ export function BookingsAdmin({ bookings }: { bookings: BookingRow[] }) {
                 <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   <User className="h-3.5 w-3.5" /> Клиент
                 </div>
-                <div className="font-semibold text-sm">{b.profiles?.full_name ?? "—"}</div>
-                {b.profiles?.phone && (
-                  <a href={`tel:${b.profiles.phone}`} className="text-sm text-primary hover:underline">
-                    {b.profiles.phone}
-                  </a>
+                {b.profiles ? (
+                  <>
+                    <div className="font-semibold text-sm">{b.profiles.full_name ?? "—"}</div>
+                    {b.profiles.phone && (
+                      <a href={`tel:${b.profiles.phone}`} className="text-sm text-primary hover:underline">
+                        {b.profiles.phone}
+                      </a>
+                    )}
+                  </>
+                ) : b.guest_name ? (
+                  <>
+                    <div className="font-semibold text-sm">
+                      {b.guest_name}
+                      <span className="ml-1.5 text-xs font-normal text-muted-foreground">(без регистрации)</span>
+                    </div>
+                    {b.guest_phone && (
+                      <a href={`tel:${b.guest_phone}`} className="text-sm text-primary hover:underline">
+                        {b.guest_phone}
+                      </a>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-sm text-muted-foreground">—</div>
                 )}
               </div>
 
@@ -209,22 +235,39 @@ export function BookingsAdmin({ bookings }: { bookings: BookingRow[] }) {
                 <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   <PawPrint className="h-3.5 w-3.5" /> Питомец
                 </div>
-                <div className="font-semibold text-sm">
-                  {b.pets?.name ?? "—"}
-                  <span className="font-normal text-muted-foreground ml-1">
-                    {b.pets?.type === "dog" ? "собака" : b.pets?.type === "cat" ? "кошка" : ""}
-                  </span>
-                </div>
-                {b.pets?.breed && <div className="text-xs text-muted-foreground">{b.pets.breed}</div>}
-                {b.pets?.weight_kg && <div className="text-xs text-muted-foreground">{b.pets.weight_kg} кг</div>}
-                {b.pets?.passport_full_name && (
-                  <div className="text-xs text-muted-foreground">Владелец по паспорту: {b.pets.passport_full_name}</div>
-                )}
-                {!b.pets?.passport_photo_url && (
-                  <div className="text-xs text-red-600 font-medium">⚠ Паспорт не загружен</div>
-                )}
-                {b.pets?.special_needs && (
-                  <div className="text-xs text-orange-600 font-medium">{b.pets.special_needs}</div>
+                {b.pets ? (
+                  <>
+                    <div className="font-semibold text-sm">
+                      {b.pets.name}
+                      <span className="font-normal text-muted-foreground ml-1">
+                        {b.pets.type === "dog" ? "собака" : b.pets.type === "cat" ? "кошка" : ""}
+                      </span>
+                    </div>
+                    {b.pets.breed && <div className="text-xs text-muted-foreground">{b.pets.breed}</div>}
+                    {b.pets.weight_kg && <div className="text-xs text-muted-foreground">{b.pets.weight_kg} кг</div>}
+                    {b.pets.passport_full_name && (
+                      <div className="text-xs text-muted-foreground">Владелец по паспорту: {b.pets.passport_full_name}</div>
+                    )}
+                    {!b.pets.passport_photo_url && (
+                      <div className="text-xs text-red-600 font-medium">⚠ Паспорт не загружен</div>
+                    )}
+                    {b.pets.special_needs && (
+                      <div className="text-xs text-orange-600 font-medium">{b.pets.special_needs}</div>
+                    )}
+                  </>
+                ) : b.guest_pet_name ? (
+                  <>
+                    <div className="font-semibold text-sm">
+                      {b.guest_pet_name}
+                      <span className="font-normal text-muted-foreground ml-1">
+                        {b.guest_pet_type === "dog" ? "собака" : b.guest_pet_type === "cat" ? "кошка" : ""}
+                      </span>
+                    </div>
+                    {b.guest_pet_breed && <div className="text-xs text-muted-foreground">{b.guest_pet_breed}</div>}
+                    {b.guest_pet_weight && <div className="text-xs text-muted-foreground">{b.guest_pet_weight} кг</div>}
+                  </>
+                ) : (
+                  <div className="text-sm text-muted-foreground">—</div>
                 )}
               </div>
 

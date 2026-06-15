@@ -8,7 +8,7 @@ export default async function HotelBookingsPage() {
   const supabase = createClient();
   const { data: bookings } = await supabase
     .from("bookings")
-    .select("*, pets(name, type, breed, weight_kg, special_needs, passport_full_name, passport_photo_url), profiles(full_name, phone)")
+    .select("*, pets(name, type, breed, weight_kg, special_needs, passport_full_name, passport_photo_url), profiles(full_name, phone), guest_name, guest_phone, guest_pet_name, guest_pet_type, guest_pet_breed, guest_pet_weight")
     .eq("service_type", "hotel")
     .order("created_at", { ascending: false });
 

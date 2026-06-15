@@ -190,7 +190,8 @@ export async function updateCapacity(zone: string, capacity: number) {
   revalidatePath("/admin/settings");
 }
 
-export async function createBookingForClient(data: {
+type RegisteredClientBooking = {
+  mode: "registered";
   user_id: string;
   pet_id: string;
   service_type: "daycare" | "hotel";
@@ -198,43 +199,99 @@ export async function createBookingForClient(data: {
   start_date: string;
   end_date: string | null;
   notes: string | null;
-}) {
+};
+
+type GuestClientBooking = {
+  mode: "guest";
+  guest_name: string;
+  guest_phone: string | null;
+  guest_pet_name: string;
+  guest_pet_type: "dog" | "cat";
+  guest_pet_breed: string | null;
+  guest_pet_weight: number | null;
+  service_type: "daycare" | "hotel";
+  daycare_format: string | null;
+  start_date: string;
+  end_date: string | null;
+  notes: string | null;
+};
+
+export async function createBookingForClient(data: RegisteredClientBooking | GuestClientBooking) {
   await requireAdmin();
   const supabase = createClient();
 
-  // Получаем данные клиента и питомца для уведомления
-  const [{ data: profile }, { data: pet }] = await Promise.all([
-    supabase.from("profiles").select("full_name, phone, email").eq("id", data.user_id).single(),
-    supabase.from("pets").select("name, type").eq("id", data.pet_id).single(),
-  ]);
+  let clientName = "";
+  let clientPhone = "";
+  let petName = "";
+  let petType = "";
+  let emailTarget: string | null = null;
 
-  const { error } = await supabase.from("bookings").insert({ ...data, status: "confirmed" });
-  if (error) throw capacityError(error.message);
+  if (data.mode === "registered") {
+    const [{ data: profile }, { data: pet }] = await Promise.all([
+      supabase.from("profiles").select("full_name, phone, email").eq("id", data.user_id).single(),
+      supabase.from("pets").select("name, type").eq("id", data.pet_id).single(),
+    ]);
+    clientName = profile?.full_name ?? "";
+    clientPhone = profile?.phone ?? "";
+    petName = pet?.name ?? "";
+    petType = pet?.type ?? "";
+    emailTarget = profile?.email ?? null;
+
+    const { error } = await supabase.from("bookings").insert({
+      user_id: data.user_id,
+      pet_id: data.pet_id,
+      service_type: data.service_type,
+      daycare_format: data.daycare_format,
+      start_date: data.start_date,
+      end_date: data.end_date,
+      notes: data.notes,
+      status: "confirmed",
+    });
+    if (error) throw capacityError(error.message);
+  } else {
+    clientName = data.guest_name;
+    clientPhone = data.guest_phone ?? "";
+    petName = data.guest_pet_name;
+    petType = data.guest_pet_type;
+
+    const { error } = await supabase.from("bookings").insert({
+      guest_name: data.guest_name,
+      guest_phone: data.guest_phone,
+      guest_pet_name: data.guest_pet_name,
+      guest_pet_type: data.guest_pet_type,
+      guest_pet_breed: data.guest_pet_breed,
+      guest_pet_weight: data.guest_pet_weight,
+      service_type: data.service_type,
+      daycare_format: data.daycare_format,
+      start_date: data.start_date,
+      end_date: data.end_date,
+      notes: data.notes,
+      status: "confirmed",
+    });
+    if (error) throw capacityError(error.message);
+  }
 
   const serviceLabel = data.service_type === "hotel" ? "🏨 Гостиница" : "🐾 Детский сад";
-  const dateInfo = data.end_date
-    ? `${data.start_date} → ${data.end_date}`
-    : data.start_date;
-
-  const clientInfo = profile?.full_name
-    ? `👤 ${profile.full_name}${profile.phone ? ` · ${profile.phone}` : ""}\n`
+  const dateInfo = data.end_date ? `${data.start_date} → ${data.end_date}` : data.start_date;
+  const clientInfo = clientName
+    ? `👤 ${clientName}${clientPhone ? ` · ${clientPhone}` : ""}\n`
     : "";
+  const guestMark = data.mode === "guest" ? " <i>(без регистрации)</i>" : "";
 
   await sendTelegramNotification(
-    `✅ <b>Запись создана (admin)</b>\n\n` +
+    `✅ <b>Запись создана (admin)</b>${guestMark}\n\n` +
     `${serviceLabel}\n` +
     clientInfo +
-    `🐶 ${pet?.type === "dog" ? "Собака" : "Кошка"}\n` +
+    `🐶 ${petType === "dog" ? "Собака" : "Кошка"} ${petName}\n` +
     `📅 ${dateInfo}` +
     (data.notes ? `\n💬 ${data.notes}` : "") +
     `\n\n<i>Подробности — в админпанели</i>`
   );
 
-  // Письмо клиенту — ошибки не роняют запись (логируются внутри)
-  if (profile?.email && pet) {
+  if (emailTarget && data.mode === "registered") {
     await sendBookingConfirmationEmail({
-      to: profile.email,
-      petName: pet.name,
+      to: emailTarget,
+      petName,
       serviceType: data.service_type,
       daycareFormat: data.daycare_format,
       startDate: data.start_date,
