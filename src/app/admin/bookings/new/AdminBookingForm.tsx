@@ -4,18 +4,25 @@ import { useRouter } from "next/navigation";
 import { createBookingForClient } from "@/lib/admin-actions";
 import { getAvailability } from "@/lib/booking-actions";
 import { formatCalendarDate, parseLocalDate, pickHotelNightly } from "@/lib/utils";
-import { useCountUp } from "@/hooks/useCountUp";
 import type { DayAvailability } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { FileCheck, FileX } from "lucide-react";
+import { FileCheck, FileX, Search, X, Plus } from "lucide-react";
 
 export interface Profile { id: string; full_name: string | null; phone: string | null; }
 export interface Pet {
   id: string; owner_id: string; name: string; type: string;
   breed: string | null; weight_kg: number | null;
   special_needs: string | null; passport_photo_url: string | null;
+}
+export interface PastGuest {
+  guest_name: string | null;
+  guest_phone: string | null;
+  guest_pet_name: string | null;
+  guest_pet_type: string | null;
+  guest_pet_breed: string | null;
+  guest_pet_weight: number | null;
 }
 
 const today = new Date().toISOString().split("T")[0];
@@ -36,18 +43,39 @@ const LABEL_TO_VALUE: Record<string, string> = {
 
 type Mode = "registered" | "guest";
 
+// Маска телефона: прогрессивное форматирование +7 (XXX) XXX-XX-XX
+function formatPhone(raw: string): string {
+  let d = raw.replace(/\D/g, "");
+  if (!d) return "";
+  if (d.startsWith("8")) d = "7" + d.slice(1);
+  if (!d.startsWith("7")) d = "7" + d;
+  d = d.slice(0, 11);
+  const p = d.slice(1);
+  let out = "+7";
+  if (p.length > 0) out += " (" + p.slice(0, 3);
+  if (p.length >= 3) out += ")";
+  if (p.length > 3) out += " " + p.slice(3, 6);
+  if (p.length > 6) out += "-" + p.slice(6, 8);
+  if (p.length > 8) out += "-" + p.slice(8, 10);
+  return out;
+}
+
 export function AdminBookingForm({
   profiles,
   allPets,
   daycareprices,
   hotelPrices = [],
   preselectedClientId,
+  presetDate,
+  pastGuests = [],
 }: {
   profiles: Profile[];
   allPets: Pet[];
   daycareprices?: DaycarePrice[];
   hotelPrices?: { label: string; price: number }[];
   preselectedClientId?: string;
+  presetDate?: string;
+  pastGuests?: PastGuest[];
 }) {
   const FORMAT_OPTIONS = (daycareprices && daycareprices.length > 0
     ? daycareprices.map((p, i) => ({
@@ -62,49 +90,86 @@ export function AdminBookingForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [result, setResult] = useState<{ created: number; failed: { date: string; reason: string }[] } | null>(null);
 
-  // Режим: существующий клиент или новый без регистрации
-  const [mode, setMode] = useState<Mode>(preselectedClientId ? "registered" : "registered");
+  const [mode, setMode] = useState<Mode>("registered");
 
-  // --- Поля существующего клиента ---
+  // --- Существующий клиент (с поиском) ---
   const [clientId, setClientId] = useState(preselectedClientId ?? "");
   const [petId, setPetId] = useState("");
+  const [clientSearch, setClientSearch] = useState(
+    preselectedClientId ? (profiles.find((p) => p.id === preselectedClientId)?.full_name ?? "") : ""
+  );
+  const [clientOpen, setClientOpen] = useState(false);
 
-  // --- Поля гостевого клиента ---
+  // --- Гостевой клиент ---
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [guestPetName, setGuestPetName] = useState("");
   const [guestPetType, setGuestPetType] = useState<"dog" | "cat">("dog");
   const [guestPetBreed, setGuestPetBreed] = useState("");
   const [guestPetWeight, setGuestPetWeight] = useState("");
+  const [passportChecked, setPassportChecked] = useState(false);
+  const [guestOpen, setGuestOpen] = useState(false);
 
-  // --- Общие поля ---
+  // --- Общие ---
   const [serviceType, setServiceType] = useState<"daycare" | "hotel">("daycare");
   const [daycareFormat, setDaycareFormat] = useState("");
-  const [startDate, setStartDate] = useState("");
+  const [startDate, setStartDate] = useState(presetDate ?? "");
   const [endDate, setEndDate] = useState("");
+  const [extraDates, setExtraDates] = useState<string[]>([]); // доп. даты детсада
+  const [newExtraDate, setNewExtraDate] = useState("");
   const [notes, setNotes] = useState("");
+
+  // --- Цена (редактируемая) ---
+  const [priceInput, setPriceInput] = useState("");
+  const [priceTouched, setPriceTouched] = useState(false);
 
   const clientPets = allPets.filter((p) => p.owner_id === clientId);
   const selectedPet = mode === "registered" ? allPets.find((p) => p.id === petId) : null;
   const selectedClient = profiles.find((p) => p.id === clientId);
 
-  // При смене режима сбрасываем поля и услугу
+  // Поиск клиента
+  const filteredProfiles = profiles.filter((p) => {
+    const q = clientSearch.trim().toLowerCase();
+    if (!q || p.id === clientId) return !q ? true : false;
+    return (p.full_name ?? "").toLowerCase().includes(q) || (p.phone ?? "").includes(q.replace(/\D/g, ""));
+  }).slice(0, 40);
+
+  // Поиск повторного гостя
+  const guestQuery = (guestName + " " + guestPhone).trim().toLowerCase();
+  const guestMatches = guestQuery.length >= 2
+    ? pastGuests.filter((g) =>
+        (g.guest_name ?? "").toLowerCase().includes(guestName.trim().toLowerCase()) ||
+        (g.guest_phone ?? "").replace(/\D/g, "").includes(guestPhone.replace(/\D/g, ""))
+      ).slice(0, 6)
+    : [];
+
   function switchMode(m: Mode) {
     setMode(m);
-    setClientId(""); setPetId("");
+    setClientId(""); setPetId(""); setClientSearch("");
     setGuestName(""); setGuestPhone(""); setGuestPetName(""); setGuestPetBreed(""); setGuestPetWeight("");
-    setGuestPetType("dog");
-    setServiceType("daycare"); setDaycareFormat(""); setStartDate(""); setEndDate("");
-    setError(null);
+    setGuestPetType("dog"); setPassportChecked(false);
+    setServiceType("daycare"); setDaycareFormat(""); setStartDate(presetDate ?? ""); setEndDate("");
+    setExtraDates([]); setNewExtraDate("");
+    setPriceTouched(false); setError(null);
   }
 
-  // Для гостевой брони: если кошка — автопереключаем в гостиницу
+  function fillFromGuest(g: PastGuest) {
+    setGuestName(g.guest_name ?? "");
+    setGuestPhone(g.guest_phone ?? "");
+    setGuestPetName(g.guest_pet_name ?? "");
+    setGuestPetType(g.guest_pet_type === "cat" ? "cat" : "dog");
+    setGuestPetBreed(g.guest_pet_breed ?? "");
+    setGuestPetWeight(g.guest_pet_weight != null ? String(g.guest_pet_weight) : "");
+    setGuestOpen(false);
+  }
+
   const activePetType = mode === "registered" ? selectedPet?.type : guestPetType;
   const isCat = activePetType === "cat";
   useEffect(() => {
     if (isCat && serviceType === "daycare") {
-      setServiceType("hotel"); setDaycareFormat(""); setStartDate(""); setEndDate("");
+      setServiceType("hotel"); setDaycareFormat(""); setExtraDates([]);
     }
   }, [isCat, serviceType]);
 
@@ -112,14 +177,11 @@ export function AdminBookingForm({
     setPetId(id);
     const p = allPets.find((x) => x.id === id);
     if (p?.type === "cat" && serviceType === "daycare") {
-      setServiceType("hotel"); setDaycareFormat(""); setStartDate(""); setEndDate("");
+      setServiceType("hotel"); setDaycareFormat(""); setStartDate(presetDate ?? ""); setEndDate("");
     }
   }
 
-  // Готовность к показу блока услуги/даты
-  const clientReady = mode === "registered"
-    ? !!petId
-    : !!guestPetName && !!guestPetType;
+  const clientReady = mode === "registered" ? !!petId : !!guestPetName && !!guestPetType;
 
   const [availability, setAvailability] = useState<DayAvailability[] | null>(null);
   const [checkingAvail, setCheckingAvail] = useState(false);
@@ -161,14 +223,33 @@ export function AdminBookingForm({
     : 0;
   const petTypeForPrice = mode === "registered" ? (selectedPet?.type as "dog"|"cat"|undefined) : guestPetType;
   const hotelNightly = petTypeForPrice ? pickHotelNightly(petTypeForPrice, hotelPrices, nights) : 0;
-  const totalPrice = serviceType === "hotel"
+  // Цена за ОДНУ запись (для детсада с мультидатами — за день)
+  const unitPrice = serviceType === "hotel"
     ? nights * hotelNightly
     : (FORMAT_OPTIONS.find((f) => f.value === daycareFormat)?.priceNum ?? 0);
-  const animatedTotal = useCountUp(totalPrice);
+
+  // Синхронизируем поле цены с расчётом, пока админ не правил вручную
+  useEffect(() => {
+    if (!priceTouched) setPriceInput(unitPrice ? String(unitPrice) : "");
+  }, [unitPrice, priceTouched]);
+
+  // Список всех дат детсада (основная + дополнительные, уникальные)
+  const daycareAllDates = serviceType === "daycare"
+    ? Array.from(new Set([startDate, ...extraDates].filter(Boolean))).sort()
+    : [];
+
+  function addExtraDate() {
+    if (!newExtraDate) return;
+    if (newExtraDate === startDate || extraDates.includes(newExtraDate)) { setNewExtraDate(""); return; }
+    setExtraDates((prev) => [...prev, newExtraDate].sort());
+    setNewExtraDate("");
+  }
 
   function handleClientChange(id: string) {
     setClientId(id);
     setPetId("");
+    setClientSearch(profiles.find((p) => p.id === id)?.full_name ?? "");
+    setClientOpen(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -187,10 +268,16 @@ export function AdminBookingForm({
     if (serviceType === "hotel" && endDate && endDate <= startDate) { setError("Дата выезда должна быть позже даты заезда"); return; }
     if (serviceType === "daycare" && !daycareFormat) { setError("Выберите формат посещения"); return; }
 
+    const priceTotal = priceInput.trim() ? Math.max(0, Math.round(Number(priceInput))) : null;
+    const finalNotes = (mode === "guest" && passportChecked)
+      ? `✅ Ветпаспорт проверен.${notes ? " " + notes : ""}`
+      : (notes || null);
+
     setSaving(true);
     try {
+      let res;
       if (mode === "registered") {
-        await createBookingForClient({
+        res = await createBookingForClient({
           mode: "registered",
           user_id: clientId,
           pet_id: petId,
@@ -198,10 +285,12 @@ export function AdminBookingForm({
           daycare_format: serviceType === "daycare" ? daycareFormat : null,
           start_date: startDate,
           end_date: serviceType === "hotel" ? (endDate || null) : null,
-          notes: notes || null,
+          daycare_dates: serviceType === "daycare" ? daycareAllDates : null,
+          notes: finalNotes,
+          price_total: priceTotal,
         });
       } else {
-        await createBookingForClient({
+        res = await createBookingForClient({
           mode: "guest",
           guest_name: guestName.trim(),
           guest_phone: guestPhone.trim() || null,
@@ -213,9 +302,12 @@ export function AdminBookingForm({
           daycare_format: serviceType === "daycare" ? daycareFormat : null,
           start_date: startDate,
           end_date: serviceType === "hotel" ? (endDate || null) : null,
-          notes: notes || null,
+          daycare_dates: serviceType === "daycare" ? daycareAllDates : null,
+          notes: finalNotes,
+          price_total: priceTotal,
         });
       }
+      setResult(res);
       setDone(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Ошибка при создании записи");
@@ -225,11 +317,13 @@ export function AdminBookingForm({
   }
 
   function resetForm() {
-    setDone(false); setClientId(""); setPetId("");
+    setDone(false); setResult(null);
+    setClientId(""); setPetId(""); setClientSearch("");
     setGuestName(""); setGuestPhone(""); setGuestPetName(""); setGuestPetBreed(""); setGuestPetWeight("");
-    setGuestPetType("dog");
-    setServiceType("daycare"); setDaycareFormat(""); setStartDate(""); setEndDate(""); setNotes("");
-    setError(null);
+    setGuestPetType("dog"); setPassportChecked(false);
+    setServiceType("daycare"); setDaycareFormat(""); setStartDate(presetDate ?? ""); setEndDate("");
+    setExtraDates([]); setNewExtraDate(""); setNotes("");
+    setPriceTouched(false); setError(null);
   }
 
   if (done) {
@@ -242,11 +336,18 @@ export function AdminBookingForm({
           <FileCheck className="h-7 w-7 text-green-600" />
         </div>
         <div>
-          <h2 className="text-xl font-bold">Запись создана</h2>
+          <h2 className="text-xl font-bold">
+            {result && result.created > 1 ? `Создано записей: ${result.created}` : "Запись создана"}
+          </h2>
           <p className="text-muted-foreground text-sm mt-1">
-            {displayName} — {displayPet} — {serviceLabel} — {startDate}
+            {displayName} — {displayPet} — {serviceLabel}
           </p>
           <p className="text-xs text-green-600 mt-1">Статус: Подтверждено</p>
+          {result && result.failed.length > 0 && (
+            <p className="text-xs text-orange-600 mt-2">
+              Не прошли по местам: {result.failed.map((f) => f.date).join(", ")}
+            </p>
+          )}
         </div>
         <div className="flex gap-3 justify-center">
           <Button size="sm" onClick={() => router.push("/admin/calendar")}>
@@ -284,36 +385,79 @@ export function AdminBookingForm({
           ))}
         </div>
 
-        {/* Существующий клиент */}
+        {/* Существующий клиент — поиск */}
         {mode === "registered" && (
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 relative">
             <Label>Выберите клиента *</Label>
-            <select
-              value={clientId}
-              onChange={(e) => handleClientChange(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <option value="">— выберите клиента —</option>
-              {profiles.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.full_name ?? "Без имени"}{p.phone ? ` · ${p.phone}` : ""}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <input
+                value={clientSearch}
+                onChange={(e) => { setClientSearch(e.target.value); setClientId(""); setPetId(""); setClientOpen(true); }}
+                onFocus={() => setClientOpen(true)}
+                onBlur={() => setTimeout(() => setClientOpen(false), 150)}
+                placeholder="Поиск по имени или телефону…"
+                className="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+              {clientId && (
+                <button type="button" onClick={() => { setClientId(""); setClientSearch(""); setPetId(""); }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            {clientOpen && filteredProfiles.length > 0 && (
+              <div className="absolute z-20 left-0 right-0 mt-1 max-h-60 overflow-auto rounded-xl border bg-background shadow-lg">
+                {filteredProfiles.map((p) => (
+                  <button key={p.id} type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => handleClientChange(p.id)}
+                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-sm text-left hover:bg-muted/50 transition-colors">
+                    <span className="font-medium">{p.full_name ?? "Без имени"}</span>
+                    {p.phone && <span className="text-xs text-muted-foreground">{p.phone}</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+            {clientOpen && clientSearch.trim() && filteredProfiles.length === 0 && !clientId && (
+              <p className="text-xs text-muted-foreground pt-1">Не найдено. Возможно, это новый клиент — переключите на «Новый клиент».</p>
+            )}
           </div>
         )}
 
         {/* Новый гостевой клиент */}
         {mode === "guest" && (
           <div className="space-y-3">
+            {pastGuests.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                💡 Начните вводить имя или телефон — если клиент уже был, данные подставятся.
+              </p>
+            )}
             <div className="grid sm:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 relative">
                 <Label>Имя клиента *</Label>
                 <Input
                   placeholder="Иван Петров"
                   value={guestName}
-                  onChange={(e) => setGuestName(e.target.value)}
+                  onChange={(e) => { setGuestName(e.target.value); setGuestOpen(true); }}
+                  onFocus={() => setGuestOpen(true)}
+                  onBlur={() => setTimeout(() => setGuestOpen(false), 150)}
                 />
+                {guestOpen && guestMatches.length > 0 && (
+                  <div className="absolute z-20 left-0 right-0 mt-1 max-h-60 overflow-auto rounded-xl border bg-background shadow-lg">
+                    {guestMatches.map((g, i) => (
+                      <button key={i} type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => fillFromGuest(g)}
+                        className="flex w-full flex-col px-3 py-2 text-sm text-left hover:bg-muted/50 transition-colors">
+                        <span className="font-medium">{g.guest_name}{g.guest_phone ? ` · ${g.guest_phone}` : ""}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {g.guest_pet_name} · {g.guest_pet_type === "dog" ? "собака" : "кошка"}{g.guest_pet_breed ? ` · ${g.guest_pet_breed}` : ""}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label>Телефон</Label>
@@ -321,7 +465,7 @@ export function AdminBookingForm({
                   type="tel"
                   placeholder="+7 (999) 000-00-00"
                   value={guestPhone}
-                  onChange={(e) => setGuestPhone(e.target.value)}
+                  onChange={(e) => setGuestPhone(formatPhone(e.target.value))}
                 />
               </div>
             </div>
@@ -405,33 +549,25 @@ export function AdminBookingForm({
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Кличка *</Label>
-                <Input
-                  placeholder="Бобик"
-                  value={guestPetName}
-                  onChange={(e) => setGuestPetName(e.target.value)}
-                />
+                <Input placeholder="Бобик" value={guestPetName} onChange={(e) => setGuestPetName(e.target.value)} />
               </div>
               <div className="space-y-1.5">
                 <Label>Порода</Label>
-                <Input
-                  placeholder="Лабрадор"
-                  value={guestPetBreed}
-                  onChange={(e) => setGuestPetBreed(e.target.value)}
-                />
+                <Input placeholder="Лабрадор" value={guestPetBreed} onChange={(e) => setGuestPetBreed(e.target.value)} />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <Label>Вес (кг)</Label>
-              <Input
-                type="number"
-                min="0"
-                max="50"
-                step="0.1"
-                placeholder="5.5"
-                value={guestPetWeight}
-                onChange={(e) => setGuestPetWeight(e.target.value)}
-                className="max-w-[12rem]"
-              />
+            <div className="grid sm:grid-cols-2 gap-3 items-end">
+              <div className="space-y-1.5">
+                <Label>Вес (кг)</Label>
+                <Input type="number" min="0" max="50" step="0.1" placeholder="5.5"
+                  value={guestPetWeight} onChange={(e) => setGuestPetWeight(e.target.value)} />
+              </div>
+              <label className="flex items-center gap-2.5 cursor-pointer select-none pb-2">
+                <input type="checkbox" checked={passportChecked}
+                  onChange={(e) => setPassportChecked(e.target.checked)}
+                  className="h-4 w-4 accent-primary cursor-pointer" />
+                <span className="text-sm">Ветпаспорт проверен</span>
+              </label>
             </div>
           </div>
         </div>
@@ -455,7 +591,7 @@ export function AdminBookingForm({
                     <input type="radio" name="service" value={s.value}
                       checked={serviceType === s.value}
                       disabled={blocked}
-                      onChange={() => { setServiceType(s.value); setDaycareFormat(""); setStartDate(""); setEndDate(""); }}
+                      onChange={() => { setServiceType(s.value); setDaycareFormat(""); setStartDate(presetDate ?? ""); setEndDate(""); setExtraDates([]); }}
                       className="sr-only peer" />
                     <div className="rounded-xl border-2 p-3 peer-checked:border-primary peer-checked:bg-brand-light transition-all peer-disabled:opacity-40 text-sm">
                       <div className="font-medium">{s.label}</div>
@@ -502,6 +638,36 @@ export function AdminBookingForm({
             )}
           </div>
 
+          {/* Доп. даты детсада */}
+          {serviceType === "daycare" && (
+            <div className="space-y-2">
+              <Label>Ещё даты (необязательно)</Label>
+              <p className="text-xs text-muted-foreground">Запишем на каждую дату отдельно тем же форматом.</p>
+              <div className="flex gap-2">
+                <Input type="date" min={today} value={newExtraDate}
+                  onChange={(e) => setNewExtraDate(e.target.value)} className="max-w-[12rem]" />
+                <Button type="button" variant="outline" size="sm" onClick={addExtraDate} disabled={!newExtraDate}>
+                  <Plus className="h-4 w-4 mr-1" /> Добавить
+                </Button>
+              </div>
+              {extraDates.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {extraDates.map((d) => (
+                    <span key={d} className="inline-flex items-center gap-1 rounded-full bg-brand-light px-2.5 py-1 text-xs">
+                      {formatCalendarDate(d)}
+                      <button type="button" onClick={() => setExtraDates((prev) => prev.filter((x) => x !== d))}>
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              {daycareAllDates.length > 1 && (
+                <p className="text-xs text-primary">Будет создано записей: {daycareAllDates.length}</p>
+              )}
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <Label>Комментарий</Label>
             <textarea
@@ -535,14 +701,38 @@ export function AdminBookingForm({
         )
       )}
 
-      {/* Итоговая стоимость */}
-      {clientReady && startDate && totalPrice > 0 && (
-        <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-brand-light">
+      {/* Цена (редактируемая) */}
+      {clientReady && startDate && (
+        <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-brand-light">
           <span className="font-medium">
-            Итого{serviceType === "hotel" && nights > 0 ? ` · ${nights} ноч.` : ""}
+            {daycareAllDates.length > 1 ? "Цена за день" : "Итого"}
+            {serviceType === "hotel" && nights > 0 ? ` · ${nights} ноч.` : ""}
           </span>
-          <span className="text-lg font-bold text-primary">{animatedTotal.toLocaleString("ru-RU")} ₽</span>
+          <div className="flex items-center gap-1.5">
+            <input
+              type="number"
+              min="0"
+              step="50"
+              value={priceInput}
+              onChange={(e) => { setPriceInput(e.target.value); setPriceTouched(true); }}
+              placeholder={unitPrice ? String(unitPrice) : "0"}
+              className="h-9 w-28 rounded-md border border-input bg-background px-3 text-right text-lg font-bold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+            <span className="text-lg font-bold text-primary">₽</span>
+            {priceTouched && (
+              <button type="button" title="Вернуть расчётную"
+                onClick={() => { setPriceTouched(false); }}
+                className="ml-1 text-muted-foreground hover:text-foreground">
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
+      )}
+      {clientReady && startDate && daycareAllDates.length > 1 && priceInput && (
+        <p className="text-xs text-muted-foreground -mt-3 px-1 text-right">
+          Всего за {daycareAllDates.length} дн.: {(Number(priceInput) * daycareAllDates.length).toLocaleString("ru-RU")} ₽
+        </p>
       )}
 
       {error && (
@@ -551,7 +741,7 @@ export function AdminBookingForm({
 
       {clientReady && startDate && (
         <Button type="submit" className="w-full" size="lg" disabled={saving || checkingAvail || availabilityBlocked}>
-          {saving ? "Создаём запись..." : "Подтвердить запись"}
+          {saving ? "Создаём запись..." : daycareAllDates.length > 1 ? `Создать ${daycareAllDates.length} записи` : "Подтвердить запись"}
         </Button>
       )}
     </form>

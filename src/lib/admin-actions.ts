@@ -199,6 +199,9 @@ type RegisteredClientBooking = {
   start_date: string;
   end_date: string | null;
   notes: string | null;
+  price_total: number | null;
+  // Детсад: несколько дат за раз — одна бронь на дату. Если задано, start_date игнорируется.
+  daycare_dates?: string[] | null;
 };
 
 type GuestClientBooking = {
@@ -214,9 +217,18 @@ type GuestClientBooking = {
   start_date: string;
   end_date: string | null;
   notes: string | null;
+  price_total: number | null;
+  daycare_dates?: string[] | null;
 };
 
-export async function createBookingForClient(data: RegisteredClientBooking | GuestClientBooking) {
+export type CreateBookingResult = {
+  created: number;
+  failed: { date: string; reason: string }[];
+};
+
+export async function createBookingForClient(
+  data: RegisteredClientBooking | GuestClientBooking
+): Promise<CreateBookingResult> {
   await requireAdmin();
   const supabase = createClient();
 
@@ -236,47 +248,70 @@ export async function createBookingForClient(data: RegisteredClientBooking | Gue
     petName = pet?.name ?? "";
     petType = pet?.type ?? "";
     emailTarget = profile?.email ?? null;
-
-    const { error } = await supabase.from("bookings").insert({
-      user_id: data.user_id,
-      pet_id: data.pet_id,
-      service_type: data.service_type,
-      daycare_format: data.daycare_format,
-      start_date: data.start_date,
-      end_date: data.end_date,
-      notes: data.notes,
-      status: "confirmed",
-    });
-    if (error) throw capacityError(error.message);
   } else {
     clientName = data.guest_name;
     clientPhone = data.guest_phone ?? "";
     petName = data.guest_pet_name;
     petType = data.guest_pet_type;
+  }
 
+  // Базовые поля клиента/питомца (общие для всех создаваемых записей)
+  const clientFields = data.mode === "registered"
+    ? { user_id: data.user_id, pet_id: data.pet_id }
+    : {
+        guest_name: data.guest_name,
+        guest_phone: data.guest_phone,
+        guest_pet_name: data.guest_pet_name,
+        guest_pet_type: data.guest_pet_type,
+        guest_pet_breed: data.guest_pet_breed,
+        guest_pet_weight: data.guest_pet_weight,
+      };
+
+  // Детсад с мультивыбором → одна бронь на каждую дату. Иначе — одна запись.
+  const dates = data.service_type === "daycare" && data.daycare_dates && data.daycare_dates.length > 0
+    ? [...data.daycare_dates].sort()
+    : [data.start_date];
+
+  const failed: { date: string; reason: string }[] = [];
+  let created = 0;
+
+  for (const d of dates) {
     const { error } = await supabase.from("bookings").insert({
-      guest_name: data.guest_name,
-      guest_phone: data.guest_phone,
-      guest_pet_name: data.guest_pet_name,
-      guest_pet_type: data.guest_pet_type,
-      guest_pet_breed: data.guest_pet_breed,
-      guest_pet_weight: data.guest_pet_weight,
+      ...clientFields,
       service_type: data.service_type,
       daycare_format: data.daycare_format,
-      start_date: data.start_date,
-      end_date: data.end_date,
+      start_date: d,
+      end_date: data.service_type === "hotel" ? data.end_date : null,
       notes: data.notes,
+      price_total: data.price_total,
       status: "confirmed",
     });
-    if (error) throw capacityError(error.message);
+    if (error) {
+      failed.push({ date: d, reason: capacityError(error.message).message });
+    } else {
+      created++;
+    }
+  }
+
+  // Если ни одна не создалась — это ошибка (поведение как у одиночной брони)
+  if (created === 0) {
+    throw new Error(failed[0]?.reason ?? "Не удалось создать запись");
   }
 
   const serviceLabel = data.service_type === "hotel" ? "🏨 Гостиница" : "🐾 Детский сад";
-  const dateInfo = data.end_date ? `${data.start_date} → ${data.end_date}` : data.start_date;
+  // Для мультидат показываем список созданных дат, иначе обычная дата/период
+  const createdDates = dates.filter((d) => !failed.some((f) => f.date === d));
+  const dateInfo = data.service_type === "hotel" && data.end_date
+    ? `${data.start_date} → ${data.end_date}`
+    : createdDates.length > 1
+      ? `${createdDates.length} дн.: ${createdDates.join(", ")}`
+      : createdDates[0] ?? data.start_date;
   const clientInfo = clientName
     ? `👤 ${escapeHtml(clientName)}${clientPhone ? ` · ${escapeHtml(clientPhone)}` : ""}\n`
     : "";
   const guestMark = data.mode === "guest" ? " <i>(без регистрации)</i>" : "";
+  const priceInfo = data.price_total ? `\n💰 ${data.price_total.toLocaleString("ru-RU")} ₽${createdDates.length > 1 ? "/день" : ""}` : "";
+  const failedInfo = failed.length > 0 ? `\n⚠️ Не прошли по местам: ${failed.map((f) => f.date).join(", ")}` : "";
 
   await sendTelegramNotification(
     `✅ <b>Запись создана (admin)</b>${guestMark}\n\n` +
@@ -284,7 +319,9 @@ export async function createBookingForClient(data: RegisteredClientBooking | Gue
     clientInfo +
     `🐶 ${petType === "dog" ? "Собака" : "Кошка"} ${escapeHtml(petName)}\n` +
     `📅 ${dateInfo}` +
+    priceInfo +
     (data.notes ? `\n💬 ${escapeHtml(data.notes)}` : "") +
+    failedInfo +
     `\n\n<i>Подробности — в админпанели</i>`
   );
 
@@ -294,7 +331,7 @@ export async function createBookingForClient(data: RegisteredClientBooking | Gue
       petName,
       serviceType: data.service_type,
       daycareFormat: data.daycare_format,
-      startDate: data.start_date,
+      startDate: createdDates[0] ?? data.start_date,
       endDate: data.end_date,
     });
   }
@@ -302,4 +339,6 @@ export async function createBookingForClient(data: RegisteredClientBooking | Gue
   revalidatePath("/admin/daycare/bookings");
   revalidatePath("/admin/hotel/bookings");
   revalidatePath("/admin/calendar");
+
+  return { created, failed };
 }

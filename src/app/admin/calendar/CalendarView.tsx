@@ -1,7 +1,8 @@
 "use client";
 import { useState, useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, X, FileCheck, FileX, Link2 } from "lucide-react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, X, FileCheck, FileX, Link2, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { updateBookingStatus } from "@/lib/admin-actions";
 import { parseLocalDate, toLocalDateStr, formatCalendarDate, MONTHS } from "@/lib/utils";
@@ -214,6 +215,13 @@ export function CalendarView({ bookings }: { bookings: BookingRow[] }) {
                 <X className="h-4 w-4" />
               </button>
             </div>
+
+            <Link
+              href={`/admin/bookings/new?date=${selected}`}
+              className="flex items-center justify-center gap-1.5 mx-5 mt-3 px-3 py-2 text-sm rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="h-4 w-4" /> Записать на этот день
+            </Link>
 
             {actionError && (
               <div className="mx-5 mt-3 text-sm bg-destructive/10 text-destructive px-3 py-2 rounded-lg">
