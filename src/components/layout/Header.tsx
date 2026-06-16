@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MobileMenu } from "./MobileMenu";
-import { Phone, User } from "lucide-react";
+import { Phone, User, ChevronDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 const navLinks = [
@@ -10,9 +10,11 @@ const navLinks = [
   { href: "/prices", label: "Цены" },
   { href: "/gallery", label: "Галерея" },
   { href: "/blog", label: "Блог" },
-  { href: "/about", label: "О нас" },
-  { href: "/faq", label: "FAQ" },
-  { href: "/contacts", label: "Контакты" },
+];
+// Подпункты раздела «О нас»
+const aboutLinks = [
+  { href: "/about", label: "О клубе" },
+  { href: "/faq", label: "Вопросы и ответы" },
 ];
 
 export async function Header() {
@@ -44,6 +46,37 @@ export async function Header() {
                 {link.label}
               </Link>
             ))}
+
+            {/* «О нас» с выпадающим подменю (FAQ внутри) — на чистом CSS */}
+            <div className="relative group">
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+              >
+                О нас
+                <ChevronDown className="h-3.5 w-3.5 transition-transform group-hover:rotate-180" />
+              </Link>
+              <div className="absolute left-0 top-full pt-1 hidden group-hover:block group-focus-within:block">
+                <div className="min-w-48 rounded-xl border bg-background shadow-lg p-1">
+                  {aboutLinks.map((l) => (
+                    <Link
+                      key={l.href}
+                      href={l.href}
+                      className="block px-3 py-2 text-sm rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                    >
+                      {l.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <Link
+              href="/contacts"
+              className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+            >
+              Контакты
+            </Link>
           </nav>
 
           <div className="flex items-center gap-2">

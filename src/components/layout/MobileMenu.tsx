@@ -11,14 +11,18 @@ const navLinks = [
   { href: "/prices", label: "Цены" },
   { href: "/gallery", label: "Галерея" },
   { href: "/blog", label: "Блог" },
-  { href: "/about", label: "О нас" },
-  { href: "/faq", label: "FAQ" },
   { href: "/contacts", label: "Контакты" },
+];
+
+const aboutLinks = [
+  { href: "/about", label: "О клубе" },
+  { href: "/faq", label: "Вопросы и ответы" },
 ];
 
 export function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [open, setOpen] = useState(false);
   const [hotelOpen, setHotelOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -71,6 +75,33 @@ export function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
               {link.label}
             </Link>
           ))}
+
+          {/* О нас — с аккордеоном (FAQ внутри) */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setAboutOpen((v) => !v)}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-base font-medium hover:bg-accent transition-colors"
+            >
+              О нас
+              <ChevronDown className={cn("h-4 w-4 transition-transform", aboutOpen && "rotate-180")} />
+            </button>
+            {aboutOpen && (
+              <div className="flex flex-col gap-0.5 pl-4">
+                {aboutLinks.map((l) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className="px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-accent transition-colors"
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="border-t mt-4 pt-4 flex flex-col gap-2">
             <Button
               render={<Link href="/booking" onClick={() => setOpen(false)}>Забронировать</Link>}
