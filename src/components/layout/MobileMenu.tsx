@@ -10,6 +10,7 @@ const navLinks = [
   { href: "/daycare", label: "Детский сад" },
   { href: "/prices", label: "Цены" },
   { href: "/gallery", label: "Галерея" },
+  { href: "/blog", label: "Блог" },
   { href: "/about", label: "О нас" },
   { href: "/faq", label: "FAQ" },
   { href: "/contacts", label: "Контакты" },
