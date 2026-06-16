@@ -13,11 +13,6 @@ export const metadata: Metadata = {
 
 const UPDATED = "15 июня 2026 г.";
 
-// Прочерк для полей, которые заполняет Исполнитель перед публикацией.
-function Blank({ w = "12rem" }: { w?: string }) {
-  return <span className="inline-block border-b border-muted-foreground/40 align-baseline" style={{ minWidth: w }} />;
-}
-
 export default function OfferPage() {
   return (
     <section className="py-12 md:py-20">
@@ -42,10 +37,10 @@ export default function OfferPage() {
           <div>
             <h2 className="text-lg font-semibold text-foreground mb-3">1. Стороны договора</h2>
             <p>
-              <strong className="text-foreground">Исполнитель:</strong> Гражданин(-ка) <Blank />, ИНН <Blank w="9rem" />,
-              являющийся(-аяся) плательщиком налога на профессиональный доход (самозанятым) в соответствии
-              с Федеральным законом от 27.11.2018 № 422-ФЗ, адрес регистрации: <Blank />, электронная почта: <Blank w="11rem" />,
-              телефон: <Blank w="9rem" /> (далее — «Исполнитель», «Лапа Клуб»).
+              <strong className="text-foreground">Исполнитель:</strong> Гражданка Кракова Полина Андреевна, ИНН 710401645308,
+              являющаяся плательщиком налога на профессиональный доход (самозанятым) в соответствии
+              с Федеральным законом от 27.11.2018 № 422-ФЗ, электронная почта: goryachikh_2016@mail.ru,
+              телефон: +7 (953) 959-16-18 (далее — «Исполнитель», «Лапа Клуб»).
             </p>
             <p className="mt-3">
               <strong className="text-foreground">Клиент:</strong> физическое лицо, акцептовавшее условия
@@ -249,15 +244,14 @@ export default function OfferPage() {
             <h2 className="text-lg font-semibold text-foreground mb-3">13. Реквизиты исполнителя</h2>
             <div className="rounded-xl border p-5 space-y-1.5">
               <p className="text-foreground font-medium">Лапа Клуб — детский сад и гостиница для животных</p>
-              <p>ФИО: <Blank /></p>
+              <p>ФИО: Кракова Полина Андреевна</p>
               <p>Статус: Самозанятый (плательщик НПД), ФЗ от 27.11.2018 № 422-ФЗ</p>
-              <p>ИНН (12 цифр): <Blank w="9rem" /></p>
-              <p>Адрес регистрации: <Blank /></p>
-              <p>Адрес оказания услуг: г. Калуга, ул. Дарвина, 14а</p>
-              <p>Телефон: <Blank w="9rem" /></p>
-              <p>E-mail: <Blank w="11rem" /></p>
-              <p>Номер карты для переводов (СБП): <Blank /></p>
-              <p>Банк: <Blank /></p>
+              <p>ИНН (12 цифр): 710401645308</p>
+              <p>Адрес оказания услуг: г. Калуга, ул. Дарвина, 14</p>
+              <p>Телефон: +7 (953) 959-16-18</p>
+              <p>E-mail: goryachikh_2016@mail.ru</p>
+              <p>Номер карты для переводов (СБП): 2202 2062 4292 7312</p>
+              <p>Банк: Сбербанк</p>
               <p className="text-xs mt-2">Чек формируется через приложение «Мой налог» и передаётся Клиенту при каждой оплате.</p>
             </div>
           </div>
