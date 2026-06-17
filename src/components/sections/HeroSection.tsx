@@ -39,7 +39,7 @@ export async function HeroSection() {
 
             <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed">
               Зоогостиница и детский сад для собак и кошек в Калуге.
-              Уютные зоны отдыха, видеонаблюдение, забота профессиональных зоонянь.
+              Уютные зоны отдыха и забота профессиональных зоонянь.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
