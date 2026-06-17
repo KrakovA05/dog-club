@@ -6,6 +6,42 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Upload } from "lucide-react";
 import type { GalleryItem } from "@/types";
 
+// Сжимаем фото в браузере перед загрузкой: фото с телефона (iPhone) бывают
+// по 5-12 МБ и не проходят в Storage / медленно грузятся по мобильной сети.
+// createImageBitmap с imageOrientation:"from-image" корректно применяет
+// EXIF-поворот, чтобы фото не легло боком.
+const MAX_DIMENSION = 1920;
+
+async function compressImage(file: File): Promise<File> {
+  if (!file.type.startsWith("image/") || file.type === "image/gif" || file.type === "image/svg+xml") {
+    return file;
+  }
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    let { width, height } = bitmap;
+    if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+      const scale = MAX_DIMENSION / Math.max(width, height);
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close?.();
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", 0.82)
+    );
+    if (!blob || blob.size >= file.size) return file;
+    const name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+    return new File([blob], name, { type: "image/jpeg" });
+  } catch {
+    return file; // не смогли сжать — грузим оригинал
+  }
+}
+
 export function GalleryAdmin({ items: initial }: { items: GalleryItem[] }) {
   const [items, setItems] = useState(initial);
   const [uploading, setUploading] = useState(false);
@@ -23,25 +59,40 @@ export function GalleryAdmin({ items: initial }: { items: GalleryItem[] }) {
     const failed: string[] = [];
     let order = items.length;
 
-    for (const file of Array.from(files)) {
+    for (const original of Array.from(files)) {
+      const file = await compressImage(original);
       const ext = file.name.split(".").pop();
       const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { data, error } = await supabase.storage.from("gallery").upload(path, file);
-      if (error) { failed.push(file.name); continue; }
+      const { data, error } = await supabase.storage.from("gallery").upload(path, file, {
+        contentType: file.type,
+      });
+      if (error) {
+        console.error("[gallery] storage upload failed:", file.name, error);
+        failed.push(`${original.name} — ${error.message}`);
+        continue;
+      }
 
       const { data: { publicUrl } } = supabase.storage.from("gallery").getPublicUrl(data.path);
       try {
-        const row = await addGalleryItem(publicUrl, file.name.replace(/\.[^.]+$/, ""), order++);
-        if (row) setItems((prev) => [...prev, row as GalleryItem]);
-      } catch {
-        failed.push(file.name);
+        const row = await addGalleryItem(publicUrl, original.name.replace(/\.[^.]+$/, ""), order++);
+        if (row) {
+          setItems((prev) => [...prev, row as GalleryItem]);
+        } else {
+          console.error("[gallery] addGalleryItem returned empty for", original.name);
+          failed.push(`${original.name} — запись не сохранилась`);
+        }
+      } catch (e) {
+        console.error("[gallery] addGalleryItem failed:", original.name, e);
+        failed.push(`${original.name} — ${e instanceof Error ? e.message : "ошибка записи"}`);
       }
     }
-    if (failed.length) setUploadError(`Не удалось загрузить: ${failed.join(", ")}`);
+    if (failed.length) setUploadError(`Не удалось загрузить:\n${failed.join("\n")}`);
     } catch (e) {
+      console.error("[gallery] upload crashed:", e);
       setUploadError(e instanceof Error ? e.message : "Ошибка загрузки");
     } finally {
       setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
   }
 
@@ -67,7 +118,7 @@ export function GalleryAdmin({ items: initial }: { items: GalleryItem[] }) {
           {uploading ? "Загружаем..." : "Загрузить фото"}
         </Button>
         <p className="text-xs text-muted-foreground mt-2">Можно выбрать несколько. JPG, PNG, WebP.</p>
-        {uploadError && <p className="text-destructive text-sm mt-2">{uploadError}</p>}
+        {uploadError && <p className="text-destructive text-sm mt-2 whitespace-pre-line">{uploadError}</p>}
       </div>
 
       {items.length === 0 ? (
