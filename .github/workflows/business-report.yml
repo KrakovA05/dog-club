@@ -13,6 +13,19 @@ jobs:
     steps:
       - name: Send business report
         run: |
-          curl -s -X GET \
-            -H "x-report-secret: ${{ secrets.REPORT_SECRET }}" \
-            https://lapaclub.ru/api/admin/business-report
+          # Amvera иногда моргает на запуске — даём 3 попытки с паузой.
+          # Падаем с ошибкой, если отчёт реально не ушёл (curl -s раньше
+          # глотал ответ → сбой выглядел как успех).
+          for i in 1 2 3; do
+            code=$(curl -s --max-time 30 -o /tmp/resp.txt -w "%{http_code}" \
+              -H "x-report-secret: ${{ secrets.REPORT_SECRET }}" \
+              https://lapaclub.ru/api/admin/business-report)
+            echo "Попытка $i: HTTP $code — $(cat /tmp/resp.txt)"
+            if [ "$code" = "200" ] && grep -q '"ok":true' /tmp/resp.txt; then
+              echo "Отчёт отправлен."
+              exit 0
+            fi
+            [ "$i" -lt 3 ] && sleep 60
+          done
+          echo "Отчёт НЕ отправлен после 3 попыток."
+          exit 1
