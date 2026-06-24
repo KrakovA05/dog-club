@@ -151,6 +151,32 @@ GoTrue подтверждает email сразу при регистрации �
 
 ---
 
+## Хардкоды старых адресов (аудит проекта)
+
+Полный список вхождений старого облачного адреса
+`https://zmvoaanwikhztpvdjpty.supabase.co` и связанных URL. Колонка «Действие»
+говорит, что сделано/что сделать при переключении приложения на self-host.
+
+| Файл : строка | Что там | Действие |
+|---|---|---|
+| `src/lib/supabase/client.ts:6` | `SUPABASE_URL` + `SUPABASE_ANON_KEY` зашиты константами | **Оставлено намеренно.** Хардкод — это фикс кэша сборки Amvera (старые `NEXT_PUBLIC_*` впекались в билд). НЕ переводить в env. При cutover поменять **значение** константы на `https://db.lapaclub.ru` + новый anon-ключ. |
+| `src/instrumentation.ts:19` | `fetch(".../rest/v1/site_errors")` — телеметрия ошибок | ✅ **Исправлено:** теперь `process.env.SUPABASE_URL ?? <старый>`. Server-only файл, build-cache не касается. При cutover задать env `SUPABASE_URL`. ⚠️ Таблицы `site_errors` нет в миграциях — на self-host логирование тихо ничего не пишет (ошибки глотаются), это ок. |
+| `next.config.ts:8` | `images.remotePatterns` host `*.supabase.co` | ✅ **Дополнено:** добавлен опциональный host из `SUPABASE_IMAGE_HOSTNAME`. При cutover задать env = `db.lapaclub.ru`, тогда `next/image` пустит картинки с self-host. Старый паттерн оставлен как fallback. |
+| `supabase/migrations/014_morning_digest_cron.sql:11` | `cron.schedule` → POST на облачный `/functions/v1/telegram-bot` | **НЕ удалял** (это данные миграции). Предложение: после прогона миграций выполнить `SELECT cron.unschedule('morning-digest');` — дайджест и так шлётся через `/api/admin/daily-report`. См. ниже «Известные нюансы». |
+| `supabase/functions/notify-booking/index.ts:53` | Ссылка на Supabase Dashboard облака в письме | **НЕ менял** (Edge Function не задеплоена и в рантайме не вызывается). Если будете деплоить — заменить на ссылку Studio self-host или убрать. |
+| `src/middleware.ts:8-9` | `process.env.NEXT_PUBLIC_SUPABASE_URL/ANON_KEY` | Уже env (не хардкод). При cutover задать эти переменные на новый инстанс. ⚠️ Рассинхрон с `client.ts` (там константы) — историческая особенность, оставлена как есть. |
+| `.env.local` | `NEXT_PUBLIC_SITE_URL=https://dogclub-kaluga.ru` | Локальный dev-файл (в git не входит). Старый домен, на прод не влияет. Обновите при желании на `https://lapaclub.ru`. |
+
+**Что НЕ является хардкодом и трогать не нужно:** `next.config.ts` комментарии,
+`privacy/page.tsx` (ссылка на `supabase.com/privacy` — юр. документ оператора),
+`supabase/config.toml` (локальный CLI-конфиг), URL `api.resend.com` /
+`api.telegram.org` (внешние сервисы, не Supabase).
+
+> Все правки выше **не меняют текущее поведение**: env-переменные имеют fallback
+> на старые значения, так что до cutover приложение работает как раньше.
+
+---
+
 ## Известные нюансы
 
 - **Миграция 014 (cron-дайджест).** Использует `pg_cron`/`pg_net` и **хардкод

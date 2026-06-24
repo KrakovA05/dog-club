@@ -14,9 +14,14 @@ export async function onRequestError(
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) return;
 
+  // Адрес Supabase. Server-only файл (browser-бандл его не видит), поэтому env
+  // здесь безопасен — кэш сборки Amvera, из-за которого URL зашит в client.ts,
+  // на NEXT_PUBLIC тут не влияет. Fallback — текущий облачный URL.
+  const supabaseUrl = process.env.SUPABASE_URL ?? "https://zmvoaanwikhztpvdjpty.supabase.co";
+
   // Прямой fetch без SDK — instrumentation не должен тянуть тяжёлые зависимости
   try {
-    await fetch("https://zmvoaanwikhztpvdjpty.supabase.co/rest/v1/site_errors", {
+    await fetch(`${supabaseUrl}/rest/v1/site_errors`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
