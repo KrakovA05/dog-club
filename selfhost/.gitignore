@@ -1,0 +1,10 @@
+# Секреты self-host — НИКОГДА не коммитим.
+.env
+.env.*
+!.env.example
+
+# Возможные локальные артефакты стека
+volumes/db/data/
+volumes/storage/
+*.key
+*.pem
