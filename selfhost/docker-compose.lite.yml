@@ -1,0 +1,183 @@
+# ──────────────────────────────────────────────────────────────────────────
+# Self-hosted Supabase — LITE для сервера с ~4 ГБ RAM.
+# Только 5 сервисов: db, auth, rest, storage, kong.
+# Выкинуто относительно docker-compose.yml: realtime, imgproxy, studio, meta,
+# edge-runtime — по коду приложения ничего из этого в рантайме не используется
+# (см. README-selfhost.md → «Lite-вариант»).
+#
+# Запуск:
+#   docker compose -f docker-compose.lite.yml --env-file .env up -d
+#
+# Лимиты памяти (mem_limit) подобраны под 4 ГБ с запасом для ОС (~3 ГБ суммарно):
+#   db 1536M · storage 512M · kong 512M · rest 256M · auth 256M.
+# ──────────────────────────────────────────────────────────────────────────
+
+name: lapaclub-supabase
+
+services:
+  db:
+    image: supabase/postgres:15.8.1.060
+    container_name: supabase-db
+    restart: unless-stopped
+    mem_limit: 1536m
+    mem_reservation: 768m
+    shm_size: 256m
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    command:
+      - postgres
+      # pg_net нужен только cron-дайджесту (миграция 014, опциональна) — оставлен
+      # ради совместимости миграций. pg_cron можно убрать, если 014 не нужна.
+      - -c
+      - shared_preload_libraries=pg_stat_statements,pg_cron,pg_net
+      - -c
+      - cron.database_name=postgres
+      # ── Тюнинг памяти под 4 ГБ сервер ──
+      - -c
+      - max_connections=50
+      - -c
+      - shared_buffers=256MB        # ~16% RAM контейнера; не раздувать
+      - -c
+      - effective_cache_size=768MB  # подсказка планировщику (не аллокация)
+      - -c
+      - work_mem=8MB
+      - -c
+      - maintenance_work_mem=64MB
+      - -c
+      - wal_buffers=8MB
+    environment:
+      POSTGRES_HOST: /var/run/postgresql
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXP: ${GOTRUE_JWT_EXPIRY}
+    ports:
+      # Внешний порт для pg_dump/restore и бэкапов. В проде закрыть фаерволом.
+      - "${POSTGRES_PORT_EXTERNAL}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  auth:
+    image: supabase/gotrue:v2.170.0
+    container_name: supabase-auth
+    restart: unless-stopped
+    mem_limit: 256m
+    mem_reservation: 128m
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: ${API_EXTERNAL_URL}
+
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+
+      GOTRUE_SITE_URL: ${SITE_URL}
+      GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
+      GOTRUE_DISABLE_SIGNUP: ${GOTRUE_DISABLE_SIGNUP}
+
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_JWT_EXP: ${GOTRUE_JWT_EXPIRY}
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+
+      # ── Авто-подтверждение email: SMTP НЕ настраиваем ──
+      GOTRUE_MAILER_AUTOCONFIRM: ${GOTRUE_MAILER_AUTOCONFIRM}
+      GOTRUE_SMS_AUTOCONFIRM: ${GOTRUE_SMS_AUTOCONFIRM}
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_EXTERNAL_PHONE_ENABLED: "false"
+      GOTRUE_MAILER_SECURE_EMAIL_CHANGE_ENABLED: "true"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9999/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  rest:
+    image: postgrest/postgrest:v12.2.12
+    container_name: supabase-rest
+    restart: unless-stopped
+    mem_limit: 256m
+    mem_reservation: 128m
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      PGRST_DB_SCHEMAS: public,graphql_public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+      PGRST_APP_SETTINGS_JWT_SECRET: ${JWT_SECRET}
+      PGRST_APP_SETTINGS_JWT_EXP: ${GOTRUE_JWT_EXPIRY}
+      # Меньше воркеров пула — экономим память на маленьком сервере
+      PGRST_DB_POOL: "10"
+    command:
+      - postgrest
+
+  storage:
+    image: supabase/storage-api:v1.19.3
+    container_name: supabase-storage
+    restart: unless-stopped
+    mem_limit: 512m
+    mem_reservation: 256m
+    depends_on:
+      db:
+        condition: service_healthy
+      rest:
+        condition: service_started
+    environment:
+      ANON_KEY: ${ANON_KEY}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      POSTGREST_URL: http://rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: stub
+      GLOBAL_S3_BUCKET: stub
+      # ── Трансформация картинок ВЫКЛЮЧЕНА — imgproxy в lite нет.
+      # По коду приложение трансформации не запрашивает (см. README).
+      ENABLE_IMAGE_TRANSFORMATION: "false"
+    volumes:
+      - storage-data:/var/lib/storage
+
+  kong:
+    image: kong:2.8.1
+    container_name: supabase-kong
+    restart: unless-stopped
+    mem_limit: 512m
+    mem_reservation: 256m
+    depends_on:
+      - auth
+      - rest
+      - storage
+    ports:
+      - "${KONG_HTTP_PORT}:8000"
+      - "${KONG_HTTPS_PORT}:8443"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      # basic-auth убран — нет dashboard (studio) в lite
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl
+      KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
+      KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+    volumes:
+      # ВНИМАНИЕ: монтируем kong.lite.yml (без realtime/meta/studio роутов)
+      - ./volumes/api/kong.lite.yml:/home/kong/kong.yml:ro
+
+volumes:
+  db-data:
+  storage-data:

@@ -151,6 +151,63 @@ GoTrue подтверждает email сразу при регистрации �
 
 ---
 
+## Lite-вариант (урезанный стек для ~4 ГБ RAM)
+
+Если бюджет на сервер ограничен — есть облегчённый стек из **5 сервисов**:
+`db`, `auth`, `rest`, `storage`, `kong`. Файлы: `docker-compose.lite.yml` +
+`volumes/api/kong.lite.yml`. Всё остальное (см. `.env`, миграции, скрипты,
+бэкапы) — общее с полным вариантом.
+
+```bash
+cd selfhost
+docker compose -f docker-compose.lite.yml --env-file .env up -d
+docker compose -f docker-compose.lite.yml ps
+```
+Дальше — те же шаги 3–5 (миграции → данные → `04-verify.sh`). Скрипты
+`scripts/migration/*` от варианта стека не зависят.
+
+### Что выкинуто и почему это безопасно
+
+Проверено по коду приложения — ни один из убранных сервисов в рантайме не
+используется:
+
+| Сервис | Зачем нужен | Используется в коде? |
+|---|---|---|
+| **realtime** | Живые подписки `.channel()` / `postgres_changes` | ❌ Нет ни одного вызова. Приложение читает данные обычными REST-запросами. |
+| **imgproxy** | Трансформация картинок Storage (`?width=…`) | ❌ Галерея отдаёт сырой `<img src>`, блог — через `next/image` (ресайзит сам Next на Amvera, не Supabase), паспорта — `.download()`. Запросов трансформаций нет. В storage выставлено `ENABLE_IMAGE_TRANSFORMATION=false`. |
+| **studio** | Веб-GUI администрирования БД | ❌ Только ручной инструмент. В проде управляйте через `psql` / `docker exec supabase-db psql`. |
+| **meta** | Бэкенд для studio (`/pg/`) | ❌ Нужен только studio. |
+| **edge-runtime** | Supabase Edge Functions | ❌ Telegram-webhook реализован как Next.js route `/api/telegram/webhook`. |
+
+> Storage **остаётся** — он реально используется (загрузка/удаление фото
+> паспортов и галереи: `upload`, `download`, `remove`, `getPublicUrl`).
+
+### Бюджет памяти (mem_limit)
+
+Лимиты заданы прямо в `docker-compose.lite.yml`, суммарно ~3 ГБ (запас для ОС):
+
+| Сервис | mem_limit | Заметка |
+|---|---|---|
+| db | 1536 МБ | `shared_buffers=256MB`, `effective_cache_size=768MB`, `work_mem=8MB`, `max_connections=50`, `shm_size=256m` |
+| storage | 512 МБ | Node-сервис |
+| kong | 512 МБ | OpenResty gateway |
+| rest | 256 МБ | PostgREST, `PGRST_DB_POOL=10` |
+| auth | 256 МБ | GoTrue (Go, лёгкий) |
+
+`shared_buffers` намеренно скромный (256 МБ): на маленьком сервере раздувать
+его вредно — память нужнее под page cache ОС и остальные контейнеры. Если на
+сервере **меньше** 4 ГБ — снизьте лимит `db` и `shared_buffers` пропорционально
+(напр. для 2 ГБ: `db` 768 МБ, `shared_buffers=128MB`).
+
+### Можно ли потом добавить studio?
+
+Да, это GUI и его можно поднимать разово, когда нужно залезть в БД руками:
+возьмите сервисы `studio` + `meta` из полного `docker-compose.yml` и запустите
+их отдельным compose-файлом, направив на тот же `db`. На постоянку в проде их
+держать не обязательно.
+
+---
+
 ## Хардкоды старых адресов (аудит проекта)
 
 Полный список вхождений старого облачного адреса
