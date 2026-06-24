@@ -208,6 +208,83 @@ GoTrue подтверждает email сразу при регистрации �
   помощью `rclone`, либо вручную скопировать каталог `storage-data` volume и
   сверить с метаданными `storage.objects`.
 
+## Бэкапы self-hosted инстанса
+
+⚠️ **Важно:** на Supabase Cloud бэкапы делались автоматически (Point-in-Time
+Recovery / ежедневные снапшоты). После переезда на self-host этого **больше
+нет** — резервное копирование становится вашей задачей. Без него потеря диска
+Amvera = потеря всех данных и файлов. Настройте бэкапы **сразу** после миграции.
+
+Бэкапить нужно **две** вещи:
+1. **База данных** (пользователи, брони, профили, питомцы — все ПДн).
+2. **Файлы Storage** (бакеты `passports`, `gallery`, `blog` — фото ветпаспортов,
+   галерея, обложки блога). В БД лежат только метаданные/ссылки, сами файлы — в
+   volume `storage-data`.
+
+### Разовый бэкап БД
+```bash
+# Полный дамп (схема + данные), сжатый. Запускать с сервера Amvera.
+docker exec supabase-db \
+  pg_dump -U postgres -d postgres --format=custom \
+  > "backup-db-$(date +%F).dump"
+
+# Восстановление при необходимости:
+#   cat backup-db-YYYY-MM-DD.dump | docker exec -i supabase-db \
+#     pg_restore -U postgres -d postgres --clean --if-exists
+```
+
+### Разовый бэкап файлов Storage
+```bash
+# Содержимое volume storage-data в один архив.
+docker run --rm \
+  -v lapaclub-supabase_storage-data:/data:ro \
+  -v "$PWD":/backup alpine \
+  tar czf "/backup/backup-storage-$(date +%F).tar.gz" -C /data .
+```
+> Имя volume — `<project>_storage-data`, где `<project>` = `name:` из
+> docker-compose (`lapaclub-supabase`). Проверить: `docker volume ls`.
+
+### Регулярный бэкап (cron)
+Раньше это делал Supabase Cloud; теперь — простой cron на сервере. Скрипт
+`/opt/lapaclub/backup.sh`:
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+DEST=/opt/lapaclub/backups
+KEEP_DAYS=14                       # сколько дней хранить копии
+mkdir -p "$DEST"
+TS=$(date +%F)
+
+# 1) База данных
+docker exec supabase-db pg_dump -U postgres -d postgres --format=custom \
+  > "$DEST/db-$TS.dump"
+
+# 2) Файлы Storage
+docker run --rm -v lapaclub-supabase_storage-data:/data:ro -v "$DEST":/backup \
+  alpine tar czf "/backup/storage-$TS.tar.gz" -C /data .
+
+# 3) Ротация: удаляем копии старше KEEP_DAYS
+find "$DEST" -name 'db-*.dump'        -mtime +$KEEP_DAYS -delete
+find "$DEST" -name 'storage-*.tar.gz' -mtime +$KEEP_DAYS -delete
+```
+Crontab (ежедневно в 04:00 по серверному времени):
+```cron
+0 4 * * * /opt/lapaclub/backup.sh >> /var/log/lapaclub-backup.log 2>&1
+```
+
+### Хранение копий
+- Держите бэкапы **не только** на том же сервере Amvera (диск может умереть
+  вместе с инстансом). Скопируйте на отдельное хранилище: второй
+  S3-совместимый бакет, Я.Облако Object Storage, или `rsync`/`rclone` на другой
+  сервер. Простой вариант — добавить в `backup.sh` шаг `rclone copy "$DEST"
+  remote:lapaclub-backups`.
+- Для 152-ФЗ резервные копии тоже должны лежать в РФ — выбирайте российское
+  хранилище.
+- Раз в квартал делайте **тестовое восстановление** на чистый контейнер, чтобы
+  убедиться, что дамп рабочий.
+
+---
+
 ## Откат
 
 Стек полностью изолирован (отдельные docker volumes `db-data`, `storage-data`).
