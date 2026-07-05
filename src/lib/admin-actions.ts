@@ -3,7 +3,7 @@ import { createAdminClient as createClient } from "@/lib/supabase/admin";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { BookingStatus } from "@/types";
-import { sendTelegramNotification, escapeHtml } from "@/lib/telegram";
+import { sendTelegramNotification } from "@/lib/telegram";
 import { sendBookingConfirmationEmail } from "@/lib/email";
 import { translateSupabaseError } from "@/lib/utils";
 
@@ -232,27 +232,19 @@ export async function createBookingForClient(
   await requireAdmin();
   const supabase = createClient();
 
-  let clientName = "";
-  let clientPhone = "";
+  // Профиль/питомец нужны только для письма клиенту — в Telegram ПДн не идут.
   let petName = "";
-  let petType = "";
   let emailTarget: string | null = null;
 
   if (data.mode === "registered") {
     const [{ data: profile }, { data: pet }] = await Promise.all([
-      supabase.from("profiles").select("full_name, phone, email").eq("id", data.user_id).single(),
-      supabase.from("pets").select("name, type").eq("id", data.pet_id).single(),
+      supabase.from("profiles").select("email").eq("id", data.user_id).single(),
+      supabase.from("pets").select("name").eq("id", data.pet_id).single(),
     ]);
-    clientName = profile?.full_name ?? "";
-    clientPhone = profile?.phone ?? "";
     petName = pet?.name ?? "";
-    petType = pet?.type ?? "";
     emailTarget = profile?.email ?? null;
   } else {
-    clientName = data.guest_name;
-    clientPhone = data.guest_phone ?? "";
     petName = data.guest_pet_name;
-    petType = data.guest_pet_type;
   }
 
   // Базовые поля клиента/питомца (общие для всех создаваемых записей)
@@ -273,23 +265,29 @@ export async function createBookingForClient(
     : [data.start_date];
 
   const failed: { date: string; reason: string }[] = [];
+  const createdIds: string[] = [];
   let created = 0;
 
   for (const d of dates) {
-    const { error } = await supabase.from("bookings").insert({
-      ...clientFields,
-      service_type: data.service_type,
-      daycare_format: data.daycare_format,
-      start_date: d,
-      end_date: data.service_type === "hotel" ? data.end_date : null,
-      notes: data.notes,
-      price_total: data.price_total,
-      status: "confirmed",
-    });
+    const { data: ins, error } = await supabase
+      .from("bookings")
+      .insert({
+        ...clientFields,
+        service_type: data.service_type,
+        daycare_format: data.daycare_format,
+        start_date: d,
+        end_date: data.service_type === "hotel" ? data.end_date : null,
+        notes: data.notes,
+        price_total: data.price_total,
+        status: "confirmed",
+      })
+      .select("id")
+      .single();
     if (error) {
       failed.push({ date: d, reason: capacityError(error.message).message });
     } else {
       created++;
+      if (ins) createdIds.push(ins.id);
     }
   }
 
@@ -306,23 +304,19 @@ export async function createBookingForClient(
     : createdDates.length > 1
       ? `${createdDates.length} дн.: ${createdDates.join(", ")}`
       : createdDates[0] ?? data.start_date;
-  const clientInfo = clientName
-    ? `👤 ${escapeHtml(clientName)}${clientPhone ? ` · ${escapeHtml(clientPhone)}` : ""}\n`
-    : "";
-  const guestMark = data.mode === "guest" ? " <i>(без регистрации)</i>" : "";
+  const idsInfo = createdIds.map((id) => `#${id.slice(0, 8)}`).join(", ");
   const priceInfo = data.price_total ? `\n💰 ${data.price_total.toLocaleString("ru-RU")} ₽${createdDates.length > 1 ? "/день" : ""}` : "";
   const failedInfo = failed.length > 0 ? `\n⚠️ Не прошли по местам: ${failed.map((f) => f.date).join(", ")}` : "";
 
+  // Без ПДн: имена, телефоны, клички и комментарии в Telegram не отправляем —
+  // серверы Telegram за пределами РФ (трансграничная передача, ст. 12 152-ФЗ).
   await sendTelegramNotification(
-    `✅ <b>Запись создана (admin)</b>${guestMark}\n\n` +
+    `✅ <b>Новая бронь ${idsInfo}</b> (${data.mode === "guest" ? "гостевая" : "клиентская"}, создана админом)\n\n` +
     `${serviceLabel}\n` +
-    clientInfo +
-    `🐶 ${petType === "dog" ? "Собака" : "Кошка"} ${escapeHtml(petName)}\n` +
     `📅 ${dateInfo}` +
     priceInfo +
-    (data.notes ? `\n💬 ${escapeHtml(data.notes)}` : "") +
     failedInfo +
-    `\n\n<i>Подробности — в админпанели</i>`
+    `\n\n<i>Детали — в админпанели</i>`
   );
 
   if (emailTarget && data.mode === "registered") {

@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MessageSquare } from "lucide-react";
+import Link from "next/link";
 
 const schema = z.object({
   name: z.string().min(2, "Введите имя"),
   phone: z.string().min(10, "Введите корректный номер"),
   message: z.string().optional(),
+  agree: z.literal(true, { message: "Необходимо принять политику конфиденциальности" }),
 });
 type FormData = z.infer<typeof schema>;
 
@@ -27,7 +29,12 @@ export function ContactForm() {
   async function onSubmit(data: FormData) {
     setError(null);
     const supabase = createClient();
-    const { error } = await supabase.from("contact_requests").insert(data);
+    // agree — только клиентская валидация согласия, в таблицу не пишем
+    const { error } = await supabase.from("contact_requests").insert({
+      name: data.name,
+      phone: data.phone,
+      message: data.message,
+    });
     if (error) { setError("Не удалось отправить. Позвоните нам или напишите на email."); return; }
     setDone(true);
   }
@@ -65,6 +72,23 @@ export function ContactForm() {
           <Label htmlFor="c-msg">Вопрос или комментарий <span className="text-muted-foreground">(необязательно)</span></Label>
           <Input id="c-msg" placeholder="Расскажите о питомце или задайте вопрос..." {...register("message")} />
         </div>
+        {/* Согласие на обработку ПДн — по образцу RegisterForm, не предзаполнен */}
+        <div className="space-y-1.5">
+          <label className="flex gap-2.5 items-start cursor-pointer select-none">
+            <input
+              type="checkbox"
+              {...register("agree")}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-primary cursor-pointer"
+            />
+            <span className="text-sm text-muted-foreground leading-snug">
+              Я ознакомился(-ась) с{" "}
+              <Link href="/privacy" target="_blank" className="text-primary underline underline-offset-2">политикой конфиденциальности</Link>
+              {" "}и даю согласие на обработку персональных данных.
+            </span>
+          </label>
+          {errors.agree && <p className="text-destructive text-xs">{errors.agree.message}</p>}
+        </div>
+
         {error && <p className="text-destructive text-sm">{error}</p>}
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Отправляем..." : "Отправить заявку"}

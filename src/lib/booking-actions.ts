@@ -1,7 +1,7 @@
 "use server";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { sendTelegramNotification, escapeHtml } from "@/lib/telegram";
+import { sendTelegramNotification } from "@/lib/telegram";
 import { sendBookingConfirmationEmail } from "@/lib/email";
 import { isBookingOpenFor, BOOKING_OPENS_LABEL } from "@/lib/booking-config";
 import type { DayAvailability } from "@/types";
@@ -81,11 +81,15 @@ export async function submitClientBooking(data: {
   if (full) throw new Error(`CAPACITY_FULL|${full.d}|`);
 
   // Бронь подтверждается автоматически (без участия админа) и сразу занимает место.
-  const { error } = await supabase.from("bookings").insert({
-    ...data,
-    user_id: user.id,
-    status: "confirmed",
-  });
+  const { data: createdBooking, error } = await supabase
+    .from("bookings")
+    .insert({
+      ...data,
+      user_id: user.id,
+      status: "confirmed",
+    })
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
 
   const serviceLabel = data.service_type === "hotel" ? "🏨 Гостиница" : "🐾 Детский сад";
@@ -93,13 +97,13 @@ export async function submitClientBooking(data: {
     ? `${data.start_date} → ${data.end_date}`
     : data.start_date;
 
+  // Без ПДн: имена, телефоны, клички и комментарии в Telegram не отправляем —
+  // серверы Telegram за пределами РФ (трансграничная передача, ст. 12 152-ФЗ).
   await sendTelegramNotification(
-    `✅ <b>Новая бронь с сайта</b> (подтверждена)\n\n` +
+    `✅ <b>Новая бронь #${createdBooking.id.slice(0, 8)}</b> (клиентская)\n\n` +
     `${serviceLabel}\n` +
-    `🐶 ${pet.type === "dog" ? "Собака" : "Кошка"}\n` +
-    `📅 ${dateInfo}` +
-    (data.notes ? `\n💬 ${escapeHtml(data.notes)}` : "") +
-    `\n\n<i>Подробности — в админпанели</i>`
+    `📅 ${dateInfo}\n\n` +
+    `<i>Детали — в админпанели</i>`
   );
 
   // Письмо клиенту — ошибки не роняют бронь (логируются внутри)

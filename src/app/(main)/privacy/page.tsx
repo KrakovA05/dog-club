@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   },
 };
 
-const UPDATED = "01 июня 2026 г.";
+const UPDATED = "05 июля 2026 г.";
 
 export default function PrivacyPage() {
   return (
@@ -106,10 +106,19 @@ export default function PrivacyPage() {
           <div>
             <h2 className="text-lg font-semibold mb-3">4. Хранение и защита данных</h2>
             <p className="text-muted-foreground">
-              Персональные данные хранятся в защищённой базе данных, предоставляемой
-              сервисом <strong>Supabase Inc.</strong> (серверы расположены в ЕС/США).
-              Передача данных за пределы Российской Федерации осуществляется при условии
-              обеспечения надлежащей защиты прав субъектов персональных данных (ст. 12 152-ФЗ).
+              Персональные данные хранятся в защищённой базе данных на серверах,
+              расположенных на территории <strong>Российской Федерации</strong>{" "}
+              (облачная инфраструктура Timeweb Cloud, ООО «ТАЙМВЭБ.КЛАУД»).
+              Сбор, запись, систематизация, накопление, хранение, уточнение и
+              извлечение персональных данных граждан РФ осуществляются с
+              использованием баз данных, находящихся на территории РФ
+              (ч. 5 ст. 18 152-ФЗ).
+            </p>
+            <p className="text-muted-foreground mt-3">
+              Трансграничная передача данных ограничена отправкой транзакционных
+              email-уведомлений через сервис Resend Inc. (США) — передаётся только
+              email-адрес получателя и сведения о бронировании — и осуществляется
+              с соблюдением требований ст. 12 152-ФЗ.
             </p>
             <p className="text-muted-foreground mt-3">
               Мы применяем следующие меры защиты: шифрование передачи данных (HTTPS/TLS),
@@ -133,10 +142,11 @@ export default function PrivacyPage() {
             </p>
             <div className="space-y-2 text-muted-foreground">
               {[
-                ["Supabase Inc.", "Хранение данных и аутентификация", "supabase.com/privacy"],
-                ["Amvera Cloud", "Хостинг и доставка контента", "amvera.ru/docs/terms"],
+                ["ООО «ТАЙМВЭБ.КЛАУД» (Timeweb Cloud)", "Размещение базы данных на территории РФ", "timeweb.cloud"],
+                ["Amvera Cloud", "Хостинг веб-приложения", "amvera.ru/docs/terms"],
                 ["Yandex LLC", "Встроенные карты на странице «Контакты»", "yandex.ru/legal/confidential"],
-                ["Resend Inc.", "Отправка транзакционных email-уведомлений", "resend.com/legal/privacy-policy"],
+                ["Resend Inc. (США)", "Отправка транзакционных email-уведомлений (трансграничная передача email-адреса)", "resend.com/legal/privacy-policy"],
+                ["Telegram", "Служебные уведомления администраторам — персональные данные клиентов не передаются", "telegram.org/privacy"],
               ].map(([name, purpose, link]) => (
                 <div key={name} className="rounded-xl border p-4 flex justify-between gap-4 flex-wrap">
                   <div>
