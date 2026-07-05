@@ -181,9 +181,14 @@ services:
       KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
       SUPABASE_ANON_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+    # kong.yml содержит $SUPABASE_ANON_KEY/$SUPABASE_SERVICE_KEY — Kong сам env
+    # НЕ разворачивает. Разворачиваем на старте: шаблон temp.yml → ~/kong.yml
+    # (приём из официального supabase docker-compose).
+    entrypoint: bash -c 'eval "echo \"$$(cat ~/temp.yml)\"" > ~/kong.yml && /docker-entrypoint.sh kong docker-start'
     volumes:
       # ВНИМАНИЕ: монтируем kong.lite.yml (без realtime/meta/studio роутов)
-      - ./volumes/api/kong.lite.yml:/home/kong/kong.yml:ro
+      # как ШАБЛОН — entrypoint подставит ключи и положит результат в ~/kong.yml
+      - ./volumes/api/kong.lite.yml:/home/kong/temp.yml:ro
 
 volumes:
   db-data:

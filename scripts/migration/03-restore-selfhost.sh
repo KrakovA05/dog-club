@@ -22,11 +22,14 @@ psql "${LOCAL_DB_URL}" -tAc \
   "select to_regclass('public.profiles') is not null" | grep -q '^t$' \
   || die "таблицы public.* не найдены — сначала запустите 01-run-migrations.sh"
 
-log "1/4 Отключаю триггер on_auth_user_created на время загрузки auth.users…"
-# Иначе на каждый insert в auth.users триггер попытается вставить профиль до того,
-# как мы загрузим реальные профили из дампа. Грузим users → потом профили из дампа.
+log "1/4 Отключаю триггеры на время загрузки данных…"
+# on_auth_user_created: иначе на каждый insert в auth.users триггер попытается
+# вставить профиль до того, как мы загрузим реальные профили из дампа.
+# bookings_enforce_capacity: иначе исторические подтверждённые брони при restore
+# перепроверяются по вместимости и теряются с ошибкой CAPACITY_FULL.
 psql "${LOCAL_DB_URL}" -v ON_ERROR_STOP=1 -c \
-  "alter table auth.users disable trigger on_auth_user_created;"
+  "alter table auth.users disable trigger on_auth_user_created;
+   alter table public.bookings disable trigger bookings_enforce_capacity;"
 
 log "2/4 Загружаю auth.users / auth.identities…"
 psql "${LOCAL_DB_URL}" -v ON_ERROR_STOP=1 -f "${DUMP_DIR}/auth_data.sql"
@@ -43,9 +46,10 @@ if [ -f "${DUMP_DIR}/storage_meta.sql" ]; then
     warn "часть storage.objects не загрузилась — это норм, если файлы ещё не перенесены"
 fi
 
-log "4/4 Включаю триггер on_auth_user_created обратно…"
+log "4/4 Включаю триггеры обратно…"
 psql "${LOCAL_DB_URL}" -v ON_ERROR_STOP=1 -c \
-  "alter table auth.users enable trigger on_auth_user_created;"
+  "alter table auth.users enable trigger on_auth_user_created;
+   alter table public.bookings enable trigger bookings_enforce_capacity;"
 
 log "Готово. Данные восстановлены."
 log "Дальше: 05-transfer-storage.sh (файлы), затем 04-verify.sh."

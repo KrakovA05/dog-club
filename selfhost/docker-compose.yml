@@ -228,8 +228,13 @@ services:
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
       DASHBOARD_USERNAME: ${DASHBOARD_USERNAME}
       DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
+    # kong.yml содержит $SUPABASE_ANON_KEY/$SUPABASE_SERVICE_KEY/$DASHBOARD_* —
+    # Kong сам env НЕ разворачивает. Разворачиваем на старте (приём из
+    # официального supabase docker-compose).
+    entrypoint: bash -c 'eval "echo \"$$(cat ~/temp.yml)\"" > ~/kong.yml && /docker-entrypoint.sh kong docker-start'
     volumes:
-      - ./volumes/api/kong.yml:/home/kong/kong.yml:ro
+      # Шаблон — entrypoint подставит ключи и положит результат в ~/kong.yml
+      - ./volumes/api/kong.yml:/home/kong/temp.yml:ro
 
 volumes:
   db-data:
