@@ -29,6 +29,10 @@ services:
       retries: 10
     command:
       - postgres
+      # Слушать все интерфейсы — иначе auth/rest/storage из соседних контейнеров
+      # не подключатся (образ по умолчанию может слушать только localhost).
+      - -c
+      - listen_addresses=*
       # pg_net нужен только cron-дайджесту (миграция 014, опциональна) — оставлен
       # ради совместимости миграций. pg_cron можно убрать, если 014 не нужна.
       - -c
@@ -60,6 +64,9 @@ services:
       - "${POSTGRES_PORT_EXTERNAL}:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
+      # Пароли сервисных ролей = POSTGRES_PASSWORD (см. roles.sql).
+      # Срабатывает только при инициализации ПУСТОГО volume.
+      - ./volumes/db/roles.sql:/docker-entrypoint-initdb.d/init-scripts/99-roles.sql:ro
 
   auth:
     image: supabase/gotrue:v2.170.0

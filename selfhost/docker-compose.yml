@@ -27,6 +27,9 @@ services:
       retries: 10
     command:
       - postgres
+      # Слушать все интерфейсы — иначе соседние контейнеры не подключатся.
+      - -c
+      - listen_addresses=*
       - -c
       - shared_preload_libraries=pg_stat_statements,pg_cron,pg_net
       - -c
@@ -43,6 +46,9 @@ services:
       - "${POSTGRES_PORT_EXTERNAL}:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
+      # Пароли сервисных ролей = POSTGRES_PASSWORD (см. roles.sql).
+      # Срабатывает только при инициализации ПУСТОГО volume.
+      - ./volumes/db/roles.sql:/docker-entrypoint-initdb.d/init-scripts/99-roles.sql:ro
 
   auth:
     image: supabase/gotrue:v2.170.0
