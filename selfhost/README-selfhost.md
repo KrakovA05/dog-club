@@ -305,8 +305,14 @@ docker run --rm \
 > docker-compose (`lapaclub-supabase`). Проверить: `docker volume ls`.
 
 ### Регулярный бэкап (cron)
-Раньше это делал Supabase Cloud; теперь — простой cron на сервере. Скрипт
-`/opt/lapaclub/backup.sh`:
+Раньше это делал Supabase Cloud; теперь — простой cron на сервере. Готовый
+скрипт лежит рядом: **`selfhost/backup.sh`** (установка описана в его шапке).
+
+> ⚠️ Старый GitHub Actions `backup.yml` УДАЛЁН (07.2026): он дампил облачную
+> базу (не боевую) и хранил дамп с ПДн артефактом на серверах GitHub (США) —
+> нарушение локализации 152-ФЗ. Бэкапы теперь только на сервере/в РФ-хранилище.
+
+Содержимое скрипта для справки:
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail

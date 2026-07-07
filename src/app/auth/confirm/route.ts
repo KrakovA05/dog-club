@@ -15,11 +15,13 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient();
 
+  // Страница /reset-password удалена вместе с email-recovery (152-ФЗ, 07.2026);
+  // recovery-ссылки больше не рассылаются — на всякий случай ведём на заглушку.
   // PKCE flow (новые версии Supabase)
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      const redirectTo = type === "recovery" ? "/reset-password" : next;
+      const redirectTo = type === "recovery" ? "/forgot-password" : next;
       return NextResponse.redirect(new URL(redirectTo, base));
     }
   }
@@ -28,7 +30,7 @@ export async function GET(request: NextRequest) {
   if (token_hash && type) {
     const { error } = await supabase.auth.verifyOtp({ type, token_hash });
     if (!error) {
-      const redirectTo = type === "recovery" ? "/reset-password" : next;
+      const redirectTo = type === "recovery" ? "/forgot-password" : next;
       return NextResponse.redirect(new URL(redirectTo, base));
     }
   }

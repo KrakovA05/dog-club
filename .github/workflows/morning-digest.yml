@@ -1,0 +1,28 @@
+name: Morning Digest
+
+on:
+  schedule:
+    # 05:28 UTC = 08:28 МСК; GitHub задерживает scheduled на 0.5–2 часа,
+    # так что сводка приходит к ~9:00–10:00. Некруглое время — меньше очередь.
+    - cron: "28 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send morning digest
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s --max-time 30 -o /tmp/resp.txt -w "%{http_code}" \
+              -H "x-report-secret: ${{ secrets.REPORT_SECRET }}" \
+              https://lapaclub.ru/api/admin/morning-digest)
+            echo "Попытка $i: HTTP $code — $(cat /tmp/resp.txt)"
+            if [ "$code" = "200" ] && grep -q '"ok":true' /tmp/resp.txt; then
+              echo "Дайджест отправлен."
+              exit 0
+            fi
+            [ "$i" -lt 3 ] && sleep 60
+          done
+          echo "Дайджест НЕ отправлен после 3 попыток."
+          exit 1
