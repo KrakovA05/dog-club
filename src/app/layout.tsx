@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { CookieNotice } from "@/components/layout/CookieNotice";
 import "./globals.css";
 
 const inter = localFont({
@@ -132,6 +133,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         {children}
+        <CookieNotice />
       </body>
     </html>
   );

@@ -4,7 +4,6 @@ import { createClient as createServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { BookingStatus } from "@/types";
 import { sendTelegramNotification } from "@/lib/telegram";
-import { sendBookingConfirmationEmail } from "@/lib/email";
 import { translateSupabaseError } from "@/lib/utils";
 
 // Превращаем технический отказ триггера вместимости в понятный текст
@@ -232,21 +231,6 @@ export async function createBookingForClient(
   await requireAdmin();
   const supabase = createClient();
 
-  // Профиль/питомец нужны только для письма клиенту — в Telegram ПДн не идут.
-  let petName = "";
-  let emailTarget: string | null = null;
-
-  if (data.mode === "registered") {
-    const [{ data: profile }, { data: pet }] = await Promise.all([
-      supabase.from("profiles").select("email").eq("id", data.user_id).single(),
-      supabase.from("pets").select("name").eq("id", data.pet_id).single(),
-    ]);
-    petName = pet?.name ?? "";
-    emailTarget = profile?.email ?? null;
-  } else {
-    petName = data.guest_pet_name;
-  }
-
   // Базовые поля клиента/питомца (общие для всех создаваемых записей)
   const clientFields = data.mode === "registered"
     ? { user_id: data.user_id, pet_id: data.pet_id }
@@ -319,16 +303,7 @@ export async function createBookingForClient(
     `\n\n<i>Детали — в админпанели</i>`
   );
 
-  if (emailTarget && data.mode === "registered") {
-    await sendBookingConfirmationEmail({
-      to: emailTarget,
-      petName,
-      serviceType: data.service_type,
-      daycareFormat: data.daycare_format,
-      startDate: createdDates[0] ?? data.start_date,
-      endDate: data.end_date,
-    });
-  }
+  // Email-подтверждение не отправляется (Resend удалён — 152-ФЗ, трансграничка).
 
   revalidatePath("/admin/daycare/bookings");
   revalidatePath("/admin/hotel/bookings");

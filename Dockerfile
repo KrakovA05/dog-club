@@ -3,7 +3,7 @@ WORKDIR /app
 
 ENV NEXT_PUBLIC_SITE_URL=https://lapaclub.ru
 # Публичные значения Supabase (URL + anon) зашиты в src/lib/supabase/client.ts.
-# Секреты (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY) — в панели Amvera, этап «запуск».
+# Секреты (SUPABASE_SERVICE_ROLE_KEY, TELEGRAM_*) — в панели Amvera, этап «запуск».
 
 COPY package*.json ./
 RUN npm ci

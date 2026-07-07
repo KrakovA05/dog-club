@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   },
 };
 
-const UPDATED = "05 июля 2026 г.";
+const UPDATED = "07 июля 2026 г.";
 
 export default function PrivacyPage() {
   return (
@@ -115,10 +115,9 @@ export default function PrivacyPage() {
               (ч. 5 ст. 18 152-ФЗ).
             </p>
             <p className="text-muted-foreground mt-3">
-              Трансграничная передача данных ограничена отправкой транзакционных
-              email-уведомлений через сервис Resend Inc. (США) — передаётся только
-              email-адрес получателя и сведения о бронировании — и осуществляется
-              с соблюдением требований ст. 12 152-ФЗ.
+              Трансграничная передача персональных данных клиентов{" "}
+              <strong>не осуществляется</strong>. Служебные уведомления
+              администраторам (Telegram) не содержат персональных данных клиентов.
             </p>
             <p className="text-muted-foreground mt-3">
               Мы применяем следующие меры защиты: шифрование передачи данных (HTTPS/TLS),
@@ -143,10 +142,9 @@ export default function PrivacyPage() {
             <div className="space-y-2 text-muted-foreground">
               {[
                 ["ООО «ТАЙМВЭБ.КЛАУД» (Timeweb Cloud)", "Размещение базы данных на территории РФ", "timeweb.cloud"],
-                ["Amvera Cloud", "Хостинг веб-приложения", "amvera.ru/docs/terms"],
-                ["Yandex LLC", "Встроенные карты на странице «Контакты»", "yandex.ru/legal/confidential"],
-                ["Resend Inc. (США)", "Отправка транзакционных email-уведомлений (трансграничная передача email-адреса)", "resend.com/legal/privacy-policy"],
+                ["Amvera Cloud", "Хостинг веб-приложения (РФ)", "amvera.ru/docs/terms"],
                 ["Telegram", "Служебные уведомления администраторам — персональные данные клиентов не передаются", "telegram.org/privacy"],
+                ["Yandex LLC", "Встроенные карты на странице «Контакты» и поисковая верификация", "yandex.ru/legal/confidential"],
               ].map(([name, purpose, link]) => (
                 <div key={name} className="rounded-xl border p-4 flex justify-between gap-4 flex-wrap">
                   <div>
@@ -169,15 +167,15 @@ export default function PrivacyPage() {
 
           {/* 6 */}
           <div>
-            <h2 className="text-lg font-semibold mb-3">6. Cookies</h2>
+            <h2 className="text-lg font-semibold mb-3">6. Файлы cookie</h2>
             <p className="text-muted-foreground">
-              Сайт использует cookie-файлы — небольшие текстовые файлы, сохраняемые
-              в браузере. Мы используем:
+              Сайт использует <strong>только технически необходимые</strong>{" "}
+              cookie-файлы:
             </p>
             <ul className="mt-3 space-y-1.5 text-muted-foreground list-none">
               {[
-                ["Необходимые", "Аутентификация и безопасность сессии. Без них Сайт не работает корректно."],
-                ["Функциональные", "Сохранение настроек и предпочтений пользователя."],
+                ["Сессия авторизации (sb-*)", "Поддержание входа в личный кабинет (Supabase Auth). Без них авторизация не работает."],
+                ["tech-consent", "Запоминает, что вы ознакомлены с уведомлением о cookie. Срок — 1 год."],
               ].map(([name, desc]) => (
                 <li key={name} className="flex gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
@@ -185,6 +183,10 @@ export default function PrivacyPage() {
                 </li>
               ))}
             </ul>
+            <p className="text-muted-foreground mt-3">
+              Сторонних аналитических трекеров, рекламных cookie и пикселей на
+              Сайте <strong>нет</strong>. Профилирование пользователей не ведётся.
+            </p>
             <p className="text-muted-foreground mt-3">
               Вы можете отключить cookie в настройках браузера, однако некоторые
               функции Сайта (в частности, авторизация) могут перестать работать.

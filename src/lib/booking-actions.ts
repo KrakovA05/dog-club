@@ -2,7 +2,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { sendTelegramNotification } from "@/lib/telegram";
-import { sendBookingConfirmationEmail } from "@/lib/email";
 import { isBookingOpenFor, BOOKING_OPENS_LABEL } from "@/lib/booking-config";
 import type { DayAvailability } from "@/types";
 
@@ -106,17 +105,8 @@ export async function submitClientBooking(data: {
     `<i>Детали — в админпанели</i>`
   );
 
-  // Письмо клиенту — ошибки не роняют бронь (логируются внутри)
-  if (user.email) {
-    await sendBookingConfirmationEmail({
-      to: user.email,
-      petName: pet.name,
-      serviceType: data.service_type,
-      daycareFormat: data.daycare_format,
-      startDate: data.start_date,
-      endDate: data.end_date,
-    });
-  }
+  // Email-подтверждение не отправляется (Resend удалён — 152-ФЗ, трансграничка).
+  // Клиент видит бронь в личном кабинете сразу после оформления.
 
   revalidatePath("/cabinet/bookings");
 }

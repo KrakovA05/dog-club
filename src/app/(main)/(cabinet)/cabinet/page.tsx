@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { ProfileForm } from "@/components/cabinet/ProfileForm";
+import { DeleteAccountSection } from "@/components/cabinet/DeleteAccountSection";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Профиль — Личный кабинет" };
@@ -46,6 +47,8 @@ export default async function CabinetPage() {
           }}
         />
       </div>
+
+      <DeleteAccountSection />
     </div>
   );
 }

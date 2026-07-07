@@ -1,115 +1,44 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { sendPasswordRecovery, verifyRecoveryOtp } from "@/lib/recovery-actions";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import type { Metadata } from "next";
+import { KeyRound, Phone } from "lucide-react";
 
-const emailSchema = z.object({ email: z.string().email("Введите корректный email") });
-const codeSchema = z.object({ code: z.string().regex(/^\d{4,10}$/, "Введите код из письма") });
+export const metadata: Metadata = { title: "Восстановление пароля" };
 
+// Автоматический сброс пароля по email отключён вместе с Resend (152-ФЗ:
+// email клиентов не передаётся за рубеж). Восстановление — вручную через
+// администратора. Вернём самообслуживание после подключения российского SMTP
+// (см. заготовку в src/lib/email.ts).
 export default function ForgotPasswordPage() {
-  const router = useRouter();
-  const [step, setStep] = useState<"email" | "code">("email");
-  const [email, setEmail] = useState("");
-  const [serverError, setServerError] = useState<string | null>(null);
-
-  const emailForm = useForm({ resolver: zodResolver(emailSchema) });
-  const codeForm = useForm({ resolver: zodResolver(codeSchema) });
-
-  async function onSendCode({ email: e }: { email: string }) {
-    setServerError(null);
-    const result = await sendPasswordRecovery(e);
-    if (!result.success) { setServerError(result.error); return; }
-    setEmail(e);
-    setStep("code");
-  }
-
-  async function onVerifyCode({ code }: { code: string }) {
-    setServerError(null);
-    const result = await verifyRecoveryOtp(email, code);
-    if (!result.success) { setServerError(result.error); return; }
-    router.push("/reset-password");
-  }
-
-  if (step === "code") {
-    return (
-      <div className="bg-card rounded-2xl shadow-sm p-8">
-        <h1 className="text-2xl font-bold mb-1">Введите код</h1>
-        <p className="text-muted-foreground text-sm mb-6">
-          Отправили код на <strong>{email}</strong>
-        </p>
-
-        <form onSubmit={codeForm.handleSubmit(onVerifyCode)} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="code">Код из письма</Label>
-            <Input
-              key="recovery-code-field"
-              id="code"
-              type="text"
-              inputMode="numeric"
-              maxLength={10}
-              placeholder="Код"
-              autoComplete="one-time-code"
-              data-1p-ignore
-              data-lpignore="true"
-              data-form-type="other"
-              className="text-center text-2xl tracking-widest"
-              {...codeForm.register("code")}
-            />
-            {codeForm.formState.errors.code && (
-              <p className="text-destructive text-xs">{codeForm.formState.errors.code.message as string}</p>
-            )}
-          </div>
-          {serverError && (
-            <p className="text-destructive text-sm bg-destructive/10 px-3 py-2 rounded-lg">{serverError}</p>
-          )}
-          <Button type="submit" className="w-full" disabled={codeForm.formState.isSubmitting}>
-            {codeForm.formState.isSubmitting ? "Проверяем..." : "Подтвердить"}
-          </Button>
-        </form>
-
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          <button
-            type="button"
-            onClick={() => { setStep("email"); setServerError(null); }}
-            className="text-primary font-medium hover:underline"
-          >
-            Изменить email
-          </button>
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-card rounded-2xl shadow-sm p-8">
-      <h1 className="text-2xl font-bold mb-1">Восстановление пароля</h1>
-      <p className="text-muted-foreground text-sm mb-6">Отправим код на ваш email</p>
+    <div className="bg-card rounded-2xl shadow-sm p-8 text-center">
+      <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+        <KeyRound className="h-6 w-6 text-primary" />
+      </div>
+      <h1 className="text-2xl font-bold mb-2">Восстановление пароля</h1>
+      <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+        Автоматический сброс пароля по email временно недоступен.
+        Позвоните или напишите нам — подтвердим личность и восстановим
+        доступ вручную за пару минут.
+      </p>
 
-      <form onSubmit={emailForm.handleSubmit(onSendCode)} className="space-y-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="you@example.com" {...emailForm.register("email")} />
-          {emailForm.formState.errors.email && (
-            <p className="text-destructive text-xs">{emailForm.formState.errors.email.message as string}</p>
-          )}
-        </div>
-        {serverError && (
-          <p className="text-destructive text-sm bg-destructive/10 px-3 py-2 rounded-lg">{serverError}</p>
-        )}
-        <Button type="submit" className="w-full" disabled={emailForm.formState.isSubmitting}>
-          {emailForm.formState.isSubmitting ? "Отправляем..." : "Получить код"}
-        </Button>
-      </form>
+      <a
+        href="tel:+79605185000"
+        className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-primary text-primary-foreground text-sm font-medium py-2.5 hover:opacity-90 transition-opacity"
+      >
+        <Phone className="h-4 w-4" />
+        +7 (960) 518-50-00
+      </a>
+      <p className="text-muted-foreground text-xs mt-3">
+        Ежедневно 9:00–20:00 · или через{" "}
+        <Link href="/contacts" className="text-primary underline underline-offset-2">
+          форму на странице контактов
+        </Link>
+      </p>
 
       <p className="text-center text-sm text-muted-foreground mt-6">
-        <Link href="/login" className="text-primary font-medium hover:underline">Вернуться ко входу</Link>
+        <Link href="/login" className="text-primary font-medium hover:underline">
+          Вернуться ко входу
+        </Link>
       </p>
     </div>
   );
