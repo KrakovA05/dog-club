@@ -19,10 +19,13 @@ create policy "capacity_zones_read" on public.capacity_zones
 create policy "capacity_zones_admin_write" on public.capacity_zones
   for all using (public.is_admin()) with check (public.is_admin());
 
+-- on conflict: при переносе данных (restore после миграций) облачные значения
+-- лимитов не должны затираться сидами и наоборот — сид только для пустой зоны
 insert into public.capacity_zones (zone, label, capacity) values
   ('dog_daycare', 'Детский сад (собаки)', 12),
   ('dog_hotel',   'Гостиница (собаки)',   12),
-  ('cats',        'Кошки (этаж)',         12);
+  ('cats',        'Кошки (этаж)',         12)
+on conflict (zone) do nothing;
 
 -- 2. Классификатор зоны: кошки всегда в зоне cats; собаки — по услуге
 create or replace function public.booking_zone(p_service text, p_pet_type text)

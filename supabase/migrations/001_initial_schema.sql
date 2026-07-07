@@ -50,17 +50,26 @@ create policy "faq_public_read" on public.faq for select using (true);
 create policy "reviews_public_read" on public.reviews for select using (is_published = true);
 create policy "gallery_public_read" on public.gallery for select using (true);
 
-insert into public.prices (service_type, label, description, price, unit, is_featured, sort_order) values
+-- Сиды идемпотентные: только в ПУСТУЮ таблицу. Иначе при переносе данных
+-- (миграции → restore облачного дампа) появляются дубли: uuid-PK у сидов и
+-- облачных строк разные, конфликт не срабатывает. Урок self-host миграции 07.2026.
+insert into public.prices (service_type, label, description, price, unit, is_featured, sort_order)
+select * from (values
   ('daycare', 'Час',        'Разовое посещение, до 60 минут',         400,  'час',     false, 1),
   ('daycare', 'Полдня',     '~5 часов, кормление включено',           1200, 'день',    true,  2),
   ('daycare', 'Полный день','~11 часов, кормление и прогулки',        1800, 'день',    false, 3),
   ('hotel',   'Сутки',      'Открытый бокс, кормление, прогулки',    1500, 'сутки',   true,  1),
-  ('hotel',   'Воспитание', 'По запросу хозяина, за занятие',         800,  'занятие', false, 2);
+  ('hotel',   'Воспитание', 'По запросу хозяина, за занятие',         800,  'занятие', false, 2)
+) as seed(service_type, label, description, price, unit, is_featured, sort_order)
+where not exists (select 1 from public.prices);
 
-insert into public.faq (question, answer, sort_order) values
+insert into public.faq (question, answer, sort_order)
+select * from (values
   ('Каких животных вы принимаете?', 'Мы принимаем собак и кошек весом до 15 кг. Для каждого питомца требуется ветеринарный паспорт с актуальными прививками.', 1),
   ('Нужны ли прививки?', 'Да, обязательно. Необходимы актуальные прививки от бешенства, чумы, гепатита, парвовируса (для собак) или панлейкопении (для кошек).', 2),
   ('Как я могу видеть своего питомца?', 'Мы отправляем фото и видео по запросу в WhatsApp.', 3),
   ('Что взять с собой для питомца?', 'Еду на весь период, любимую игрушку или подстилку с запахом дома — это снижает стресс. Ветпаспорт обязателен.', 4),
   ('Принимаете ли вы питомцев с заболеваниями?', 'Принимаем — каждый случай обсуждается индивидуально. Напишите нам заранее, и мы оценим возможность.', 5),
-  ('Как забронировать место?', 'Заполните форму на сайте или напишите нам в WhatsApp. Подтверждаем в течение нескольких часов.', 6);
+  ('Как забронировать место?', 'Заполните форму на сайте или напишите нам в WhatsApp. Подтверждаем в течение нескольких часов.', 6)
+) as seed(question, answer, sort_order)
+where not exists (select 1 from public.faq);
