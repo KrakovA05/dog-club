@@ -4,9 +4,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 type Result = { success: true } | { success: false; error: string };
 
-// Удаление аккаунта (ст. 14 152-ФЗ). Порядок критичен:
-// 1) обезличить брони (хранятся 3 года по политике; без этого каскад
-//    user_id→profiles / pet_id→pets снёс бы их вместе с аккаунтом);
+// Удаление аккаунта (ст. 14 152-ФЗ). ПОРЯДОК МЕНЯТЬ НЕЛЬЗЯ:
+// 1) СНАЧАЛА обезличить брони. bookings.user_id → profiles(id) и
+//    bookings.pet_id → pets(id) стоят с ON DELETE CASCADE (миграции 003/009):
+//    если удалить auth.users первым, каскад МОЛЧА снесёт все брони,
+//    которые по политике хранятся 3 года (бухучёт).
 // 2) удалить файлы паспортов из Storage (пути <uid>/...);
 // 3) удалить auth.users — каскад сносит profiles и pets;
 // 4) погасить сессию.
@@ -18,9 +20,10 @@ export async function deleteAccount(): Promise<Result> {
 
   const admin = createAdminClient();
 
-  // 1) Обезличивание броней (SQL-функция, миграция 022)
+  // 1) Обезличивание броней (SQL-функция, миграция 025: копирует данные
+  // питомца в guest_*-поля до обнуления pet_id — иначе check-констрейнт)
   const { error: anonError } = await admin.rpc("anonymize_user_bookings", {
-    p_user: user.id,
+    target_uid: user.id,
   });
   if (anonError) {
     console.error("[delete-account] anonymize:", anonError.message);

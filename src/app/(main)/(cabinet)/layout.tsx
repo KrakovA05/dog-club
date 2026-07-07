@@ -3,6 +3,10 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { User, PawPrint, Calendar, LogOut, Home, LayoutDashboard } from "lucide-react";
 
+// Кабинет — всегда свежий рендер под сессию запроса, никогда из кэша
+// (страницы с ПДн; см. также no-store в next.config.ts)
+export const dynamic = "force-dynamic";
+
 const navItems = [
   { href: "/cabinet", label: "Профиль", icon: User },
   { href: "/cabinet/pets", label: "Мои питомцы", icon: PawPrint },

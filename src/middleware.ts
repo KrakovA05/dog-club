@@ -1,6 +1,29 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Протухшие sb-cookie (например, auth.users пересоздан при переезде на
+// self-host) дают refresh_token_not_found на каждый запрос. Это не ошибка
+// сервера: считаем гостя анонимным и зачищаем cookie, чтобы браузер
+// не долбил invalid-токеном снова и снова.
+function isStaleTokenError(e: unknown): boolean {
+  const code = (e as { code?: string } | null)?.code ?? "";
+  const msg = e instanceof Error ? e.message : String(e);
+  return (
+    code === "refresh_token_not_found" ||
+    code === "refresh_token_already_used" ||
+    code === "bad_jwt" ||
+    /refresh token|invalid.*token|token.*not found|bad_jwt/i.test(msg)
+  );
+}
+
+function clearAuthCookies(request: NextRequest, response: NextResponse) {
+  for (const c of request.cookies.getAll()) {
+    if (c.name.startsWith("sb-")) {
+      response.cookies.set(c.name, "", { maxAge: 0, path: "/" });
+    }
+  }
+}
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -25,14 +48,28 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Вызов к Supabase (внешний, может быть медленным с российского хостинга).
+  // Вызов к Supabase (внешний, может быть медленным).
   // Оборачиваем, чтобы зависший/упавший auth не отдавал 502 — считаем гостем.
+  // Протухшие токены (refresh_token_not_found и родня) — не ошибка: зачищаем
+  // sb-cookie и пропускаем запрос как анонимный, БЕЗ записи в лог.
   let user = null;
   try {
-    const result = await supabase.auth.getUser();
-    user = result.data.user;
+    const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      if (isStaleTokenError(error)) {
+        clearAuthCookies(request, supabaseResponse);
+      } else if (error.name !== "AuthSessionMissingError") {
+        console.error("Middleware: getUser:", error.message);
+      }
+    } else {
+      user = data.user;
+    }
   } catch (e) {
-    console.error("Middleware: getUser упал:", e);
+    if (isStaleTokenError(e)) {
+      clearAuthCookies(request, supabaseResponse);
+    } else {
+      console.error("Middleware: getUser упал:", e);
+    }
   }
 
   // /cabinet — требует авторизации
