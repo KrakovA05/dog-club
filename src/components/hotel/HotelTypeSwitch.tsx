@@ -5,7 +5,7 @@ import { Dog, Cat } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const OPTIONS = [
-  { value: "dogs" as const, label: "Собаки", sub: "до 20 кг · от 1 600 ₽/сут", Icon: Dog },
+  { value: "dogs" as const, label: "Собаки", sub: "до 15 кг · от 1 600 ₽/сут", Icon: Dog },
   { value: "cats" as const, label: "Кошки",  sub: "без огр. по весу · от 1 200 ₽/сут", Icon: Cat },
 ];
 

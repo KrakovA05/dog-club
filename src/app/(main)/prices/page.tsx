@@ -98,7 +98,7 @@ function buildPriceSchema(daycare: PriceRow[], hotel: PriceRow[]) {
       "@context": "https://schema.org",
       "@type": "Service",
       name: "Зоогостиница для собак и кошек — Лапа Клуб",
-      description: "Длительная передержка собак до 20 кг и кошек в Калуге.",
+      description: "Длительная передержка собак до 15 кг и кошек в Калуге.",
       url: "https://lapaclub.ru/hotel",
       provider: { "@type": "LocalBusiness", name: "Лапа Клуб", url: "https://lapaclub.ru" },
       areaServed: { "@type": "City", name: "Калуга" },

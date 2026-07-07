@@ -296,6 +296,13 @@ export function AdminBookingForm({
       ? `✅ Ветпаспорт проверен.${notes ? " " + notes : ""}`
       : (notes || null);
 
+    // Лимит веса: принимаем собак до 15 кг (кошки — без ограничений)
+    if (mode === "guest" && guestPetType === "dog" && guestPetWeight
+        && parseFloat(guestPetWeight) > 15) {
+      setError("Принимаем собак до 15 кг — проверьте вес питомца");
+      return;
+    }
+
     setSaving(true);
     try {
       let res;

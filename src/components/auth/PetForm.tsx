@@ -27,8 +27,8 @@ const schema = z.object({
   special_needs: z.string().optional(),
 }).superRefine((data, ctx) => {
   // Лимит веса действует только для собак — кошек принимаем без ограничений
-  if (data.type === "dog" && data.weight_kg && Number(data.weight_kg) > 20) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["weight_kg"], message: "Собак принимаем до 20 кг" });
+  if (data.type === "dog" && data.weight_kg && Number(data.weight_kg) > 15) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["weight_kg"], message: "Принимаем собак до 15 кг" });
   }
 });
 type FormData = z.infer<typeof schema>;
@@ -158,7 +158,7 @@ export function PetForm({ pet, onSaved, onCancel }: Props) {
           {errors.birth_year && <p className="text-destructive text-xs">{errors.birth_year.message}</p>}
         </div>
         <div className="space-y-1.5">
-          <Label>Вес, кг (до 20)</Label>
+          <Label>Вес, кг (собаки — до 15)</Label>
           <Input type="number" step="0.1" placeholder="4.5" {...register("weight_kg")} />
           {errors.weight_kg && <p className="text-destructive text-xs">{errors.weight_kg.message}</p>}
         </div>

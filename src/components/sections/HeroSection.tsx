@@ -59,7 +59,7 @@ export async function HeroSection() {
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-10 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <span>🐾</span>
-                <span>Собаки и кошки до 20 кг</span>
+                <span>Собаки до 15 кг и кошки</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span>✓</span>
