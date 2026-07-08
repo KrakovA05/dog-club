@@ -95,6 +95,8 @@ services:
       GOTRUE_JWT_ADMIN_ROLES: service_role
       GOTRUE_JWT_AUD: authenticated
 
+      GOTRUE_PASSWORD_MIN_LENGTH: ${GOTRUE_PASSWORD_MIN_LENGTH:-8}
+
       # ── Авто-подтверждение email: SMTP НЕ настраиваем ──
       GOTRUE_MAILER_AUTOCONFIRM: ${GOTRUE_MAILER_AUTOCONFIRM}
       GOTRUE_SMS_AUTOCONFIRM: ${GOTRUE_SMS_AUTOCONFIRM}

@@ -412,7 +412,8 @@ export function BookingForm({
                 <a href="/offer" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">публичной оферты</a>
                 {" "}и{" "}
                 <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">политики конфиденциальности</a>
-                {" "}и принимаю их.
+                {" "}и даю{" "}
+                <a href="/consent" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">согласие на обработку персональных данных</a>.
               </span>
             </label>
             {errors.agree && <p className="text-destructive text-xs">{errors.agree}</p>}

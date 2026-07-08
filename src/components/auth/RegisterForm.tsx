@@ -16,7 +16,7 @@ const schema = z.object({
   last_name: z.string().min(2, "Введите фамилию"),
   phone: z.string().min(10, "Введите корректный номер телефона"),
   email: z.string().email("Введите корректный email"),
-  password: z.string().min(6, "Минимум 6 символов"),
+  password: z.string().min(8, "Минимум 8 символов"),
   confirm: z.string().min(1, "Повторите пароль"),
   agree: z.literal(true, { message: "Необходимо принять политику конфиденциальности" }),
 });
@@ -136,7 +136,8 @@ export function RegisterForm() {
             <span className="text-sm text-muted-foreground leading-snug">
               Я ознакомился(-ась) с{" "}
               <Link href="/privacy" target="_blank" className="text-primary underline underline-offset-2">политикой конфиденциальности</Link>
-              {" "}и даю согласие на обработку персональных данных.
+              {" "}и даю{" "}
+              <Link href="/consent" target="_blank" className="text-primary underline underline-offset-2">согласие на обработку персональных данных</Link>.
             </span>
           </label>
           {errors.agree && <p className="text-destructive text-xs">{errors.agree.message}</p>}

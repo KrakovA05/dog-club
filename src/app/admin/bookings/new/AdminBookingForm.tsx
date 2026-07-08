@@ -110,6 +110,8 @@ export function AdminBookingForm({
   const [guestPetBreed, setGuestPetBreed] = useState("");
   const [guestPetWeight, setGuestPetWeight] = useState("");
   const [passportChecked, setPassportChecked] = useState(false);
+  // 152-ФЗ: ПДн гостя вводит админ — фиксируем факт полученного согласия
+  const [consentReceived, setConsentReceived] = useState(false);
   const [guestField, setGuestField] = useState<"name" | "phone" | null>(null);
 
   // --- Общие ---
@@ -292,9 +294,18 @@ export function AdminBookingForm({
 
     const priceNum = Number(displayPrice);
     const priceTotal = displayPrice.trim() && Number.isFinite(priceNum) ? Math.max(0, Math.round(priceNum)) : null;
-    const finalNotes = (mode === "guest" && passportChecked)
-      ? `✅ Ветпаспорт проверен.${notes ? " " + notes : ""}`
-      : (notes || null);
+    // Гостевая бронь: согласие на обработку ПДн обязательно (152-ФЗ) —
+    // админ подтверждает, что получил его от клиента; факт пишем в notes
+    if (mode === "guest" && !consentReceived) {
+      setError("Отметьте, что клиент дал согласие на обработку персональных данных");
+      return;
+    }
+
+    const noteParts: string[] = [];
+    if (mode === "guest" && consentReceived) noteParts.push("✅ Согласие на обработку ПДн получено.");
+    if (mode === "guest" && passportChecked) noteParts.push("✅ Ветпаспорт проверен.");
+    if (notes) noteParts.push(notes);
+    const finalNotes = noteParts.length > 0 ? noteParts.join(" ") : null;
 
     // Лимит веса: принимаем собак до 15 кг (кошки — без ограничений)
     if (mode === "guest" && guestPetType === "dog" && guestPetWeight
@@ -588,6 +599,15 @@ export function AdminBookingForm({
                 <span className="text-sm">Ветпаспорт проверен</span>
               </label>
             </div>
+            <label className="flex items-start gap-2.5 cursor-pointer select-none">
+              <input type="checkbox" checked={consentReceived}
+                onChange={(e) => setConsentReceived(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-primary cursor-pointer" />
+              <span className="text-sm leading-snug">
+                Клиент дал согласие на обработку персональных данных{" "}
+                <span className="text-muted-foreground">(обязательно; фиксируется в комментарии брони)</span>
+              </span>
+            </label>
           </div>
         </div>
       )}

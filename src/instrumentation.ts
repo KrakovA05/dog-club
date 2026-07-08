@@ -32,7 +32,9 @@ export async function onRequestError(
       body: JSON.stringify({
         path: request.path,
         method: request.method ?? "GET",
-        error_message: err.message ?? "Unknown error",
+        // 300 символов достаточно для диагностики; длинные тексты ошибок БД
+        // могут содержать значения полей (в т.ч. ПДн) — не пишем их в логи
+        error_message: (err.message ?? "Unknown error").slice(0, 300),
         error_name: err.name ?? "Error",
         route_type: context.routeType ?? null,
       }),

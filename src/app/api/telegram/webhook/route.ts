@@ -37,7 +37,8 @@ async function rememberChatId(chatId: number, username?: string) {
     .from("telegram_bot_users")
     .update({ chat_id: chatId })
     .eq("username", username.toLowerCase());
-  if (error) console.error("rememberChatId failed:", username, error.message);
+  // username в лог не пишем (ПДн сотрудника)
+  if (error) console.error("rememberChatId failed:", error.message);
 }
 
 async function getAllUsers(): Promise<string[]> {
