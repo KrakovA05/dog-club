@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { User, PawPrint, Calendar, LogOut, Home, LayoutDashboard } from "lucide-react";
+import { User, PawPrint, Calendar, Ticket, LogOut, Home, LayoutDashboard } from "lucide-react";
 
 // Кабинет — всегда свежий рендер под сессию запроса, никогда из кэша
 // (страницы с ПДн; см. также no-store в next.config.ts)
@@ -11,6 +11,7 @@ const navItems = [
   { href: "/cabinet", label: "Профиль", icon: User },
   { href: "/cabinet/pets", label: "Мои питомцы", icon: PawPrint },
   { href: "/cabinet/bookings", label: "Бронирования", icon: Calendar },
+  { href: "/cabinet/subscriptions", label: "Мои абонементы", icon: Ticket },
 ];
 
 export default async function CabinetLayout({ children }: { children: React.ReactNode }) {

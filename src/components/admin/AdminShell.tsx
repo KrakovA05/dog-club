@@ -10,6 +10,7 @@ import {
   Users,
   Calendar,
   SlidersHorizontal,
+  Ticket,
 } from "lucide-react";
 import { DashboardShell, type NavSection } from "./DashboardShell";
 
@@ -24,8 +25,9 @@ const nav: NavSection[] = [
   {
     group: "Детский сад",
     items: [
-      { href: "/admin/daycare/bookings", label: "Заявки", icon: CalendarCheck },
-      { href: "/admin/daycare/prices",   label: "Цены",   icon: DollarSign },
+      { href: "/admin/daycare/bookings", label: "Заявки",     icon: CalendarCheck },
+      { href: "/admin/subscriptions",    label: "Абонементы", icon: Ticket },
+      { href: "/admin/daycare/prices",   label: "Цены",       icon: DollarSign },
     ],
   },
   {

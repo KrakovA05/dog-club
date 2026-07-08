@@ -75,7 +75,7 @@ export async function GET(req: Request) {
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowStr = tomorrow.toISOString().slice(0, 10);
 
-  const [todayBookings, tomorrowArrivals, newClients] = await Promise.all([
+  const [todayBookings, tomorrowArrivals, newClients, activeSubs, subVisitsToday] = await Promise.all([
     // Новые брони созданные сегодня (кроме отменённых)
     supabase
       .from("bookings")
@@ -98,6 +98,17 @@ export async function GET(req: Request) {
       .select("id", { count: "exact", head: true })
       .gte("created_at", todayStr + "T00:00:00")
       .lt("created_at", todayStr + "T23:59:59"),
+
+    // Абонементы — только счётчики, без ПДн
+    supabase
+      .from("subscriptions")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["active", "frozen"])
+      .gte("expires_at", new Date().toISOString()),
+    supabase
+      .from("subscription_visits")
+      .select("id", { count: "exact", head: true })
+      .eq("visit_date", todayStr),
   ]);
 
   type PetRef = { name: string; type: string } | null;
@@ -139,6 +150,13 @@ export async function GET(req: Request) {
 
   if (newClientsCount > 0) {
     lines.push(`👥 Новых клиентов: ${newClientsCount}`);
+  }
+
+  // Абонементы (v1: только счётчики; таблиц может ещё не быть — count тогда null)
+  const activeSubsCount = activeSubs.count ?? 0;
+  const subVisitsCount = subVisitsToday.count ?? 0;
+  if (activeSubsCount > 0 || subVisitsCount > 0) {
+    lines.push(`🎫 Абонементы: ${activeSubsCount} активных, посещений сегодня: ${subVisitsCount}`);
   }
 
   lines.push("");

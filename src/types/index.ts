@@ -106,3 +106,49 @@ export interface DayAvailability {
   occupied: number;
   remaining: number;
 }
+
+// ─── Абонементы детсада (миграция 026) ─────────────────────────────────────
+export type SubscriptionType = "visits_6" | "visits_12";
+export type SubscriptionStatus = "active" | "expired" | "used_up" | "frozen";
+
+export interface Subscription {
+  id: string;
+  user_id: string | null;
+  guest_name: string | null;
+  guest_phone: string | null;
+  pet_id: string | null;
+  type: SubscriptionType;
+  total_visits: number;
+  price: number;
+  purchased_at: string;
+  expires_at: string;
+  status: SubscriptionStatus;
+  frozen_at: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface SubscriptionVisit {
+  id: string;
+  subscription_id: string;
+  visit_date: string;
+  marked_by: string | null;
+  booking_id: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+// Параметры тарифов абонементов: посещения, цена, срок действия в днях
+export const SUBSCRIPTION_PLANS: Record<
+  SubscriptionType,
+  { visits: number; price: number; durationDays: number; label: string }
+> = {
+  visits_6: { visits: 6, price: 6480, durationDays: 60, label: "6 посещений" },
+  visits_12: { visits: 12, price: 11520, durationDays: 90, label: "12 посещений" },
+};
+
+// Статус с учётом истечения (expired вычисляется на лету, не фоновым джобом)
+export function effectiveSubscriptionStatus(s: Pick<Subscription, "status" | "expires_at">): SubscriptionStatus {
+  if (s.status === "active" && new Date(s.expires_at) < new Date()) return "expired";
+  return s.status;
+}
