@@ -222,7 +222,7 @@ docker compose -f docker-compose.lite.yml ps
 | `src/lib/supabase/client.ts:6` | `SUPABASE_URL` + `SUPABASE_ANON_KEY` зашиты константами | **Оставлено намеренно.** Хардкод — это фикс кэша сборки Amvera (старые `NEXT_PUBLIC_*` впекались в билд). НЕ переводить в env. При cutover поменять **значение** константы на `https://db.lapaclub.ru` + новый anon-ключ. |
 | `src/instrumentation.ts:19` | `fetch(".../rest/v1/site_errors")` — телеметрия ошибок | ✅ **Исправлено:** теперь `process.env.SUPABASE_URL ?? <старый>`. Server-only файл, build-cache не касается. При cutover задать env `SUPABASE_URL`. ⚠️ Таблицы `site_errors` нет в миграциях — на self-host логирование тихо ничего не пишет (ошибки глотаются), это ок. |
 | `next.config.ts:8` | `images.remotePatterns` host `*.supabase.co` | ✅ **Дополнено:** добавлен опциональный host из `SUPABASE_IMAGE_HOSTNAME`. При cutover задать env = `db.lapaclub.ru`, тогда `next/image` пустит картинки с self-host. Старый паттерн оставлен как fallback. |
-| `supabase/migrations/014_morning_digest_cron.sql:11` | `cron.schedule` → POST на облачный `/functions/v1/telegram-bot` | **НЕ удалял** (это данные миграции). Предложение: после прогона миграций выполнить `SELECT cron.unschedule('morning-digest');` — дайджест и так шлётся через `/api/admin/daily-report`. См. ниже «Известные нюансы». |
+| `supabase/migrations/014_morning_digest_cron.sql:11` | `cron.schedule` → POST на облачный `/functions/v1/telegram-bot` | Выполнить `SELECT cron.unschedule('morning-digest');` (входит в `06-post-migration-fixes.sql`). Утренний дайджест **упразднён** — бизнесу нужны только вечерние отчёты (business-report + tech-evening-report, оба через GitHub Actions). |
 | `supabase/functions/notify-booking/index.ts:53` | Ссылка на Supabase Dashboard облака в письме | **НЕ менял** (Edge Function не задеплоена и в рантайме не вызывается). Если будете деплоить — заменить на ссылку Studio self-host или убрать. |
 | `src/middleware.ts:8-9` | `process.env.NEXT_PUBLIC_SUPABASE_URL/ANON_KEY` | Уже env (не хардкод). При cutover задать эти переменные на новый инстанс. ⚠️ Рассинхрон с `client.ts` (там константы) — историческая особенность, оставлена как есть. |
 | `.env.local` | `NEXT_PUBLIC_SITE_URL=https://dogclub-kaluga.ru` | Локальный dev-файл (в git не входит). Старый домен, на прод не влияет. Обновите при желании на `https://lapaclub.ru`. |
@@ -241,10 +241,8 @@ docker compose -f docker-compose.lite.yml ps
 
 - **Миграция 014 (cron-дайджест).** Использует `pg_cron`/`pg_net` и **хардкод
   старого облачного URL** `https://zmvoaanwikhztpvdjpty.supabase.co/functions/v1/telegram-bot`.
-  `pg_cron`/`pg_net` включены в `shared_preload_libraries` в compose, так что
-  расширения поднимутся. Но задача будет звать чужой (облачный) URL. Утренний
-  дайджест в текущем приложении и так шлётся через `/api/admin/daily-report`
-  (Next.js), поэтому cron в БSD можно удалить:
+  Утренний дайджест **упразднён** (бизнесу нужны только вечерние отчёты) —
+  cron-задачу нужно удалить (входит в `06-post-migration-fixes.sql`):
   ```sql
   SELECT cron.unschedule('morning-digest');
   ```

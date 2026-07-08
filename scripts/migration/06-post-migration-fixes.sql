@@ -65,10 +65,12 @@ update public.blog_posts
  where cover_url like '%zmvoaanwikhztpvdjpty%';
 
 -- ─── 4. cron-дайджест, целящийся в облачную edge function ────────────────────
+-- Утренний дайджест бизнесу не нужен (нужны только вечерние отчёты) — задачу
+-- просто удаляем, замены нет.
 do $$
 begin
   perform cron.unschedule('morning-digest');
-  raise notice 'cron morning-digest удалён (теперь дайджест шлёт GitHub Actions → /api/admin/morning-digest)';
+  raise notice 'cron morning-digest удалён (утренний дайджест упразднён)';
 exception when others then
   raise notice 'cron morning-digest не найден/pg_cron нет — ок';
 end $$;
