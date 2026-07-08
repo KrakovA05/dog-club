@@ -14,7 +14,7 @@ const schema = z.object({
   name: z.string().min(2, "Введите имя"),
   phone: z.string().min(10, "Введите корректный номер"),
   message: z.string().optional(),
-  agree: z.literal(true, { message: "Необходимо принять политику конфиденциальности" }),
+  agree: z.literal(true, { message: "Необходимо дать согласие на обработку персональных данных" }),
 });
 type FormData = z.infer<typeof schema>;
 
@@ -81,13 +81,16 @@ export function ContactForm() {
               className="mt-0.5 h-4 w-4 shrink-0 accent-primary cursor-pointer"
             />
             <span className="text-sm text-muted-foreground leading-snug">
-              Я ознакомился(-ась) с{" "}
-              <Link href="/privacy" target="_blank" className="text-primary underline underline-offset-2">политикой конфиденциальности</Link>
-              {" "}и даю{" "}
+              Даю{" "}
               <Link href="/consent" target="_blank" className="text-primary underline underline-offset-2">согласие на обработку персональных данных</Link>.
             </span>
           </label>
           {errors.agree && <p className="text-destructive text-xs">{errors.agree.message}</p>}
+          {/* Ознакомление с политикой — отдельно от заявления-согласия (01.09.2025) */}
+          <p className="text-xs text-muted-foreground">
+            Порядок обработки данных описан в{" "}
+            <Link href="/privacy" target="_blank" className="text-primary underline underline-offset-2">политике конфиденциальности</Link>.
+          </p>
         </div>
 
         {error && <p className="text-destructive text-sm">{error}</p>}

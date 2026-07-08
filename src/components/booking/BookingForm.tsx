@@ -62,7 +62,9 @@ export function BookingForm({
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [notes, setNotes] = useState("");
-  const [agree, setAgree] = useState(false);
+  // С 01.09.2025 согласие на ПДн — отдельно от иных заявлений (акцепта оферты)
+  const [agreeOffer, setAgreeOffer] = useState(false);
+  const [agreeConsent, setAgreeConsent] = useState(false);
 
   const [petList, setPetList] = useState<Pet[]>(filteredPets);
   const [addingPet, setAddingPet] = useState(filteredPets.length === 0);
@@ -133,7 +135,8 @@ export function BookingForm({
     if (serviceType === "hotel" && !endDate) e.end_date = "Укажите дату выезда";
     if (serviceType === "hotel" && endDate && endDate <= startDate) e.end_date = "Дата выезда должна быть позже даты заезда";
     if (serviceType === "daycare" && !daycareFormat) e.daycare_format = "Выберите формат посещения";
-    if (!agree) e.agree = "Необходимо принять условия договора";
+    if (!agreeOffer) e.agreeOffer = "Необходимо принять условия оферты";
+    if (!agreeConsent) e.agreeConsent = "Необходимо дать согласие на обработку персональных данных";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -395,28 +398,51 @@ export function BookingForm({
             </div>
           )}
 
-          {/* Акцепт оферты */}
-          <div className="space-y-1.5">
-            <label className="flex gap-2.5 items-start cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={agree}
-                onChange={(ev) => {
-                  setAgree(ev.target.checked);
-                  if (ev.target.checked) setErrors((prev) => ({ ...prev, agree: undefined }));
-                }}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-primary cursor-pointer"
-              />
-              <span className="text-sm text-muted-foreground leading-snug">
-                Я ознакомился(-ась) с условиями{" "}
-                <a href="/offer" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">публичной оферты</a>
-                {" "}и{" "}
-                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">политики конфиденциальности</a>
-                {" "}и даю{" "}
-                <a href="/consent" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">согласие на обработку персональных данных</a>.
-              </span>
-            </label>
-            {errors.agree && <p className="text-destructive text-xs">{errors.agree}</p>}
+          {/* Два РАЗДЕЛЬНЫХ заявления (требование с 01.09.2025): акцепт оферты
+              и согласие на ПДн — независимые обязательные чекбоксы */}
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <label className="flex gap-2.5 items-start cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={agreeOffer}
+                  onChange={(ev) => {
+                    setAgreeOffer(ev.target.checked);
+                    if (ev.target.checked) setErrors((prev) => ({ ...prev, agreeOffer: undefined }));
+                  }}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-primary cursor-pointer"
+                />
+                <span className="text-sm text-muted-foreground leading-snug">
+                  Принимаю условия{" "}
+                  <a href="/offer" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">публичной оферты</a>.
+                </span>
+              </label>
+              {errors.agreeOffer && <p className="text-destructive text-xs">{errors.agreeOffer}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="flex gap-2.5 items-start cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={agreeConsent}
+                  onChange={(ev) => {
+                    setAgreeConsent(ev.target.checked);
+                    if (ev.target.checked) setErrors((prev) => ({ ...prev, agreeConsent: undefined }));
+                  }}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-primary cursor-pointer"
+                />
+                <span className="text-sm text-muted-foreground leading-snug">
+                  Даю{" "}
+                  <a href="/consent" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">согласие на обработку персональных данных</a>.
+                </span>
+              </label>
+              {errors.agreeConsent && <p className="text-destructive text-xs">{errors.agreeConsent}</p>}
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Порядок обработки данных описан в{" "}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">политике конфиденциальности</a>.
+            </p>
           </div>
 
           {serverError && (
