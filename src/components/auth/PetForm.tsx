@@ -74,9 +74,11 @@ export function PetForm({ pet, onSaved, onCancel }: Props) {
     setUploading(true);
     const supabase = createClient();
 
-    // Удаляем старый файл если есть
+    // Удаляем старый файл если есть. В старых записях хранился полный URL,
+    // в новых — путь (uid/file.jpg): поддерживаем оба формата.
     if (pet?.passport_photo_url) {
-      const oldPath = pet.passport_photo_url.split("/passports/")[1];
+      const raw = pet.passport_photo_url;
+      const oldPath = raw.includes("/passports/") ? raw.split("/passports/")[1] : raw;
       if (oldPath) await supabase.storage.from("passports").remove([oldPath]);
     }
 
@@ -87,8 +89,9 @@ export function PetForm({ pet, onSaved, onCancel }: Props) {
     const { data, error } = await supabase.storage.from("passports").upload(path, passportFile);
     setUploading(false);
     if (error) return null;
-    const { data: { publicUrl } } = supabase.storage.from("passports").getPublicUrl(data.path);
-    return publicUrl;
+    // Храним ПУТЬ, не URL: бакет приватный (миграция 024), public-URL мёртв,
+    // отдача только через /api/passport/[petId]
+    return data.path;
   }
 
   async function onSubmit(data: FormData) {

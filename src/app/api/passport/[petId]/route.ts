@@ -36,7 +36,9 @@ export async function GET(
     }
   }
 
-  const path = pet.passport_photo_url.split("/passports/")[1];
+  // Поддерживаем оба формата: старые записи — полный URL, новые — путь uid/file.jpg
+  const raw = pet.passport_photo_url;
+  const path = raw.includes("/passports/") ? raw.split("/passports/")[1] : raw;
   if (!path) return new NextResponse("Not found", { status: 404 });
 
   const { data: file, error } = await admin.storage.from("passports").download(path);

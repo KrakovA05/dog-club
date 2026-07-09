@@ -17,6 +17,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export interface BookingRow {
   id: string;
+  pet_id: string | null;
   service_type: string;
   daycare_format: string | null;
   start_date: string;
@@ -205,11 +206,13 @@ export function StaffCalendarView({ bookings }: { bookings: BookingRow[] }) {
                         {b.pets?.special_needs && (
                           <div className="text-xs font-medium text-orange-600">{b.pets.special_needs}</div>
                         )}
-                        {b.pets?.passport_photo_url && (
-                          <a href={b.pets.passport_photo_url} target="_blank" rel="noopener noreferrer"
+                        {/* Бакет passports приватный (миграция 024) — только через
+                            авторизованный route, обычный <img> без image-оптимизатора */}
+                        {b.pets?.passport_photo_url && b.pet_id && (
+                          <a href={`/api/passport/${b.pet_id}`} target="_blank" rel="noopener noreferrer"
                             className="inline-block mt-1">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={b.pets.passport_photo_url} alt="Паспорт"
+                            <img src={`/api/passport/${b.pet_id}`} alt="Паспорт"
                               className="h-16 w-auto rounded-lg border object-cover hover:opacity-90 transition-opacity" />
                           </a>
                         )}
