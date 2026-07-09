@@ -4,8 +4,8 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-// Отдаём фото ветпаспорта через наш домен — прямые ссылки на *.supabase.co
-// у части провайдеров не открываются. Доступ: владелец питомца или админ/персонал.
+// Отдаём фото ветпаспорта через наш домен: бакет passports приватный
+// (миграция 024), прямых ссылок нет. Доступ: владелец питомца или админ/персонал.
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ petId: string }> }

@@ -38,8 +38,8 @@ interface Props { pet?: Pet; onSaved: () => void; onCancel: () => void; }
 export function PetForm({ pet, onSaved, onCancel }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [passportFile, setPassportFile] = useState<File | null>(null);
-  // Превью существующего паспорта — через наш прокси-роут: прямые ссылки
-  // на *.supabase.co у части провайдеров не открываются
+  // Превью существующего паспорта — через авторизованный роут:
+  // бакет passports приватный (миграция 024), прямых ссылок нет
   const [passportPreview, setPassportPreview] = useState<string | null>(
     pet?.passport_photo_url ? `/api/passport/${pet.id}` : null
   );

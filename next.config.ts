@@ -1,27 +1,17 @@
 import type { NextConfig } from "next";
 
-// Хост self-host Storage (напр. db.lapaclub.ru). Если задан — публичные
-// картинки с него тоже разрешаются для next/image. Облачный *.supabase.co
-// оставлен как fallback на время переезда.
-const supabaseImageHost = process.env.SUPABASE_IMAGE_HOSTNAME;
+// Хост self-host Storage для next/image (публичные бакеты gallery/blog).
+// Облачный *.supabase.co удалён — облако стёрто окончательно (07.2026).
+const supabaseImageHost = process.env.SUPABASE_IMAGE_HOSTNAME ?? "db.lapaclub.ru";
 
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "*.supabase.co",
+        hostname: supabaseImageHost,
         pathname: "/storage/v1/object/public/**",
       },
-      ...(supabaseImageHost
-        ? [
-            {
-              protocol: "https" as const,
-              hostname: supabaseImageHost,
-              pathname: "/storage/v1/object/public/**",
-            },
-          ]
-        : []),
     ],
   },
   async headers() {
