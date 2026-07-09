@@ -29,10 +29,13 @@ export default async function CabinetSubscriptionsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // RLS отдаёт только свои абонементы (user_id = auth.uid())
+  // Явный фильтр по владельцу ОБЯЗАТЕЛЕН: RLS для staff/admin отдаёт ВСЕ
+  // абонементы (нужно админке), и без .eq() у админа в личном кабинете
+  // вылезали чужие. Правило кабинета: не полагаться на RLS, всегда .eq(owner).
   const { data } = await supabase
     .from("subscriptions")
     .select("*, subscription_visits(*), pets(name, type)")
+    .eq("user_id", user.id)
     .order("purchased_at", { ascending: false });
 
   const subs = (data ?? []) as unknown as SubRow[];
