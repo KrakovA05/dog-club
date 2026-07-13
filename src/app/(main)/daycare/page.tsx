@@ -59,7 +59,7 @@ async function getFormats() {
   }
   return FORMAT_META.map((f) => ({
     duration: f.label,
-    price: `от ${(priceByLabel.get(f.label.toLowerCase()) ?? f.fallback).toLocaleString("ru-RU")} ₽`,
+    price: `${(priceByLabel.get(f.label.toLowerCase()) ?? f.fallback).toLocaleString("ru-RU")} ₽`,
     description: f.description,
     features: f.features,
     isPopular: f.isPopular,

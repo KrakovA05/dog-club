@@ -38,9 +38,9 @@ async function getServices() {
       description:
         "Оставьте питомца на час, полдня или полный день. Развивающие игры, общение — всё под присмотром.",
       features: [
-        `Час от ${fmt(daycare.hour)} ₽`,
-        `Полдня от ${fmt(daycare.half)} ₽`,
-        `Полный день от ${fmt(daycare.full)} ₽`,
+        `Час — ${fmt(daycare.hour)} ₽`,
+        `Полдня — ${fmt(daycare.half)} ₽`,
+        `Полный день — ${fmt(daycare.full)} ₽`,
       ],
       href: "/daycare",
       color: "text-primary",
@@ -52,8 +52,8 @@ async function getServices() {
       description:
         "Длительное проживание в комфортных зонах отдыха. Прогулки, забота — как дома.",
       features: [
-        `Собаки от ${fmt(hotel.dog)} ₽/сутки`,
-        `Кошки от ${fmt(hotel.cat)} ₽/сутки`,
+        `Собаки — ${fmt(hotel.dog)} ₽/сутки`,
+        `Кошки — ${fmt(hotel.cat)} ₽/сутки`,
         "Прогулки включены",
       ],
       href: "/hotel",
