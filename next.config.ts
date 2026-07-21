@@ -17,10 +17,11 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // public-кэш ТОЛЬКО для публичных страниц. cabinet/admin/staff исключены
+        // public-кэш ТОЛЬКО для публичных страниц. cabinet/admin/staff/booking исключены
         // из regex И перекрыты правилом ниже: их HTML содержит ПДн — кэширование
-        // на прокси отдавало кабинет одного пользователя другому (инцидент 07.2026).
-        source: "/((?!api|_next/static|_next/image|favicon|cabinet|admin|staff).*)",
+        // на прокси отдавало кабинет/бронь одного пользователя другому (инцидент 07.2026,
+        // повтор на /booking 21.07.2026 — питомец с чужого аккаунта в форме брони).
+        source: "/((?!api|_next/static|_next/image|favicon|cabinet|admin|staff|booking).*)",
         headers: [
           {
             key: "Cache-Control",
@@ -31,11 +32,11 @@ const nextConfig: NextConfig = {
       {
         // Страницы с ПДн: запрет любого кэширования (браузер и прокси).
         // Правило стоит ПОСЛЕ public-каскада — при пересечении побеждает последнее.
-        source: "/(cabinet|admin|staff)/:path*",
+        source: "/(cabinet|admin|staff|booking)/:path*",
         headers: [{ key: "Cache-Control", value: "private, no-store" }],
       },
       {
-        source: "/(cabinet|admin|staff)",
+        source: "/(cabinet|admin|staff|booking)",
         headers: [{ key: "Cache-Control", value: "private, no-store" }],
       },
       {
