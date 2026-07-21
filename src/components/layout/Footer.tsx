@@ -85,7 +85,7 @@ export function Footer() {
               </div>
               <div className="flex items-start gap-2">
                 <Clock className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>Ежедневно 9:00 – 20:00</span>
+                <span>Ежедневно 9:00 – 20:00, приём только по записи</span>
               </div>
               <div className="flex items-center gap-2">
                 <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

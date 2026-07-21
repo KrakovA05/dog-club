@@ -179,7 +179,7 @@ export function BookingForm({
           <h2 className="text-xl font-bold animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150 motion-reduce:animate-none">Заявка отправлена!</h2>
           <p className="text-muted-foreground text-sm max-w-xs mx-auto animate-in fade-in duration-500 delay-300 motion-reduce:animate-none">
             Мы позвоним вам, чтобы уточнить детали и подтвердить бронь.
-            Статус заявки — в{" "}
+            <strong className="text-foreground"> Приезжайте только после нашего звонка</strong> — статус заявки виден в{" "}
             <a href="/cabinet/bookings" className="text-primary underline">личном кабинете</a>.
             Оплата — на месте.
           </p>

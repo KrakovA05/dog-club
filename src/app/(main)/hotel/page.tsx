@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { CtaBanner } from "@/components/sections/CtaBanner";
 import { PhotoPromise } from "@/components/sections/PhotoPromise";
 import { SafetyNotice } from "@/components/sections/SafetyNotice";
+import { AppointmentNotice } from "@/components/sections/AppointmentNotice";
 import { Check, Moon, Package } from "lucide-react";
 import { HotelTypeSwitch } from "@/components/hotel/HotelTypeSwitch";
 
@@ -71,6 +72,8 @@ export default async function HotelPage({ searchParams }: { searchParams: Promis
           </div>
         </div>
       </section>
+
+      <AppointmentNotice />
 
       <section className="py-16 md:py-24">
         <div className="container mx-auto max-w-6xl px-4">

@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CtaBanner } from "@/components/sections/CtaBanner";
 import { PhotoPromise } from "@/components/sections/PhotoPromise";
+import { AppointmentNotice } from "@/components/sections/AppointmentNotice";
 import { createClient } from "@/lib/supabase/server";
 import { Clock, Check, AlertCircle, Heart, Users, Shield } from "lucide-react";
 
@@ -111,6 +112,8 @@ export default async function DaycarePage() {
           </div>
         </div>
       </section>
+
+      <AppointmentNotice />
 
       <section className="py-16 md:py-24">
         <div className="container mx-auto max-w-6xl px-4">

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ContactForm } from "@/components/contacts/ContactForm";
+import { AppointmentNotice } from "@/components/sections/AppointmentNotice";
 
 export const metadata: Metadata = {
   title: "Контакты",
@@ -22,7 +23,7 @@ const contacts = [
   { icon: MapPin, label: "Адрес", value: "Калуга, ул. Дарвина 14", href: null },
   { icon: Phone, label: "Телефон", value: "+7 (960) 518-50-00", href: "tel:+79605185000" },
   { icon: Mail, label: "Email", value: "info@lapaclub.ru", href: "mailto:info@lapaclub.ru" },
-  { icon: Clock, label: "Режим работы", value: "Ежедневно 9:00 – 20:00", href: null },
+  { icon: Clock, label: "Режим работы", value: "Ежедневно 9:00 – 20:00, приём только по записи", href: null },
 ];
 
 export default function ContactsPage() {
@@ -34,6 +35,8 @@ export default function ContactsPage() {
           <p className="text-muted-foreground text-lg">Мы в центре Калуги — легко добраться</p>
         </div>
       </section>
+
+      <AppointmentNotice />
 
       <section className="py-16 md:py-24">
         <div className="container mx-auto max-w-6xl px-4">
