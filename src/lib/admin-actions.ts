@@ -33,6 +33,27 @@ export async function updateBookingStatus(id: string, status: BookingStatus) {
   revalidatePath("/admin/calendar");
 }
 
+export async function updateBookingDetails(id: string, patch: {
+  start_date: string;
+  end_date: string | null;
+  daycare_format: string | null;
+  notes: string | null;
+  guest_name?: string | null;
+  guest_phone?: string | null;
+  guest_pet_name?: string | null;
+  guest_pet_type?: string | null;
+  guest_pet_breed?: string | null;
+  guest_pet_weight?: number | null;
+}) {
+  await requireAdmin();
+  const supabase = createClient();
+  const { error } = await supabase.from("bookings").update(patch).eq("id", id);
+  if (error) throw capacityError(error.message);
+  revalidatePath("/admin/daycare/bookings");
+  revalidatePath("/admin/hotel/bookings");
+  revalidatePath("/admin/calendar");
+}
+
 export async function updateBookingPrice(id: string, price: number) {
   await requireAdmin();
   const supabase = createClient();

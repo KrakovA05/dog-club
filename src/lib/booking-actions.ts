@@ -68,8 +68,8 @@ export async function submitClientBooking(data: {
     throw new Error(`Бронь для ${petType === "cat" ? "кошек" : "собак"} откроется ${BOOKING_OPENS_LABEL[petType]}`);
   }
 
-  // Мягкая проверка свободных мест (дружелюбная ошибка).
-  // Жёсткая гарантия — триггер вместимости при вставке confirmed (атомарно, без гонки).
+  // Мягкая проверка свободных мест (дружелюбная ошибка) — по уже подтверждённым броням.
+  // Место фактически резервируется триггером вместимости в момент, когда админ подтвердит заявку.
   const availability = await getAvailability({
     service_type: data.service_type,
     pet_type: pet.type as "dog" | "cat",
@@ -79,13 +79,13 @@ export async function submitClientBooking(data: {
   const full = availability.find((day) => day.remaining <= 0);
   if (full) throw new Error(`CAPACITY_FULL|${full.d}|`);
 
-  // Бронь подтверждается автоматически (без участия админа) и сразу занимает место.
+  // Заявка уходит на ручное подтверждение админом (звонок клиенту) — status "pending".
   const { data: createdBooking, error } = await supabase
     .from("bookings")
     .insert({
       ...data,
       user_id: user.id,
-      status: "confirmed",
+      status: "pending",
     })
     .select("id")
     .single();
@@ -99,14 +99,14 @@ export async function submitClientBooking(data: {
   // Без ПДн: имена, телефоны, клички и комментарии в Telegram не отправляем —
   // серверы Telegram за пределами РФ (трансграничная передача, ст. 12 152-ФЗ).
   await sendTelegramNotification(
-    `✅ <b>Новая бронь #${createdBooking.id.slice(0, 8)}</b> (клиентская)\n\n` +
+    `🆕 <b>Новая заявка #${createdBooking.id.slice(0, 8)}</b> (клиентская, ждёт подтверждения)\n\n` +
     `${serviceLabel}\n` +
     `📅 ${dateInfo}\n\n` +
-    `<i>Детали — в админпанели</i>`
+    `<i>Позвоните клиенту и подтвердите в админпанели</i>`
   );
 
   // Email-подтверждение не отправляется (Resend удалён — 152-ФЗ, трансграничка).
-  // Клиент видит бронь в личном кабинете сразу после оформления.
+  // Клиент видит статус заявки в личном кабинете сразу после оформления.
 
   revalidatePath("/cabinet/bookings");
 }

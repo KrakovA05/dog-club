@@ -2,9 +2,9 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { updateBookingStatus, updateBookingPrice } from "@/lib/admin-actions";
+import { updateBookingStatus, updateBookingPrice, updateBookingDetails } from "@/lib/admin-actions";
 import type { BookingStatus } from "@/types";
-import { Calendar, User, PawPrint, Clock, FileText } from "lucide-react";
+import { Calendar, User, PawPrint, Clock, FileText, Pencil } from "lucide-react";
 
 const statusConfig: Record<BookingStatus, {
   label: string; next: BookingStatus | null; action: string;
@@ -94,6 +94,136 @@ function PriceCell({ booking }: { booking: BookingRow }) {
   );
 }
 
+function EditBookingForm({ booking, onDone, onCancel }: {
+  booking: BookingRow; onDone: () => void; onCancel: () => void;
+}) {
+  const isHotel = booking.service_type === "hotel";
+  const isGuest = !booking.pets && !!booking.guest_name;
+
+  const [startDate, setStartDate] = useState(booking.start_date);
+  const [endDate, setEndDate] = useState(booking.end_date ?? "");
+  const [format, setFormat] = useState(booking.daycare_format ?? "hour");
+  const [notes, setNotes] = useState(booking.notes ?? "");
+  const [guestName, setGuestName] = useState(booking.guest_name ?? "");
+  const [guestPhone, setGuestPhone] = useState(booking.guest_phone ?? "");
+  const [guestPetName, setGuestPetName] = useState(booking.guest_pet_name ?? "");
+  const [guestPetType, setGuestPetType] = useState(booking.guest_pet_type ?? "dog");
+  const [guestPetBreed, setGuestPetBreed] = useState(booking.guest_pet_breed ?? "");
+  const [guestPetWeight, setGuestPetWeight] = useState(
+    booking.guest_pet_weight ? String(booking.guest_pet_weight) : ""
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function save() {
+    if (isHotel && !endDate) {
+      setError("Укажите дату выезда");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      await updateBookingDetails(booking.id, {
+        start_date: startDate,
+        end_date: isHotel ? endDate : null,
+        daycare_format: isHotel ? null : format,
+        notes: notes || null,
+        ...(isGuest ? {
+          guest_name: guestName || null,
+          guest_phone: guestPhone || null,
+          guest_pet_name: guestPetName || null,
+          guest_pet_type: guestPetType || null,
+          guest_pet_breed: guestPetBreed || null,
+          guest_pet_weight: guestPetWeight ? Number(guestPetWeight) : null,
+        } : {}),
+      });
+      onDone();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Не удалось сохранить изменения");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const inputClass = "w-full border rounded-lg px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring";
+
+  return (
+    <div className="px-5 py-4 border-t bg-muted/20 space-y-3">
+      <div className="grid sm:grid-cols-2 gap-3">
+        <label className="text-xs space-y-1 block">
+          <span className="text-muted-foreground">{isHotel ? "Заезд" : "Дата"}</span>
+          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputClass} />
+        </label>
+        {isHotel ? (
+          <label className="text-xs space-y-1 block">
+            <span className="text-muted-foreground">Выезд</span>
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} />
+          </label>
+        ) : (
+          <label className="text-xs space-y-1 block">
+            <span className="text-muted-foreground">Формат</span>
+            <select value={format} onChange={(e) => setFormat(e.target.value)} className={inputClass}>
+              {Object.entries(FORMAT_LABELS).map(([v, l]) => (
+                <option key={v} value={v}>{l}</option>
+              ))}
+            </select>
+          </label>
+        )}
+      </div>
+
+      {isGuest && (
+        <div className="grid sm:grid-cols-2 gap-3">
+          <label className="text-xs space-y-1 block">
+            <span className="text-muted-foreground">Имя клиента</span>
+            <input value={guestName} onChange={(e) => setGuestName(e.target.value)} className={inputClass} />
+          </label>
+          <label className="text-xs space-y-1 block">
+            <span className="text-muted-foreground">Телефон</span>
+            <input value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} className={inputClass} />
+          </label>
+          <label className="text-xs space-y-1 block">
+            <span className="text-muted-foreground">Кличка питомца</span>
+            <input value={guestPetName} onChange={(e) => setGuestPetName(e.target.value)} className={inputClass} />
+          </label>
+          <label className="text-xs space-y-1 block">
+            <span className="text-muted-foreground">Вид</span>
+            <select value={guestPetType} onChange={(e) => setGuestPetType(e.target.value)} className={inputClass}>
+              <option value="dog">Собака</option>
+              <option value="cat">Кошка</option>
+            </select>
+          </label>
+          <label className="text-xs space-y-1 block">
+            <span className="text-muted-foreground">Порода</span>
+            <input value={guestPetBreed} onChange={(e) => setGuestPetBreed(e.target.value)} className={inputClass} />
+          </label>
+          <label className="text-xs space-y-1 block">
+            <span className="text-muted-foreground">Вес, кг</span>
+            <input type="number" value={guestPetWeight} onChange={(e) => setGuestPetWeight(e.target.value)} className={inputClass} />
+          </label>
+        </div>
+      )}
+
+      <label className="text-xs space-y-1 block">
+        <span className="text-muted-foreground">Комментарий</span>
+        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className={inputClass} />
+      </label>
+
+      {error && <div className="text-sm text-destructive">{error}</div>}
+
+      <div className="flex gap-2">
+        <button type="button" onClick={save} disabled={saving}
+          className="px-3 py-1.5 text-xs rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors">
+          {saving ? "Сохраняем..." : "Сохранить"}
+        </button>
+        <button type="button" onClick={onCancel} disabled={saving}
+          className="px-3 py-1.5 text-xs rounded-lg border hover:bg-muted disabled:opacity-50 transition-colors">
+          Отмена
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function getDuration(b: BookingRow): string {
   if (b.service_type === "hotel" && b.end_date) {
     const start = new Date(b.start_date);
@@ -118,6 +248,7 @@ export function BookingsAdmin({ bookings }: { bookings: BookingRow[] }) {
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<{ id: string; msg: string } | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   async function changeStatus(id: string, status: BookingStatus) {
     setBusyId(id);
@@ -167,6 +298,15 @@ export function BookingsAdmin({ bookings }: { bookings: BookingRow[] }) {
                   <button type="button" onClick={() => changeStatus(b.id, "cancelled")} disabled={busyId === b.id}
                     className="px-3 py-1.5 text-xs rounded-lg border hover:bg-destructive/10 hover:text-destructive disabled:opacity-50 transition-colors">
                     Отменить
+                  </button>
+                )}
+                {(b.status === "pending" || b.status === "confirmed") && (
+                  <button
+                    type="button"
+                    onClick={() => setEditingId(editingId === b.id ? null : b.id)}
+                    className="px-3 py-1.5 text-xs rounded-lg border hover:bg-muted transition-colors flex items-center gap-1"
+                  >
+                    <Pencil className="h-3 w-3" /> Изменить
                   </button>
                 )}
               </div>
@@ -284,6 +424,14 @@ export function BookingsAdmin({ bookings }: { bookings: BookingRow[] }) {
                 )}
               </div>
             </div>
+
+            {editingId === b.id && (
+              <EditBookingForm
+                booking={b}
+                onDone={() => { setEditingId(null); router.refresh(); }}
+                onCancel={() => setEditingId(null)}
+              />
+            )}
           </div>
         );
       })}

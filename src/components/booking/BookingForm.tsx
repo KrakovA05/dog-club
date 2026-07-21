@@ -176,10 +176,10 @@ export function BookingForm({
       <Card className="border-0 shadow-sm text-center">
         <CardContent className="pt-10 pb-10 space-y-4">
           <CheckCircle2 className="h-16 w-16 text-primary mx-auto animate-in zoom-in-50 duration-500 motion-reduce:animate-none" />
-          <h2 className="text-xl font-bold animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150 motion-reduce:animate-none">Бронь подтверждена!</h2>
+          <h2 className="text-xl font-bold animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150 motion-reduce:animate-none">Заявка отправлена!</h2>
           <p className="text-muted-foreground text-sm max-w-xs mx-auto animate-in fade-in duration-500 delay-300 motion-reduce:animate-none">
-            Место забронировано, письмо с деталями отправили на почту.
-            Статус брони — в{" "}
+            Мы позвоним вам, чтобы уточнить детали и подтвердить бронь.
+            Статус заявки — в{" "}
             <a href="/cabinet/bookings" className="text-primary underline">личном кабинете</a>.
             Оплата — на месте.
           </p>
@@ -187,7 +187,7 @@ export function BookingForm({
             <div className="flex gap-3 rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 text-left animate-in fade-in duration-500 delay-500 motion-reduce:animate-none">
               <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
               <p className="text-sm text-amber-800">
-                Мы подтвердили вашу бронь, но принять питомца без ветпаспорта не сможем.{" "}
+                Мы приняли вашу заявку, но принять питомца без ветпаспорта не сможем.{" "}
                 Возьмите паспорт с собой или{" "}
                 <a href="/cabinet/pets" className="underline font-medium">загрузите его в кабинете</a>.
               </p>
