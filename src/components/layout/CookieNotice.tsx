@@ -3,10 +3,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-// Информационная плашка о cookie (152-ФЗ). НЕ consent-manager: трекеров на
-// сайте нет, cookie только технически необходимые (sb-* сессия Supabase Auth).
-// Факт ознакомления храним в обычной cookie (не localStorage), срок — год.
-const CONSENT_COOKIE = "tech-consent";
+// Баннер cookie (152-ФЗ + рекомендации РКН по информированию о cookie).
+// На сайте только технически необходимые cookie: сессия Supabase Auth (sb-*)
+// и сам маркер выбора (cookie-consent). Аналитики/рекламы/профилирования нет.
+// Пользователю даётся реальный выбор «Принять» / «Отклонить». Решение храним
+// в обычной cookie год, чтобы не переспрашивать и чтобы можно было честно
+// подтвердить факт волеизъявления.
+const CONSENT_COOKIE = "cookie-consent"; // значения: "accepted" | "rejected"
+
+function setConsent(value: "accepted" | "rejected") {
+  document.cookie = `${CONSENT_COOKIE}=${value}; max-age=31536000; path=/; samesite=lax`;
+}
 
 export function CookieNotice() {
   const [visible, setVisible] = useState(false);
@@ -15,16 +22,24 @@ export function CookieNotice() {
   // setTimeout: не вызываем setState синхронно в эффекте (react-hooks) и даём
   // странице отрисоваться до появления плашки.
   useEffect(() => {
-    const seen = document.cookie
+    const decided = document.cookie
       .split("; ")
       .some((c) => c.startsWith(`${CONSENT_COOKIE}=`));
-    if (seen) return;
+    if (decided) return;
     const t = setTimeout(() => setVisible(true), 400);
     return () => clearTimeout(t);
   }, []);
 
   function accept() {
-    document.cookie = `${CONSENT_COOKIE}=1; max-age=31536000; path=/; samesite=lax`;
+    setConsent("accepted");
+    setVisible(false);
+  }
+
+  function reject() {
+    // Отклонение фиксируем; необязательных cookie на сайте нет, поэтому
+    // ничего дополнительно устанавливать/удалять не требуется. Технически
+    // необходимая сессия появляется только при явном входе в личный кабинет.
+    setConsent("rejected");
     setVisible(false);
   }
 
@@ -32,18 +47,33 @@ export function CookieNotice() {
 
   return (
     <div className="fixed bottom-0 inset-x-0 z-50 p-3 sm:p-4 pointer-events-none">
-      <div className="pointer-events-auto container mx-auto max-w-3xl bg-card border rounded-2xl shadow-lg px-4 py-3 sm:px-5 flex flex-col sm:flex-row sm:items-center gap-3">
+      <div className="pointer-events-auto container mx-auto max-w-3xl bg-card border rounded-2xl shadow-lg px-4 py-3 sm:px-5 flex flex-col gap-3 sm:flex-row sm:items-center">
         <p className="text-xs sm:text-sm text-muted-foreground leading-snug flex-1">
-          Сайт использует только технически необходимые файлы cookie (сессия
-          авторизации). Продолжая пользоваться сайтом, вы соглашаетесь с{" "}
-          <Link href="/privacy" className="text-primary underline underline-offset-2">
-            политикой конфиденциальности
+          Мы используем только технически необходимые файлы cookie — они нужны
+          для входа в личный кабинет. Аналитических и рекламных cookie, а также
+          профилирования на сайте нет. Подробнее — в{" "}
+          <Link href="/privacy#cookie" className="text-primary underline underline-offset-2">
+            политике в отношении cookie
           </Link>
           .
         </p>
-        <Button size="sm" onClick={accept} className="shrink-0 w-full sm:w-auto">
-          Понятно
-        </Button>
+        <div className="flex gap-2 shrink-0">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={reject}
+            className="flex-1 sm:flex-none"
+          >
+            Отклонить
+          </Button>
+          <Button
+            size="sm"
+            onClick={accept}
+            className="flex-1 sm:flex-none"
+          >
+            Принять
+          </Button>
+        </div>
       </div>
     </div>
   );
