@@ -6,7 +6,6 @@ import { upsertBlogPost } from "@/lib/admin-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GeneratePostModal } from "@/components/admin/GeneratePostModal";
 import type { BlogPost } from "@/types";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
@@ -61,20 +60,6 @@ export function BlogEditor({ post }: { post?: BlogPost }) {
 
   return (
     <div className="space-y-5 max-w-4xl">
-      {!post && (
-        <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl border border-dashed">
-          <span className="text-sm text-muted-foreground">Хотите сэкономить время?</span>
-          <GeneratePostModal
-            onGenerated={(generated) => {
-              setTitle(generated.title);
-              setSlug(generated.slug);
-              setExcerpt(generated.excerpt);
-              setContent(generated.content);
-            }}
-          />
-        </div>
-      )}
-
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label>Заголовок *</Label>

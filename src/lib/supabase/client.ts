@@ -1,6 +1,8 @@
 import { createBrowserClient } from "@supabase/ssr";
 
-// Публичные значения self-hosted Supabase (Amvera, РФ — локализация 152-ФЗ).
+// Публичные значения self-hosted Supabase. Сервер БД — Timeweb Cloud, РФ
+// (93.183.82.170, netname TW-Cloud): локализация по ч.5 ст.18 152-ФЗ.
+// Само приложение живёт на Amvera — не путать площадки.
 // Не секреты (anon-ключ и URL всё равно уходят в браузер). Заданы константами,
 // чтобы не зависеть от build-time инлайна NEXT_PUBLIC_* — Amvera кэширует слой
 // сборки и впекает старые значения.
