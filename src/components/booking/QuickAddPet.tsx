@@ -26,7 +26,7 @@ export function QuickAddPet({
     if (!name.trim()) { setError("Введите кличку"); return; }
     const w = weight ? Number(weight) : null;
     if (w !== null && (isNaN(w) || w <= 0)) { setError("Введите корректный вес"); return; }
-    if (type === "dog" && w !== null && w > 15) { setError("Принимаем собак до 15 кг"); return; }
+    if (type === "dog" && w !== null && w > 15) { setError("Принимаем собак мелких пород"); return; }
 
     setSaving(true);
     setError(null);

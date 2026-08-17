@@ -307,10 +307,11 @@ export function AdminBookingForm({
     if (notes) noteParts.push(notes);
     const finalNotes = noteParts.length > 0 ? noteParts.join(" ") : null;
 
-    // Лимит веса: принимаем собак до 15 кг (кошки — без ограничений)
+    // Лимит веса: собаки мелких пород = до 15 кг (кошки — без ограничений).
+    // Порог числовой и остаётся в коде; в текстах для клиента — «мелкие породы».
     if (mode === "guest" && guestPetType === "dog" && guestPetWeight
         && parseFloat(guestPetWeight) > 15) {
-      setError("Принимаем собак до 15 кг — проверьте вес питомца");
+      setError("Принимаем собак мелких пород — проверьте вес питомца");
       return;
     }
 
